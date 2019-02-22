@@ -93,7 +93,13 @@
   </ImportGroup>
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
-
+  
+  <PropertyGroup>
+	<BuildPreprocessMacro01 Condition="'$(Configuration)'=='Debug'">_DEBUG;</BuildPreprocessMacro01>
+	<BuildPreprocessMacro Condition="'$(Platform)'=='Win32'">WIN32;$(BuildPreprocessMacro01)</BuildPreprocessMacro>
+	<BuildPreprocessMacro Condition="'$(Platform)'=='x64'">$(BuildPreprocessMacro01)</BuildPreprocessMacro>
+  </PropertyGroup>
+  
   <ItemDefinitionGroup>
 	<ClCompile>
       <PrecompiledHeader>
@@ -101,6 +107,7 @@
       <WarningLevel>Level3</WarningLevel>
 	  <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>3rd_party\PreCore;3rd_party\pugixml\src;include</AdditionalIncludeDirectories>
+	  <PreprocessorDefinitions>$(BuildPreprocessMacro)_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
 	<Link>
       <SubSystem>Windows</SubSystem>
@@ -123,18 +130,6 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
-  </ItemDefinitionGroup>
-  
-  <ItemDefinitionGroup Condition="'$(Platform)'=='Win32'">
-    <ClCompile>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-  </ItemDefinitionGroup>
-  
-  <ItemDefinitionGroup Condition="'$(Platform)'=='x64'">
-    <ClCompile>
-      <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
   </ItemDefinitionGroup>
  
 </Project>
