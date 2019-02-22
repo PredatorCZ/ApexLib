@@ -66,7 +66,7 @@ void RBSGeneral::Load(BinReader * rd)
 
 		msh.vertexStreamOffsets.push_back(bufferOffset);
 		msh.vertexStreamStrides.push_back(vertexStride);
-		msh.vertexBufferIndices.push_back(static_cast<int>(buffers->vertexBuffers.size() - 1));
+		msh.vertexBufferIndices.push_back(static_cast<uchar>(buffers->vertexBuffers.size() - 1));
 
 		bufferSize = vertexStride * msh.Header.vertexCount;
 		rd->ReadBuffer(cBuffer->buffer + bufferOffset, bufferSize);

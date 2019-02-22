@@ -93,10 +93,10 @@ int AmfModel::Load(BinReader * rd, ADF * linker)
 
 	rd->Seek(Header.lodSlots.offset);
 	
-	rd->ReadContainer(lodSlots, Header.lodSlots.count);
+	rd->ReadContainer(lodSlots, static_cast<size_t>(Header.lodSlots.count));
 
 	rd->Seek(Header.materials.offset);
-	materials.resize(Header.materials.count);
+	materials.resize(static_cast<size_t>(Header.materials.count));
 
 	for (auto &l : materials)
 	{
@@ -136,7 +136,7 @@ int AmfMaterial::Load(BinReader * rd, ADF * linker)
 	}
 
 	rd->Seek(Header.textures.offset);
-	textures.resize(Header.textures.count);
+	textures.resize(static_cast<size_t>(Header.textures.count));
 
 	for (auto &l : textures)
 	{

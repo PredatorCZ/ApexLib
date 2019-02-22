@@ -301,13 +301,13 @@ AmfMesh &RBMMasterBlock::LoadDependencies(const uint bufferSize, const uint numV
 	mesh.Header.vertexCount = numVertices;
 	mesh.vertexStreamOffsets.push_back(0);
 	mesh.vertexStreamStrides.push_back(currentStride);
-	mesh.vertexBufferIndices.push_back(static_cast<int>(buffers->vertexBuffers.size() - 1));
+	mesh.vertexBufferIndices.push_back(static_cast<uchar>(buffers->vertexBuffers.size() - 1));
 
 	if (currentStrideSecondary)
 	{
 		mesh.vertexStreamOffsets.push_back((numVertices * currentStride) + 4);
 		mesh.vertexStreamStrides.push_back(currentStrideSecondary);
-		mesh.vertexBufferIndices.push_back(static_cast<int>(buffers->vertexBuffers.size() - 1));
+		mesh.vertexBufferIndices.push_back(static_cast<uchar>(buffers->vertexBuffers.size() - 1));
 	}
 	
 	return mesh;

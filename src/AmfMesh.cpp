@@ -31,7 +31,7 @@ int AmfMeshHeader::Load(BinReader * rd, ADF *linker)
 	rd->Read(Header);
 	highLODPath = linker->FindStringHash(Header.HighLodPath);
 	rd->Seek(Header.LodGroups.offset);
-	lodGroups.resize(Header.LodGroups.count);
+	lodGroups.resize(static_cast<size_t>(Header.LodGroups.count));
 
 	for (auto &l : lodGroups)
 		l.Load(rd, linker);
@@ -51,7 +51,7 @@ int AmfLodGroup::Load(BinReader * rd, ADF *linker)
 	rd->Read(Header);
 	rd->SavePos();
 	rd->Seek(Header.Meshes.offset);
-	meshes.resize(Header.Meshes.count);
+	meshes.resize(static_cast<size_t>(Header.Meshes.count));
 
 	for (auto &l : meshes)
 		l.Load(rd, linker);
@@ -69,25 +69,25 @@ int AmfMesh::Load(BinReader * rd, ADF *linker)
 	size_t savepos = rd->Tell();
 
 	rd->Seek(Header.vertexBufferIndices.offset);
-	rd->ReadContainer(vertexBufferIndices, Header.vertexBufferIndices.count);
+	rd->ReadContainer(vertexBufferIndices, static_cast<size_t>(Header.vertexBufferIndices.count));
 
 	rd->Seek(Header.vertexStreamStrides.offset);
-	rd->ReadContainer(vertexStreamStrides, Header.vertexStreamStrides.count);
+	rd->ReadContainer(vertexStreamStrides, static_cast<size_t>(Header.vertexStreamStrides.count));
 
 	rd->Seek(Header.vertexStreamOffsets.offset);
-	rd->ReadContainer(vertexStreamOffsets, Header.vertexStreamOffsets.count);
+	rd->ReadContainer(vertexStreamOffsets, static_cast<size_t>(Header.vertexStreamOffsets.count));
 
 	rd->Seek(Header.boneIndexLookup.offset);
-	rd->ReadContainer(boneIndexLookup, Header.boneIndexLookup.count);
+	rd->ReadContainer(boneIndexLookup, static_cast<size_t>(Header.boneIndexLookup.count));
 
 	rd->Seek(Header.subMeshes.offset);
-	subMeshes.resize(Header.subMeshes.count);
+	subMeshes.resize(static_cast<size_t>(Header.subMeshes.count));
 
 	for (auto &l : subMeshes)
 		l.Load(rd, linker);
 
 	rd->Seek(Header.streamAttributes.offset);
-	streamAttributes.resize(Header.streamAttributes.count);
+	streamAttributes.resize(static_cast<size_t>(Header.streamAttributes.count));
 
 	for (auto &l : streamAttributes)
 		l.Load(rd, linker);
@@ -130,7 +130,7 @@ void AmfMesh::Link(ADF * linker)
 		{
 			const int bufferIndex = vertexBufferIndices[l.Header.streamIndex];
 
-			if (bufferIndex < buff->vertexBuffers.size())
+			if (bufferIndex < static_cast<int>(buff->vertexBuffers.size()))
 				l.buffer = buff->vertexBuffers[bufferIndex]->buffer + vertexStreamOffsets[l.Header.streamIndex] + l.Header.streamOffset;
 			else if (linkError)
 				linkError = true;		
@@ -166,7 +166,7 @@ int AmfMeshBuffers::Load(BinReader * rd, ADF *linker)
 	size_t savepos = rd->Tell();
 
 	rd->Seek(Header.indexBuffers.offset);
-	indexBuffers.resize(Header.indexBuffers.count);
+	indexBuffers.resize(static_cast<size_t>(Header.indexBuffers.count));
 
 	for (auto &l : indexBuffers)
 	{
@@ -176,7 +176,7 @@ int AmfMeshBuffers::Load(BinReader * rd, ADF *linker)
 	}
 
 	rd->Seek(Header.vertexBuffers.offset);
-	vertexBuffers.resize(Header.vertexBuffers.count);
+	vertexBuffers.resize(static_cast<size_t>(Header.vertexBuffers.count));
 
 	for (auto &l : vertexBuffers)
 	{
@@ -211,8 +211,8 @@ int AmfBuffer::Load(BinReader * rd)
 	size_t savepos = rd->Tell();
 
 	rd->Seek(Header.info.offset);
-	buffer = static_cast<char*>(malloc(Header.info.count));
-	rd->ReadBuffer(buffer, Header.info.count);
+	buffer = static_cast<char*>(malloc(static_cast<size_t>(Header.info.count)));
+	rd->ReadBuffer(buffer, static_cast<size_t>(Header.info.count));
 
 	rd->Seek(savepos);
 

@@ -117,7 +117,7 @@ int ADF::Load(BinReader * rd, bool supressErrors)
 		{
 			i = new Instance;
 			rd->Read(*i, offsetof(ADF::Instance, nameIndex) + 8 - offsetof(ADF::Instance, nameHash));
-			i->name = names[i->nameIndex];
+			i->name = names[static_cast<size_t>(i->nameIndex)];
 		}
 
 		for (auto &i : instances)
@@ -269,7 +269,7 @@ int ADF::Descriptor::Load(BinReader * rd, ADF *base)
 
 	rd->Read(type, offsetof(ADF::Descriptor, elementSize) + 4 - offsetof(ADF::Descriptor, type));
 
-	name = base->names[nameIndex];
+	name = base->names[static_cast<size_t>(nameIndex)];
 
 	if (type == Type_e::Structure)
 		descriptorData = new DescriptorStructure();
@@ -333,7 +333,7 @@ int ADF::DescriptorStructure::Load(BinReader * rd, ADF *base)
 	for (auto &m : members)
 	{
 		rd->Read(m, offsetof(ADF::DescriptorStructure::Member, defValue) + 8 - offsetof(ADF::DescriptorStructure::Member, nameIndex));
-		m.name = base->names[m.nameIndex];
+		m.name = base->names[static_cast<size_t>(m.nameIndex)];
 	}
 
 	return 0;
@@ -372,7 +372,7 @@ int ADF::DescriptorExplicitEnum::Load(BinReader * rd, ADF *base)
 	for (auto &m : members)
 	{
 		rd->Read(m, 12);
-		m.name = base->names[m.nameIndex];
+		m.name = base->names[static_cast<size_t>(m.nameIndex)];
 	}
 
 	return 0;
