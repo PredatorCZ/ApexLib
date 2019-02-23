@@ -111,7 +111,11 @@ int AmfMesh::Load(BinReader * rd, ADF *linker)
 			if (streamAttributes[1].Header.usage == AmfUsage_Unspecified && streamAttributes[1].Header.format == AmfFormat_R32_UNIT_VEC_AS_FLOAT)
 				streamAttributes[1].Header.usage = AmfUsage_DeformNormal_c;
 			if (streamAttributes[2].Header.usage == AmfUsage_Unspecified && streamAttributes[2].Header.format == AmfFormat_R16G16B16A16_SINT)
+			{
 				streamAttributes[2].Header.usage = AmfUsage_DeformPoints_c;
+				streamAttributes[2].Header.format = AmfFormat_R16G16B16A16_SNORM;
+				streamAttributes[2].Evaluate = AmfFormatStorage[AmfFormat_R16G16B16A16_SNORM];
+			}
 		}
 	}
 

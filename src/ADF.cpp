@@ -115,7 +115,7 @@ int ADF::Load(BinReader * rd, bool supressErrors)
 
 		for (auto &i : instances)
 		{
-			i = new Instance;
+			i = new Instance();
 			rd->Read(*i, offsetof(ADF::Instance, nameIndex) + 8 - offsetof(ADF::Instance, nameHash));
 			i->name = names[static_cast<size_t>(i->nameIndex)];
 		}
