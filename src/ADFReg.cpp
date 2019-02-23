@@ -22,6 +22,7 @@
 #include "AmfFormatEvaluators.h"
 #include "datas/reflectorRegistry.hpp"
 #include "datas/disabler.hpp"
+#include "StuntAreas.h"
 
 ADFClassMapper ADFClassStorage;
 ADFPropsMapper ADFPropsStorage;
@@ -59,6 +60,7 @@ void InitAdfRegistry()
 	ADFRegisterClass(AmfMeshBuffers);
 	ADFRegisterClass(AmfModel);
 	ADFRegisterClass(AmfMeshBuffers_TheHunter);
+	ADFRegisterClass(ADFStuntAreas);
 
 	REGISTER_ENUM(GeneralMeshConstantsFlags);
 	REGISTER_ENUM(CarPaintMeshConstantsFlags);

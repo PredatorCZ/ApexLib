@@ -422,6 +422,9 @@ IADF *IADF::Create(const wchar_t *filePath)
 	{
 		insIt::value_type &i = *it;
 
+		if (!i->instance)
+			continue;
+
 		std::string *req = i->instance->RequestsFile();
 
 		if (!req)
@@ -464,7 +467,8 @@ IADF *IADF::Create(const wchar_t *filePath)
 	}
 	
 	for (auto &i : adf->instances)
-		i->instance->Link(adf);
+		if (i->instance)
+			i->instance->Link(adf);
 
 	return adf;
 }

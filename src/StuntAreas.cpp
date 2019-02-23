@@ -15,52 +15,30 @@
 	along with this program.If not, see <https://www.gnu.org/licenses/>.
 */
 
-#pragma once
-#include "datas/vectors.hpp"
-#include "ApexApi.h"
-#include <string>
+#include "StuntAreas.h"
+#include "datas/binreader.hpp"
+#include "ADF.h"
+#include "AdfRegistry.h"
 
-struct AdfArray
+int ADFStuntAreas::Load(BinReader * rd, ADF * linker)
 {
-	int offset,
-		unk;
-	__int64	count;
-};
+	rd->Read(static_cast<StuntAreas&>(*this));
+	
+	for (int a = 0; a < 32; a++)
+	{
+		StuntArea &ar = stuntAreas[a];
+		AdfString &str = ar.name;
+		rd->Seek(str.offset);
+		std::string name;
+		rd->ReadString(name);
+		str.str = linker->AddStringHash(name);
+		name.clear();
 
-struct AdfBBOX
-{
-	Vector Min;
-	Vector Max;
-}; //0x8E31707
+		AdfString &str2 = ar.partName;
+		rd->Seek(str2.offset);
+		rd->ReadString(name);
+		str2.str = linker->AddStringHash(name);
+	}
 
-struct AdfDeferred
-{
-	int offset,
-		unk;
-	__int64	objectHash;
-};
-
-struct AdfProperties
-{
-	ApexHash typeHash;
-	virtual void Load(BinReader *rd) = 0;
-	virtual void Link(ADF *) {};
-	virtual void *GetProperties() = 0;
-	virtual ~AdfProperties() {}
-};
-
-struct StringHash
-{
-	std::string string;
-	ApexHash hash;
-	void Generate();
-};
-
-__declspec(align(8)) union AdfString
-{
-	uint offset;
-	StringHash *str;
-};
-
-class BinReader;
-class ADF;
+	return 0;
+}

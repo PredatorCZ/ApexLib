@@ -72,6 +72,9 @@
     <ClInclude Include="include\Units.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\StuntAreas.h">
+      <Filter>Header Files\ADF</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\lookup3.c">
@@ -121,6 +124,9 @@
     </ClCompile>
     <ClCompile Include="3rd_party\PreCore\datas\reflector.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\StuntAreas.cpp">
+      <Filter>Source Files\ADF</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
