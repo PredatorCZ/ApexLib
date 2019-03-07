@@ -47,6 +47,8 @@ struct AdfProperties
 	virtual void Link(ADF *) {};
 	virtual void *GetProperties() = 0;
 	virtual ~AdfProperties() {}
+	AdfProperties() : typeHash(0) {};
+	static AdfProperties *ConstructProperty(ApexHash propHash);
 };
 
 struct StringHash

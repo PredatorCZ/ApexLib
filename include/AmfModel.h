@@ -330,7 +330,7 @@ struct AmfMaterial
 	MaterialType materialType;
 
 	int Load(BinReader *rd, ADF *linker);
-	AmfMaterial() : materialType(MaterialType_PBR), attributes(nullptr) {};
+	AmfMaterial() : materialType(MaterialType_PBR), attributes(nullptr), Header{ 0 } {};
 	~AmfMaterial();
 };
 

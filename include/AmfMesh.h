@@ -34,7 +34,7 @@ struct AmfSubMesh
 	const char *buffer;
 	StringHash *meshName;
 	int Load(BinReader *rd, ADF *linker);
-	ES_FORCEINLINE void GetFace(int at, USVector &out) { out = *reinterpret_cast<const USVector*>(buffer + (at * 6)); }
+	ES_FORCEINLINE void GetFace(int at, USVector &out) { out = *reinterpret_cast<const USVector*>(buffer + (static_cast<intptr_t>(at) * 6)); }
 };
 
 struct AmfStreamAttribute
@@ -51,6 +51,8 @@ struct AmfStreamAttribute
 	const char *buffer;
 	void (*Evaluate)(AmfStreamAttribute *that, int id, void *data);
 	int Load(BinReader *rd, ADF *linker);
+	void AssignEvaluator(AmfFormat format);
+	ES_FORCEINLINE void AssignEvaluator() { AssignEvaluator(Header.format); }
 };
 
 struct GeneralMeshConstants

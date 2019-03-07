@@ -18,7 +18,6 @@
 #include "AmfModel.h"
 #include "datas/binreader.hpp"
 #include "ADF.h"
-#include "AdfRegistry.h"
 
 REFLECTOR_START_WNAMES(GeneralConstants, overlayColor, roughnessModulator, metallicModulator, dielectricReflectance, emissiveIntensity, 
 	emissiveScale, emissiveExposureAdapt, layeredHeightOffset, layeredContrast, layeredOpacity, layeredBottomHeightInfluence, layeredTopHeightInfluence, 
@@ -129,11 +128,10 @@ int AmfMaterial::Load(BinReader * rd, ADF * linker)
 
 	rd->Seek(Header.attributes.offset);
 
-	if (ADFPropsStorage.count(static_cast<ApexHash>(Header.attributes.objectHash)))
-	{
-		attributes = ADFPropsStorage[static_cast<ApexHash>(Header.attributes.objectHash)]();
+	attributes = AdfProperties::ConstructProperty(static_cast<ApexHash>(Header.attributes.objectHash));
+
+	if (attributes)
 		attributes->Load(rd);
-	}
 
 	rd->Seek(Header.textures.offset);
 	textures.resize(static_cast<size_t>(Header.textures.count));

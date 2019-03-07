@@ -21,7 +21,6 @@
 #include "ADF.h"
 #include "AmfModel.h"
 #include "AmfMesh.h"
-#include "AdfRegistry.h"
 
 struct _UIOverlay_vsh
 {

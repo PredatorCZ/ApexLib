@@ -21,7 +21,6 @@
 #include "ADF.h"
 #include "AmfModel.h"
 #include "AmfMesh.h"
-#include "AdfRegistry.h"
 
 REFLECTOR_START_WNAMES(RBMCarPaintSimple, twoToneColor1, twoToneColor2, specularPower, depthBias, reflectionMultiplier, flags);
 

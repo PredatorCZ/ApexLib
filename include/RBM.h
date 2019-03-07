@@ -26,7 +26,7 @@ struct AmfBuffer;
 
 union RBMHash
 {
-	ulong data;
+	uint64 data;
 	struct
 	{
 		uint hash;
@@ -74,26 +74,23 @@ struct RBMMasterBlock : AdfProperties, Reflector
 	AmfMesh &LoadDependencies(const uint bufferSize, const uint numVertices, const uint currentStride, AmfBuffer *&cBuffer, const uint currentStrideSecondary = 0);
 	static void LoadFaces(BinReader *rd, AmfMesh &mesh, uint vBufferSize, AmfBuffer *cBuffer);
 	static void ReadRemaps(BinReader *rd, AmfMesh *mesh = nullptr);
+	static RBMMasterBlock *ConstructClass(uint64 classHash);
+	RBMMasterBlock();
 };
 
-
-typedef std::map<ulong, RBMMasterBlock*(*)()> RBMPropsMapper;
-extern RBMPropsMapper RBMClassStorage;
-
-#define RBMCONSTRUCTOR(classname, shash) static const ApexHash ADFHASH; static const _ULONGLONG HASH = shash;\
+#define RBMCONSTRUCTOR(classname, shash) static const ApexHash ADFHASH = JenkinsHash(#classname, sizeof(#classname) - 1); static const uint64 HASH = shash;\
 classname(){typeHash = ADFHASH; hash.data = HASH; ConstructReflection();} const char *GetClassname() {return #classname;}
 
-#define RBMCONSTRUCTOR_NOREFL(classname, shash) static const ApexHash ADFHASH; static const _ULONGLONG HASH = shash;\
+#define RBMCONSTRUCTOR_NOREFL(classname, shash) static const ApexHash ADFHASH = JenkinsHash(#classname, sizeof(#classname) - 1); static const uint64 HASH = shash;\
 classname(){typeHash = ADFHASH; hash.data = HASH;} const char *GetClassname() {return #classname;}
 
 #define RBM_NEW_DESCRIPTOR(_usage, _format, _streamIndex) AmfStreamAttribute &descr = mesh.streamAttributes[currentDesc++];\
 descr.Header.usage = _usage;\
 descr.Header.format = _format;\
-descr.Evaluate = AmfFormatStorage[_format];\
+descr.AssignEvaluator();\
 descr.Header.streamIndex = _streamIndex;\
 descr.Header.streamOffset = currentBufferOffset;\
 descr.Header.streamStride = currentStride;\
-descr.Evaluate = AmfFormatStorage[_format];\
 currentBufferOffset += AmfFormatStrides[_format];
 
 #define RBMREFLECTOR_FROM_PARENT(parentClass) ES_INLINE void ConstructReflection() \

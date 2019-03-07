@@ -21,7 +21,6 @@
 #include "ADF.h"
 #include "AmfModel.h"
 #include "AmfMesh.h"
-#include "AdfRegistry.h"
 
 void RBMVegetationFoliage3::Load(BinReader * rd)
 {
@@ -498,7 +497,7 @@ void RBMGeneralMK3::Load(BinReader * rd)
 
 	AmfBuffer *cBuffer;
 	AmfMesh &mesh = LoadDependencies(bufferSize, numVertices, currentStride, cBuffer, currentStrideSecondary);
-	mesh.meshProperties = ADFPropsStorage[GeneralMeshConstants::HASH]();
+	mesh.meshProperties = AdfProperties::ConstructProperty(GeneralMeshConstants::HASH);
 	GeneralMeshConstants *cn = static_cast<GeneralMeshConstants*>(mesh.meshProperties->GetProperties());
 	cn->flags(GeneralMeshConstantsFlags::isDestructionMesh, singleskin);
 	cn->flags(GeneralMeshConstantsFlags::isSkinnedMesh, skinned);
@@ -702,7 +701,7 @@ void RBMCarPaint14::Load(BinReader * rd)
 	bool skinned = (flags & 0x2000) != 0;
 	bool uv3 = ((flags & 0x20) | (flags & 0x40)) != 0;
 
-	AdfProperties *props = ADFPropsStorage[CarPaintMeshConstants::HASH]();
+	AdfProperties *props = AdfProperties::ConstructProperty(CarPaintMeshConstants::HASH);
 	CarPaintMeshConstants *carPaintProps = static_cast<CarPaintMeshConstants*>(props->GetProperties());
 	carPaintProps->flags(CarPaintMeshConstantsFlags::deformable, deformable);
 	carPaintProps->flags(CarPaintMeshConstantsFlags::skinned, skinned);

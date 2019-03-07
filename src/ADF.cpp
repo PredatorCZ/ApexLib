@@ -15,10 +15,10 @@
 	along with this program.If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include <map>
 #include "ADF.h"
 #include "datas/binreader.hpp"
 #include "pugixml.hpp"
-#include "AdfRegistry.h"
 #include "datas/esstring.h"
 #include "datas/fileinfo.hpp"
 #include "datas/MasterPrinter.hpp"
@@ -27,7 +27,7 @@
 
 #define ADFFOURCC 0x41444620
 
-std::map<ApexHash, const char*> types = {
+static const std::map<ApexHash, const char*> types = {
 	{ 0x580D0A62, "char"},
 	{ 0x0CA2821D, "uchar" },
 	{ 0xD13FCF93, "short" },
@@ -123,10 +123,10 @@ int ADF::Load(BinReader * rd, bool supressErrors)
 		for (auto &i : instances)
 		{
 			const ApexHash typehash = i->typeHash;
+			i->instance = ConstructInstance(typehash);
 
-			if (ADFClassStorage.count(typehash))
+			if (i->instance)
 			{
-				i->instance = ADFClassStorage[typehash]();
 				rd->SetRelativeOrigin(i->offset);
 				i->instance->Load(rd, this);	
 			}
@@ -176,7 +176,7 @@ int ADF::DumpDefinitions(const wchar_t * fileName)
 
 			if (types.count(i->typeHash))
 			{
-				typeName = types[i->typeHash];
+				typeName = types.at(i->typeHash);
 			} 
 			
 			subinstNode.append_attribute("type").set_value(typeName);
@@ -301,7 +301,7 @@ void ADF::Descriptor::XMLDump(pugi::xml_node * master)
 
 	if (types.count(elementTypeHash))
 	{
-		typeName = types[elementTypeHash];
+		typeName = types.at(elementTypeHash);
 	}
 
 	node.append_attribute("elementType").set_value(typeName);
@@ -352,7 +352,7 @@ void ADF::DescriptorStructure::XMLDump(pugi::xml_node * master)
 
 		if (types.count(m.typeHash))
 		{
-			typeName = types[m.typeHash];
+			typeName = types.at(m.typeHash);
 		}
 
 		node.append_attribute("type").set_value(typeName);

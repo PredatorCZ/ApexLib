@@ -33,9 +33,6 @@
     <ClInclude Include="include\AdfBaseObject.h">
       <Filter>Header Files\ADF</Filter>
     </ClInclude>
-    <ClInclude Include="include\AdfRegistry.h">
-      <Filter>Header Files\ADF</Filter>
-    </ClInclude>
     <ClInclude Include="include\AmfEnums.h">
       <Filter>Header Files\ADF</Filter>
     </ClInclude>

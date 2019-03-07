@@ -143,4 +143,6 @@ public:
 	StringHash *FindStringHash(ApexHash hash);
 	void AddInstance(ADFInstance *instance, ApexHash hash);
 	~ADF();
+	ADF();
+	static ADFInstance *ConstructInstance(ApexHash classHash);
 };

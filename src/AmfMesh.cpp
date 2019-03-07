@@ -18,7 +18,6 @@
 #include "AmfMesh.h"
 #include "datas/binreader.hpp"
 #include "ADF.h"
-#include "AdfRegistry.h"
 #include "datas/masterprinter.hpp"
 #include "datas/esstring.h"
 
@@ -95,12 +94,10 @@ int AmfMesh::Load(BinReader * rd, ADF *linker)
 	rd->Seek(Header.meshProperties.offset);
 
 	const ApexHash propsHash = static_cast<ApexHash>(Header.meshProperties.objectHash);
+	meshProperties = AdfProperties::ConstructProperty(propsHash);
 
-	if (ADFPropsStorage.count(propsHash))
-	{
-		meshProperties = ADFPropsStorage[propsHash]();
+	if (meshProperties)
 		meshProperties->Load(rd);
-	}
 
 	if (propsHash == CarPaintMeshConstants::HASH)
 	{
@@ -114,7 +111,7 @@ int AmfMesh::Load(BinReader * rd, ADF *linker)
 			{
 				streamAttributes[2].Header.usage = AmfUsage_DeformPoints_c;
 				streamAttributes[2].Header.format = AmfFormat_R16G16B16A16_SNORM;
-				streamAttributes[2].Evaluate = AmfFormatStorage[AmfFormat_R16G16B16A16_SNORM];
+				streamAttributes[2].AssignEvaluator(AmfFormat_R16G16B16A16_SNORM);
 			}
 		}
 	}
@@ -239,6 +236,6 @@ int AmfSubMesh::Load(BinReader * rd, ADF * linker)
 int AmfStreamAttribute::Load(BinReader * rd, ADF * linker)
 {
 	rd->Read(Header);
-	Evaluate = AmfFormatStorage[Header.format];
+	AssignEvaluator();
 	return 0;
 }

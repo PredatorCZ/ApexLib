@@ -22,7 +22,7 @@
 template<AmfFormat, class OutputFormat> ES_INLINE void AmfFormatEval(AmfStreamAttribute *that, int at, void *data)
 {
 	OutputFormat &out = *static_cast<OutputFormat*>(data);
-	out = *reinterpret_cast<const OutputFormat*>(that->buffer + (at*that->Header.streamStride));
+	out = *reinterpret_cast<const OutputFormat*>(that->buffer + (at * that->Header.streamStride));
 }
 
 template<>void AmfFormatEval<AmfFormat_R16G16B16A16_UNORM, Vector4>(AmfStreamAttribute *that, int at, void *data)
@@ -261,3 +261,6 @@ template<>void AmfFormatEval<AmfFormat_R8G8B8A8_UNSIGNED_SNORM_c, Vector>(AmfStr
 	out = reinterpret_cast<Vector&>(sub);
 }
 
+typedef void (*AmfStreamAttributeEvaluator)(AmfStreamAttribute *that, int id, void *data);
+
+AmfStreamAttributeEvaluator RetreiveAmfStreamAttributeEvaluator(AmfFormat format);

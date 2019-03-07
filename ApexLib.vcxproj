@@ -21,7 +21,6 @@
   <ItemGroup>
     <ClInclude Include="include\ADF.h" />
     <ClInclude Include="include\AdfBaseObject.h" />
-    <ClInclude Include="include\AdfRegistry.h" />
     <ClInclude Include="include\AmfEnums.h" />
     <ClInclude Include="include\AmfFormatEvaluators.h" />
     <ClInclude Include="include\AmfMesh.h" />

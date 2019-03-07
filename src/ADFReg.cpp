@@ -14,27 +14,21 @@
 	You should have received a copy of the GNU General Public License
 	along with this program.If not, see <https://www.gnu.org/licenses/>.
 */
-
+#include <map>
+#include "ADF.h"
+#include "ApexApi.h"
+#include "AdfBaseObject.h"
+#include "AmfEnums.h"
 #include "datas/binreader.hpp"
 #include "AmfMesh.h"
-#include "AdfRegistry.h"
 #include "AmfModel.h"
 #include "AmfFormatEvaluators.h"
 #include "datas/reflectorRegistry.hpp"
 #include "datas/disabler.hpp"
 #include "StuntAreas.h"
 
-ADFClassMapper ADFClassStorage;
-ADFPropsMapper ADFPropsStorage;
-AmfFormatMapper AmfFormatStorage;
-struct RBMMasterBlock;
-typedef std::map<_ULONGLONG, RBMMasterBlock*(*)()> RBMPropsMapper;
-extern RBMPropsMapper RBMClassStorage;
-
 template<class C> ADFInstance *ADFCreateDerivedClass() { return new C{}; }
 template<class C> AdfProperties *ADFCreatePropClass() { return new C{}; }
-
-#define ADFRegisterClass(classname) ADFClassStorage[classname::HASH] = &ADFCreateDerivedClass<classname>;
 
 template<class C> struct AdfProperties_t : Reflector, AdfProperties
 {
@@ -50,17 +44,146 @@ template<class C> struct AdfProperties_t : Reflector, AdfProperties
 	void *GetProperties() { return &properties; }
 };
 
-#define ADFRegisterProps(classname) ADFPropsStorage[AdfProperties_t<classname>::value_type::HASH] = &ADFCreatePropClass<AdfProperties_t<classname>>;
+#define ADFRegisterProps(classname) {AdfProperties_t<classname>::value_type::HASH, &ADFCreatePropClass<AdfProperties_t<classname>>},
 
-#define ADFRegisterFormat(format, outType) AmfFormatStorage[format] = AmfFormatEval<format, outType>;
-void InitRBMRegistry();
-void InitAdfRegistry()
+static const std::map<ApexHash, AdfProperties *(*)()> ADFPropsStorage =
 {
-	ADFRegisterClass(AmfMeshHeader);
-	ADFRegisterClass(AmfMeshBuffers);
-	ADFRegisterClass(AmfModel);
-	ADFRegisterClass(AmfMeshBuffers_TheHunter);
-	ADFRegisterClass(ADFStuntAreas);
+	StaticFor(ADFRegisterProps, 
+	GeneralMeshConstants,
+	FoliageMeshConstants,
+	CarPaintMeshConstants,
+	GeneralConstants,
+	CarLightConstants,
+	WindowConstants,
+	CarPaintStaticConstants,
+	CarPaintDynamicConstants,
+	CarPaintConstants,
+	CharacterSkinConstants,
+	CharacterConstants,
+	EyeGlossConstants,
+	HairConstants,
+	BarkConstants,
+	FoliageConstants,
+	HologramConstants,
+	LandmarkConstants,
+	EmissiveUIConstants
+	)
+};
+
+#define ADFRegisterFormat(unused, format, outType) {static_cast<AmfFormat>(format), AmfFormatEval<static_cast<AmfFormat>(format), outType>},
+
+static const std::map<AmfFormat, void(*)(AmfStreamAttribute *, int, void *)> AmfFormatStorage =
+{
+	StaticForArgID(ADFRegisterFormat,
+		unused,
+		/*AmfFormat_R32G32B32A32_FLOAT*/ Vector4,
+		/*AmfFormat_R32G32B32A32_UINT*/ UIVector4,
+		/*AmfFormat_R32G32B32A32_SINT*/ IVector4,
+
+		/*AmfFormat_R32G32B32_FLOAT*/ Vector,
+		/*AmfFormat_R32G32B32_UINT*/ UIVector,
+		/*AmfFormat_R32G32B32_SINT*/ IVector,
+
+		/*AmfFormat_R16G16B16A16_FLOAT*/ Vector4,
+		/*AmfFormat_R16G16B16A16_UNORM*/ Vector4,
+		/*AmfFormat_R16G16B16A16_UINT*/ USVector4,
+		/*AmfFormat_R16G16B16A16_SNORM*/ Vector4,
+		/*AmfFormat_R16G16B16A16_SINT*/ SVector4,
+
+		/*AmfFormat_R16G16B16_FLOAT*/ Vector,
+		/*AmfFormat_R16G16B16_UNORM*/ Vector,
+		/*AmfFormat_R16G16B16_UINT*/ USVector,
+		/*AmfFormat_R16G16B16_SNORM*/ Vector,
+		/*AmfFormat_R16G16B16_SINT*/ SVector,
+
+		/*AmfFormat_R32G32_FLOAT*/ Vector2,
+		/*AmfFormat_R32G32_UINT*/ UIVector2,
+		/*AmfFormat_R32G32_SINT*/ IVector2,
+
+		/*AmfFormat_R10G10B10A2_UNORM*/ Vector4,
+		/*AmfFormat_R10G10B10A2_UINT*/ UIVector4,
+		/*AmfFormat_R11G11B10_FLOAT*/ Vector,
+
+		/*AmfFormat_R8G8B8A8_UNORM*/ Vector4,
+		/*AmfFormat_R8G8B8A8_UNORM_SRGB*/ Vector4,
+		/*AmfFormat_R8G8B8A8_UINT*/ UCVector4,
+		/*AmfFormat_R8G8B8A8_SNORM*/ Vector4,
+		/*AmfFormat_R8G8B8A8_SINT*/ CVector4,
+
+		/*AmfFormat_R16G16_FLOAT*/ Vector2,
+		/*AmfFormat_R16G16_UNORM*/ Vector2,
+		/*AmfFormat_R16G16_UINT*/ USVector2,
+		/*AmfFormat_R16G16_SNORM*/ Vector2,
+		/*AmfFormat_R16G16_SINT*/ SVector2,
+
+		/*AmfFormat_R32_FLOAT*/ float,
+		/*AmfFormat_R32_UINT*/ unsigned int,
+		/*AmfFormat_R32_SINT*/ int,
+
+		/*AmfFormat_R8G8_UNORM*/ Vector2,
+		/*AmfFormat_R8G8_UINT*/ UCVector2,
+		/*AmfFormat_R8G8_SNORM*/ Vector2,
+		/*AmfFormat_R8G8_SINT*/ CVector2,
+
+		/*AmfFormat_R16_FLOAT*/ float,
+		/*AmfFormat_R16_UNORM*/ float,
+		/*AmfFormat_R16_UINT*/ unsigned short,
+		/*AmfFormat_R16_SNORM*/ float,
+		/*AmfFormat_R16_SINT*/ short,
+
+		/*AmfFormat_R8_UNORM*/ float,
+		/*AmfFormat_R8_UINT*/ unsigned char,
+		/*AmfFormat_R8_SNORM*/ float,
+		/*AmfFormat_R8_SINT*/ char,
+
+		/*AmfFormat_R32_UNIT_VEC_AS_FLOAT*/ Vector,
+		/*AmfFormat_R32_R8G8B8A8_UNORM_AS_FLOAT*/ Vector4,
+		/*AmfFormat_R8G8B8A8_TANGENT_SPACE*/ Vector,
+
+		/*AmfFormat_R32_UNIT_UNSIGNED_VEC_AS_FLOAT_c*/ Vector,
+		/*AmfFormat_R8G8B8A8_UNSIGNED_SNORM_c*/ Vector
+	)
+};
+
+#define ADFRegisterClass(classname) {classname::HASH, &ADFCreateDerivedClass<classname>},
+
+static const std::map<ApexHash, ADFInstance *(*)()> ADFClassStorage =
+{
+	StaticFor(ADFRegisterClass,
+	AmfMeshHeader,
+	AmfMeshBuffers,
+	AmfModel,
+	AmfMeshBuffers_TheHunter,
+	ADFStuntAreas
+	)
+};
+
+static int EnumBuilded = 0;
+
+AdfProperties *AdfProperties::ConstructProperty(ApexHash propHash)
+{
+	return ADFPropsStorage.count(propHash) ? ADFPropsStorage.at(propHash)() : nullptr;
+}
+
+void AmfStreamAttribute::AssignEvaluator(AmfFormat format)
+{
+	Evaluate = RetreiveAmfStreamAttributeEvaluator(format);
+}
+
+AmfStreamAttributeEvaluator RetreiveAmfStreamAttributeEvaluator(AmfFormat format)
+{
+	return AmfFormatStorage.count(format) ? AmfFormatStorage.at(format) : nullptr;
+}
+
+ADFInstance *ADF::ConstructInstance(ApexHash classHash)
+{
+	return ADFClassStorage.count(classHash) ? ADFClassStorage.at(classHash)() : nullptr;
+}
+
+ADF::ADF()
+{
+	if (EnumBuilded)
+		return;
 
 	REGISTER_ENUM(GeneralMeshConstantsFlags);
 	REGISTER_ENUM(CarPaintMeshConstantsFlags);
@@ -75,101 +198,5 @@ void InitAdfRegistry()
 	REGISTER_ENUM(HairConstantsFlags);
 	REGISTER_ENUM(BarkConstantsFlags);
 	REGISTER_ENUM(FoliageConstantsFlags);
-
-	ADFRegisterProps(GeneralMeshConstants);
-	ADFRegisterProps(FoliageMeshConstants);
-	ADFRegisterProps(CarPaintMeshConstants);
-	ADFRegisterProps(GeneralConstants);
-	ADFRegisterProps(CarLightConstants);
-	ADFRegisterProps(WindowConstants);
-	ADFRegisterProps(CarPaintStaticConstants);
-	ADFRegisterProps(CarPaintDynamicConstants);
-	ADFRegisterProps(CarPaintConstants);
-	ADFRegisterProps(CharacterSkinConstants);
-	ADFRegisterProps(CharacterConstants);
-	ADFRegisterProps(EyeGlossConstants);
-	ADFRegisterProps(HairConstants);
-	ADFRegisterProps(BarkConstants);
-	ADFRegisterProps(FoliageConstants);
-	ADFRegisterProps(HologramConstants);
-	ADFRegisterProps(LandmarkConstants);
-	ADFRegisterProps(EmissiveUIConstants);
-
-	ADFRegisterFormat(AmfFormat_R32G32B32A32_FLOAT, Vector4);
-	ADFRegisterFormat(AmfFormat_R32G32B32A32_SINT, IVector4);
-	ADFRegisterFormat(AmfFormat_R32G32B32A32_UINT, UIVector4);
-
-	ADFRegisterFormat(AmfFormat_R32G32B32_FLOAT, Vector);
-	ADFRegisterFormat(AmfFormat_R32G32B32_SINT, IVector);
-	ADFRegisterFormat(AmfFormat_R32G32B32_UINT, UIVector);
-
-	ADFRegisterFormat(AmfFormat_R16G16B16A16_FLOAT, Vector4);
-	ADFRegisterFormat(AmfFormat_R16G16B16A16_SINT, SVector4);
-	ADFRegisterFormat(AmfFormat_R16G16B16A16_UINT, USVector4);
-	ADFRegisterFormat(AmfFormat_R16G16B16A16_UNORM, Vector4);
-	ADFRegisterFormat(AmfFormat_R16G16B16A16_SNORM, Vector4);
-
-	ADFRegisterFormat(AmfFormat_R16G16B16_FLOAT, Vector);
-	ADFRegisterFormat(AmfFormat_R16G16B16_SINT, SVector);
-	ADFRegisterFormat(AmfFormat_R16G16B16_UINT, USVector);
-	ADFRegisterFormat(AmfFormat_R16G16B16_UNORM, Vector);
-	ADFRegisterFormat(AmfFormat_R16G16B16_SNORM, Vector);
-
-	ADFRegisterFormat(AmfFormat_R32G32_FLOAT, Vector2);
-	ADFRegisterFormat(AmfFormat_R32G32_SINT, IVector2);
-	ADFRegisterFormat(AmfFormat_R32G32_UINT, UIVector2);
-
-	ADFRegisterFormat(AmfFormat_R8G8B8A8_SINT, CVector4);
-	ADFRegisterFormat(AmfFormat_R8G8B8A8_UINT, UCVector4);
-	ADFRegisterFormat(AmfFormat_R8G8B8A8_UNORM, Vector4);
-	ADFRegisterFormat(AmfFormat_R8G8B8A8_SNORM, Vector4);
-
-	ADFRegisterFormat(AmfFormat_R8G8B8A8_UNORM_SRGB, Vector4);
-
-	ADFRegisterFormat(AmfFormat_R16G16_FLOAT, Vector2);
-	ADFRegisterFormat(AmfFormat_R16G16_SINT, SVector2);
-	ADFRegisterFormat(AmfFormat_R16G16_UINT, USVector2);
-	ADFRegisterFormat(AmfFormat_R16G16_UNORM, Vector2);
-	ADFRegisterFormat(AmfFormat_R16G16_SNORM, Vector2);
-
-	ADFRegisterFormat(AmfFormat_R32_FLOAT, float);
-	ADFRegisterFormat(AmfFormat_R32_SINT, int);
-	ADFRegisterFormat(AmfFormat_R32_UINT, unsigned int);
-
-	ADFRegisterFormat(AmfFormat_R8G8_SINT, CVector2);
-	ADFRegisterFormat(AmfFormat_R8G8_UINT, UCVector2);
-	ADFRegisterFormat(AmfFormat_R8G8_UNORM, Vector2);
-	ADFRegisterFormat(AmfFormat_R8G8_SNORM, Vector2);
-
-	ADFRegisterFormat(AmfFormat_R16_FLOAT, float);
-	ADFRegisterFormat(AmfFormat_R16_SINT, short);
-	ADFRegisterFormat(AmfFormat_R16_UINT, unsigned short);
-	ADFRegisterFormat(AmfFormat_R16_UNORM, float);
-	ADFRegisterFormat(AmfFormat_R16_SNORM, float);
-
-	ADFRegisterFormat(AmfFormat_R8_SINT, char);
-	ADFRegisterFormat(AmfFormat_R8_UINT, unsigned char);
-	ADFRegisterFormat(AmfFormat_R8_UNORM, float);
-	ADFRegisterFormat(AmfFormat_R8_SNORM, float);
-
-	ADFRegisterFormat(AmfFormat_R10G10B10A2_UNORM, Vector4);
-	ADFRegisterFormat(AmfFormat_R10G10B10A2_UINT, UIVector4);
-	ADFRegisterFormat(AmfFormat_R11G11B10_FLOAT, Vector);
-
-	ADFRegisterFormat(AmfFormat_R32_UNIT_VEC_AS_FLOAT, Vector);
-	ADFRegisterFormat(AmfFormat_R32_R8G8B8A8_UNORM_AS_FLOAT, Vector4);
-	ADFRegisterFormat(AmfFormat_R8G8B8A8_TANGENT_SPACE, Vector);
-
-	ADFRegisterFormat(AmfFormat_R32_UNIT_UNSIGNED_VEC_AS_FLOAT_c, Vector);
-	ADFRegisterFormat(AmfFormat_R8G8B8A8_UNSIGNED_SNORM_c, Vector);
-
-	InitRBMRegistry();
-}
-
-void ReleaseAdfRegistry()
-{
-	ADFClassStorage.clear();
-	ADFPropsStorage.clear();
-	AmfFormatStorage.clear();
-	RBMClassStorage.clear();
+	EnumBuilded = 0xff;
 }

@@ -43,9 +43,10 @@ int LoadRBSDL(ADF *master, BinReader *rd)
 		rd->Read(hash.innerData.hash);
 		rd->Read(hash.innerData.version);
 
-		if (RBMClassStorage.count(hash.data))
+		RBMMasterBlock *block = RBMMasterBlock::ConstructClass(hash.data);
+
+		if (block)
 		{
-			RBMMasterBlock *block = RBMClassStorage[hash.data]();
 			block->material = nullptr;
 			block->master = master;
 			block->Load(rd);
@@ -102,9 +103,10 @@ int LoadRBMDL(ADF *master, BinReader *rd)
 		if (hdr.versionminor < 14)
 			cMat->materialType = AmfMaterial::MaterialType_Traditional;
 
-		if (RBMClassStorage.count(hash.data))
+		RBMMasterBlock *block = RBMMasterBlock::ConstructClass(hash.data);
+
+		if (block)
 		{
-			RBMMasterBlock *block = RBMClassStorage[hash.data]();
 			block->material = cMat;
 			block->master = master;
 			block->Load(rd);
@@ -162,9 +164,10 @@ int LoadRBNDL(ADF *master, BinReader *rd)
 		AmfMaterial *cMat = new AmfMaterial();
 		cModel->materials.push_back(cMat);
 
-		if (RBMClassStorage.count(hash.data))
+		RBMMasterBlock *block = RBMMasterBlock::ConstructClass(hash.data);
+
+		if (block)
 		{
-			RBMMasterBlock *block = RBMClassStorage[hash.data]();
 			block->material = cMat;
 			block->master = master;
 			block->Load(rd);

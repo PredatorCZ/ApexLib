@@ -46,9 +46,6 @@ public:
 	static IADF *Create(const wchar_t *filePath);
 };
 
-void InitAdfRegistry();
-void ReleaseAdfRegistry();
-
 template<class C>
 ES_INLINE C *IADF::AddUniqueInstance()
 {

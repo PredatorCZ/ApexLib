@@ -18,7 +18,6 @@
 #include "StuntAreas.h"
 #include "datas/binreader.hpp"
 #include "ADF.h"
-#include "AdfRegistry.h"
 
 int ADFStuntAreas::Load(BinReader * rd, ADF * linker)
 {
