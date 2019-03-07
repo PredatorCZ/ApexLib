@@ -32,3 +32,4 @@
 *.app
 *.pdb
 *ObjDump/*
+*.bat
