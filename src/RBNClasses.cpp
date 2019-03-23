@@ -160,7 +160,7 @@ void RBNCharacter::Link(ADF * base)
 
 		for (int t = 0; t < mesh.Header.vertexCount; t++)
 		{
-			const uchar *boneIndicies = reinterpret_cast<uchar *>(mBuffers->vertexBuffers[0]->buffer + (t * currentStride) + descr->Header.streamOffset);
+			uchar *boneIndicies = reinterpret_cast<uchar *>(mBuffers->vertexBuffers[mesh.vertexBufferIndices[descr->Header.streamIndex]]->buffer + (t * currentStride) + descr->Header.streamOffset);
 
 			for (int i = 0; i < numItems; i++)
 			{
@@ -181,12 +181,12 @@ void RBNCharacter::Link(ADF * base)
 			if (idxs[t])
 			{
 				mesh.boneIndexLookup.push_back(t);
-				invertedLookups[t] = mesh.boneIndexLookup.size() - 1;
+				invertedLookups[t] = static_cast<uchar>(mesh.boneIndexLookup.size() - 1);
 			}
 
 		for (int t = 0; t < mesh.Header.vertexCount; t++)
 		{
-			uchar *boneIndicies = reinterpret_cast<uchar *>(mBuffers->vertexBuffers[0]->buffer + (t * currentStride) + descr->Header.streamOffset);
+			uchar *boneIndicies = reinterpret_cast<uchar *>(mBuffers->vertexBuffers[mesh.vertexBufferIndices[descr->Header.streamIndex]]->buffer + (t * currentStride) + descr->Header.streamOffset);
 
 			for (int i = 0; i < numItems; i++)
 			{
