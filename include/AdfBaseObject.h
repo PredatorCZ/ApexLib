@@ -64,5 +64,13 @@ __declspec(align(8)) union AdfString
 	StringHash *str;
 };
 
+struct AdfHashString
+{
+	AdfString string;
+	ApexHash hash;
+
+	operator StringHash*() { return string.str; }
+};
+
 class BinReader;
 class ADF;

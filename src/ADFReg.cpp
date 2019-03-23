@@ -26,6 +26,7 @@
 #include "datas/reflectorRegistry.hpp"
 #include "datas/disabler.hpp"
 #include "StuntAreas.h"
+#include "DeformPoints.h"
 
 template<class C> ADFInstance *ADFCreateDerivedClass() { return new C{}; }
 template<class C> AdfProperties *ADFCreatePropClass() { return new C{}; }
@@ -154,7 +155,8 @@ static const std::map<ApexHash, ADFInstance *(*)()> ADFClassStorage =
 	AmfMeshBuffers,
 	AmfModel,
 	AmfMeshBuffers_TheHunter,
-	ADFStuntAreas
+	ADFStuntAreas,
+	ADFDeformPoints
 	)
 };
 

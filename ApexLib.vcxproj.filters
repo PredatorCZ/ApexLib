@@ -72,6 +72,9 @@
     <ClInclude Include="include\StuntAreas.h">
       <Filter>Header Files\ADF</Filter>
     </ClInclude>
+    <ClInclude Include="include\DeformPoints.h">
+      <Filter>Header Files\ADF</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\lookup3.c">
@@ -123,6 +126,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\StuntAreas.cpp">
+      <Filter>Source Files\ADF</Filter>
+    </ClCompile>
+    <ClCompile Include="src\DeformPoints.cpp">
       <Filter>Source Files\ADF</Filter>
     </ClCompile>
   </ItemGroup>

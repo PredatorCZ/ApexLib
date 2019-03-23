@@ -26,6 +26,7 @@
     <ClInclude Include="include\AmfMesh.h" />
     <ClInclude Include="include\AmfModel.h" />
     <ClInclude Include="include\ApexApi.h" />
+    <ClInclude Include="include\DeformPoints.h" />
     <ClInclude Include="include\RBM.h" />
     <ClInclude Include="include\RBMClassesHU.h" />
     <ClInclude Include="include\RBMClassesJC2.h" />
@@ -44,6 +45,7 @@
     <ClCompile Include="src\ADFReg.cpp" />
     <ClCompile Include="src\AmfMesh.cpp" />
     <ClCompile Include="src\AmfModel.cpp" />
+    <ClCompile Include="src\DeformPoints.cpp" />
     <ClCompile Include="src\lookup3.c" />
     <ClCompile Include="src\RBM.cpp" />
     <ClCompile Include="src\RBMClassesHU.cpp" />
