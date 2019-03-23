@@ -20,7 +20,6 @@
 #include "datas\masterprinter.hpp"
 #include "ADF.h"
 #include "AmfModel.h"
-#include "AmfMesh.h"
 
 void RBNGeneral::Load(BinReader * rd)
 {
@@ -58,15 +57,11 @@ void RBNGeneral::Link(ADF *base)
 	int currentDesc = 0;
 	int currentStride = 8;
 
-	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Position, AmfFormat_R16G16B16_SNORM, 0);
-
-		*reinterpret_cast<float*>(descr.Header.packingData) = vertexScale;
-	}
-
-	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Unspecified, AmfFormat_R16_SINT, 0);
-	}
+	AmfStreamAttribute *descr = RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_Position, AmfFormat_R16G16B16_SNORM);
+	*reinterpret_cast<float*>(descr->Header.packingData) = vertexScale;
+	
+	
+	RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_Unspecified, AmfFormat_R16_SINT);
 
 	currentStride = (4 * (additionalUVSets + 1)) + 12;
 	currentBufferOffset = 0;
@@ -93,25 +88,16 @@ void RBNGeneral::Link(ADF *base)
 		}
 		}
 
-		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM, 1);
+		descr = RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM, 1);
 
 		if (uvScale)
-			*reinterpret_cast<Vector2*>(descr.Header.packingData) = *uvScale;
+			*reinterpret_cast<Vector2*>(descr->Header.packingData) = *uvScale;
 
 	}
 
-	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Normal, AmfFormat_R32_UNIT_VEC_AS_FLOAT, 1);
-	}
-
-	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Tangent, AmfFormat_R32_UNIT_VEC_AS_FLOAT, 1);
-	}
-
-	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Color, AmfFormat_R32_R8G8B8A8_UNORM_AS_FLOAT, 1);
-	}
-
+	RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_Normal, AmfFormat_R32_UNIT_VEC_AS_FLOAT, 1);	
+	RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_Tangent, AmfFormat_R32_UNIT_VEC_AS_FLOAT, 1);	
+	RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_Color, AmfFormat_R32_R8G8B8A8_UNORM_AS_FLOAT, 1);
 }
 
 void RBNCharacter::Load(BinReader * rd)
@@ -151,48 +137,73 @@ void RBNCharacter::Link(ADF * base)
 	int currentDesc = 0;
 	const int currentStride = 8 + (trimmedWeights ? 4 : 8) + (4 * (additionalUVSets + 1)) + 4;
 
-	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Position, AmfFormat_R16G16B16_SNORM, 0);
-
-		*reinterpret_cast<float*>(descr.Header.packingData) = vertexScale;
-	}
-
-	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Unspecified, AmfFormat_R16_SINT, 0);
-	}
-
+	AmfStreamAttribute *descr = RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_Position, AmfFormat_R16G16B16_SNORM);
+	*reinterpret_cast<float*>(descr->Header.packingData) = vertexScale;
 	
+	RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_Unspecified, AmfFormat_R16_SINT);
 
+	if (trimmedWeights)
 	{
-		if (trimmedWeights)
-		{
-			RBM_NEW_DESCRIPTOR(AmfUsage_BoneWeight, AmfFormat_R8G8_UNORM, 0);
-		}
-		else
-		{
-			RBM_NEW_DESCRIPTOR(AmfUsage_BoneWeight, AmfFormat_R8G8B8A8_UNORM, 0);
-		}
+		RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_BoneWeight, AmfFormat_R8G8_UNORM);
+		descr = RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_BoneIndex, AmfFormat_R8G8_UINT);
+	}
+	else
+	{
+		RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_BoneWeight, AmfFormat_R8G8B8A8_UNORM);
+		descr = RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_BoneIndex, AmfFormat_R8G8B8A8_UINT);
 	}
 
 	{
-		if (trimmedWeights)
+		std::vector<bool> idxs(256);
+		const int numItems = trimmedWeights ? 2 : 4;
+		int numRemaps = 0;
+
+		for (int t = 0; t < mesh.Header.vertexCount; t++)
 		{
-			RBM_NEW_DESCRIPTOR(AmfUsage_BoneIndex, AmfFormat_R8G8_UINT, 0);
+			const uchar *boneIndicies = reinterpret_cast<uchar *>(mBuffers->vertexBuffers[0]->buffer + (t * currentStride) + descr->Header.streamOffset);
+
+			for (int i = 0; i < numItems; i++)
+			{
+				const uchar cIndex = *(boneIndicies + i);
+
+				if (!idxs[cIndex])
+				{
+					idxs[cIndex] = true;
+					numRemaps++;
+				}
+			}
 		}
-		else
+
+		mesh.boneIndexLookup.reserve(numRemaps);
+		std::vector<uchar> invertedLookups(256);
+
+		for (int t = 0; t < 256; t++)
+			if (idxs[t])
+			{
+				mesh.boneIndexLookup.push_back(t);
+				invertedLookups[t] = mesh.boneIndexLookup.size() - 1;
+			}
+
+		for (int t = 0; t < mesh.Header.vertexCount; t++)
 		{
-			RBM_NEW_DESCRIPTOR(AmfUsage_BoneIndex, AmfFormat_R8G8B8A8_UINT, 0);
+			uchar *boneIndicies = reinterpret_cast<uchar *>(mBuffers->vertexBuffers[0]->buffer + (t * currentStride) + descr->Header.streamOffset);
+
+			for (int i = 0; i < numItems; i++)
+			{
+				uchar &cIndex = *(boneIndicies + i);
+
+				cIndex = invertedLookups[cIndex];
+			}
 		}
+
 	}
 
 	for (uint u = 0; u <= additionalUVSets; u++)
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM, 0);
+		RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM);
 	}
 
-	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_TangentSpace, AmfFormat_R8G8B8A8_TANGENT_SPACE, 0);
-	}
+	RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_TangentSpace, AmfFormat_R8G8B8A8_TANGENT_SPACE);
 }
 
 void RBNCarPaint::Load(BinReader * rd)
@@ -250,11 +261,11 @@ void RBNCarPaint::Link(ADF * base)
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Normal, AmfFormat_R32_UNIT_VEC_AS_FLOAT, 1);
+		RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_Normal, AmfFormat_R32_UNIT_VEC_AS_FLOAT, 1);
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Tangent, AmfFormat_R32_UNIT_VEC_AS_FLOAT, 1);
+		RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_Tangent, AmfFormat_R32_UNIT_VEC_AS_FLOAT, 1);
 	}
 }
 
@@ -353,29 +364,27 @@ void RBNXXXX::Link(ADF * base)
 	int currentStride = 8;
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Position, AmfFormat_R16G16B16_SNORM, 0);
-
-		*reinterpret_cast<float*>(descr.Header.packingData) = vertexScale;
+		AmfStreamAttribute *descr = RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_Position, AmfFormat_R16G16B16_SNORM);
+		*reinterpret_cast<float*>(descr->Header.packingData) = vertexScale;
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Unspecified, AmfFormat_R16_SINT, 0);
+		RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_Unspecified, AmfFormat_R16_SINT);
 	}
 
 	currentStride = 12;
 	currentBufferOffset = 0;
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM, 1);
-
-		*reinterpret_cast<Vector2*>(descr.Header.packingData) = UV1Scale;
+		AmfStreamAttribute *descr = RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM, 1);
+		*reinterpret_cast<Vector2*>(descr->Header.packingData) = UV1Scale;
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Normal, AmfFormat_R32_UNIT_VEC_AS_FLOAT, 1);
+		RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_Normal, AmfFormat_R32_UNIT_VEC_AS_FLOAT, 1);
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Tangent, AmfFormat_R32_UNIT_VEC_AS_FLOAT, 1);
+		RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_Tangent, AmfFormat_R32_UNIT_VEC_AS_FLOAT, 1);
 	}
 }

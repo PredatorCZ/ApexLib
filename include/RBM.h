@@ -19,7 +19,7 @@
 #include "datas/reflector.hpp"
 #include "datas/vectors.hpp"
 #include <map>
-#include "AdfBaseObject.h"
+#include "AmfMesh.h"
 
 struct AmfMesh;
 struct AmfBuffer;
@@ -84,14 +84,20 @@ classname(){typeHash = ADFHASH; hash.data = HASH; ConstructReflection();} const 
 #define RBMCONSTRUCTOR_NOREFL(classname, shash) static const ApexHash ADFHASH = JenkinsHash(#classname, sizeof(#classname) - 1); static const uint64 HASH = shash;\
 classname(){typeHash = ADFHASH; hash.data = HASH;} const char *GetClassname() {return #classname;}
 
-#define RBM_NEW_DESCRIPTOR(_usage, _format, _streamIndex) AmfStreamAttribute &descr = mesh.streamAttributes[currentDesc++];\
-descr.Header.usage = _usage;\
-descr.Header.format = _format;\
-descr.AssignEvaluator();\
-descr.Header.streamIndex = _streamIndex;\
-descr.Header.streamOffset = currentBufferOffset;\
-descr.Header.streamStride = currentStride;\
-currentBufferOffset += AmfFormatStrides[_format];
+ES_FORCEINLINE AmfStreamAttribute *RBMNewDescriptor(AmfMesh &mesh, int &currentDesc, int &currentBufferOffset, int bufferStride, AmfUsage usage, AmfFormat format, int streamIndex = 0)
+{
+	AmfStreamAttribute &descr = mesh.streamAttributes[currentDesc++];
+	descr.Header.usage = usage;
+	descr.Header.format = format;
+	descr.AssignEvaluator();
+	descr.Header.streamIndex = streamIndex;
+	descr.Header.streamOffset = currentBufferOffset;
+	descr.Header.streamStride = bufferStride;
+	currentBufferOffset += AmfFormatStrides[format];
+	return &descr;
+}
+
+#define RBM_NEW_DESCRIPTOR(_usage, _format, _streamIndex) AmfStreamAttribute &descr = *RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, _usage, _format, _streamIndex);
 
 #define RBMREFLECTOR_FROM_PARENT(parentClass) ES_INLINE void ConstructReflection() \
 {\

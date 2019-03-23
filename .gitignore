@@ -33,3 +33,4 @@
 *.pdb
 *ObjDump/*
 *.bat
+*.vs/*
