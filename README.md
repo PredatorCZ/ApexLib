@@ -3,6 +3,8 @@ ApexLib is independent serialize library for various formats used by Apex Engine
 
 In addition, it can extract class information from ADF files into readable XML format.
 
+Library is compilable under VS 2015, 2017, 2019.
+
 NOTE: RBM, RBN, RBS files are roughly converted into ADF format.
 
 ## Supported titles/formats
