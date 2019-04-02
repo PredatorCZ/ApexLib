@@ -57,23 +57,23 @@ struct AmfStreamAttribute
 
 struct GeneralMeshConstants
 {
-	DECLARE_REFLECTOR_WNAMES_STATIC;
+	DECLARE_REFLECTOR;
 	int pristineIndexCount;
-	EnumFlags<char, GeneralMeshConstantsFlags> flags;
+	esFlags<char, GeneralMeshConstantsFlags> flags;
 	static const ApexHash HASH = _EnumWrap<GeneralMeshConstantsFlags>::HASH;
 };
 
 struct FoliageMeshConstants
 {
-	DECLARE_REFLECTOR_WNAMES_STATIC;
+	DECLARE_REFLECTOR;
 	AdfBBOX boundingBoxDimensions;
 	static const ApexHash HASH = 0xA7CACE80;
 };
 
 struct CarPaintMeshConstants
 {
-	DECLARE_REFLECTOR_WNAMES_STATIC;
-	EnumFlags<char, CarPaintMeshConstantsFlags> flags;
+	DECLARE_REFLECTOR;
+	esFlags<char, CarPaintMeshConstantsFlags> flags;
 	static const ApexHash HASH = 0x1C363162;
 };
 

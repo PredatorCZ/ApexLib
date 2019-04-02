@@ -19,27 +19,27 @@
 
 struct RBSGeneral : RBMMasterBlock
 {
-	RBMCONSTRUCTOR_NOREFL(RBSGeneral, 0x70826f6ee);
+	RBMCONSTRUCTOR(RBSGeneral, 0x70826f6ee);
 	void Load(BinReader *rd);
 };
 
 
 struct RBSCharacter : RBSGeneral
 {
-	RBMCONSTRUCTOR_NOREFL(RBSCharacter, 0xd9d6e332a);
+	RBMCONSTRUCTOR(RBSCharacter, 0xd9d6e332a);
 };
 
 struct RBSCarPaint : RBSGeneral
 {
-	RBMCONSTRUCTOR_NOREFL(RBSCarPaint, 0x4483304d6);
+	RBMCONSTRUCTOR(RBSCarPaint, 0x4483304d6);
 };
 
 struct RBSWindow : RBSGeneral
 {
-	RBMCONSTRUCTOR_NOREFL(RBSWindow, 0x55b2003f6);
+	RBMCONSTRUCTOR(RBSWindow, 0x55b2003f6);
 };
 
 struct RBSXXXX : RBSGeneral
 {
-	RBMCONSTRUCTOR_NOREFL(RBSXXXX, 0x4ed8b5331);
+	RBMCONSTRUCTOR(RBSXXXX, 0x4ed8b5331);
 };

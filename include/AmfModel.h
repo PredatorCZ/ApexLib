@@ -24,7 +24,7 @@
 
 struct GeneralConstants
 {
-	DECLARE_REFLECTOR_WNAMES_STATIC;
+	DECLARE_REFLECTOR;
 	static const ApexHash HASH = 0x1B12D103;
 	Vector overlayColor;
 	float roughnessModulator,
@@ -62,12 +62,12 @@ struct GeneralConstants
 		rippleAngle,
 		rippleSpeed,
 		rippleMagnitude;
-	EnumFlags<int, GeneralConstantsFlags> flags;
+	esFlags<int, GeneralConstantsFlags> flags;
 };
 
 struct CarLightConstants
 {
-	DECLARE_REFLECTOR_WNAMES_STATIC;
+	DECLARE_REFLECTOR;
 	static const ApexHash HASH = 0x948AE239;
 	Vector4 diffuseModulator;
 	Vector2 detailTiling;
@@ -82,19 +82,19 @@ struct CarLightConstants
 
 struct WindowConstants
 {
-	DECLARE_REFLECTOR_WNAMES_STATIC;
+	DECLARE_REFLECTOR;
 	static const ApexHash HASH = 0x58D9967A;
 	float roughnessModulator,
 		dielectricReflectance,
 		tintPower,
 		minAlpha,
 		UVScale;
-	EnumFlags<char, WindowConstantsFlags> flags;
+	esFlags<char, WindowConstantsFlags> flags;
 };
 
 struct CarPaintStaticConstants
 {
-	DECLARE_REFLECTOR_WNAMES_STATIC;
+	DECLARE_REFLECTOR;
 	static const ApexHash HASH = 0xE513D12B;
 	Vector4 dirtParams,
 		dirtBlend,
@@ -127,7 +127,7 @@ struct CarPaintStaticConstants
 
 struct CarPaintDynamicConstants
 {
-	DECLARE_REFLECTOR_WNAMES_STATIC;
+	DECLARE_REFLECTOR;
 	static const ApexHash HASH = 0xCD2C3428;
 	Vector4 tintColorR,
 		tintColorG,
@@ -137,19 +137,19 @@ struct CarPaintDynamicConstants
 
 struct CarPaintConstants
 {
-	DECLARE_REFLECTOR_WNAMES_STATIC;
+	DECLARE_REFLECTOR;
 	static const ApexHash HASH = 0x73375A05;
 	CarPaintStaticConstants staticAttributes;
 	CarPaintDynamicConstants dynamicAttributes;
 	float gIEmissionModulator;
-	EnumFlags<short, CarPaintConstantsFlags0> flags0;
-	EnumFlags<int, CarPaintConstantsFlags1> flags1;
-	EnumFlags<short, CarPaintConstantsFlags2> flags2;
+	esFlags<short, CarPaintConstantsFlags0> flags0;
+	esFlags<int, CarPaintConstantsFlags1> flags1;
+	esFlags<short, CarPaintConstantsFlags2> flags2;
 };
 
 struct CharacterSkinConstants
 {
-	DECLARE_REFLECTOR_WNAMES_STATIC;
+	DECLARE_REFLECTOR;
 	static const ApexHash HASH = 0xD8749464;
 	Vector2 detailTilingFactorUV;
 	float roughnessModulator,
@@ -162,12 +162,12 @@ struct CharacterSkinConstants
 		furRoughness,
 		furGravity,
 		furSize;
-	EnumFlags<short, CharacterSkinConstantsFlags> flags;
+	esFlags<short, CharacterSkinConstantsFlags> flags;
 };
 
 struct CharacterConstants
 {
-	DECLARE_REFLECTOR_WNAMES_STATIC;
+	DECLARE_REFLECTOR;
 	static const ApexHash HASH = 0x25970695;
 	Vector2 detailTilingFactorUV,
 		decalBlendFactors;
@@ -179,36 +179,36 @@ struct CharacterConstants
 		transmission,
 		emissiveIntensity,
 		dirtFactor;
-	EnumFlags<int, CharacterConstantsFlags> flags;
+	esFlags<int, CharacterConstantsFlags> flags;
 };
 
 struct EyeGlossConstants
 {
-	DECLARE_REFLECTOR_WNAMES_STATIC;
+	DECLARE_REFLECTOR;
 	static const ApexHash HASH = 0x1BAC0639;
 	float eyeGlossiness,
 		eyeSpecularIntensity,
 		eyeReflectIntensity,
 		eyeReflectThreshold,
 		eyeGlossShadowIntensity;
-	EnumFlags<short, EyeGlossConstantsFlags> flags;
+	esFlags<short, EyeGlossConstantsFlags> flags;
 };
 
 struct HairConstants
 {
-	DECLARE_REFLECTOR_WNAMES_STATIC;
+	DECLARE_REFLECTOR;
 	static const ApexHash HASH = 0x342303CE;
 	float roughnessModulator,
 		specularMultiplier,
 		scatteringMultiplier,
 		shiftFactor,
 		dielectricReflectance;
-	EnumFlags<short, HairConstantsFlags> flags;
+	esFlags<short, HairConstantsFlags> flags;
 };
 
 struct BarkConstants
 {
-	DECLARE_REFLECTOR_WNAMES_STATIC;
+	DECLARE_REFLECTOR;
 	static const ApexHash HASH = 0x60A5C450;
 	float roughnessModulator,
 		dielectricReflectance,
@@ -225,12 +225,12 @@ struct BarkConstants
 		leafStiffness,
 		windProperty7,
 		windProperty8;
-	EnumFlags<int, BarkConstantsFlags> flags;
+	esFlags<int, BarkConstantsFlags> flags;
 };
 
 struct FoliageConstants
 {
-	DECLARE_REFLECTOR_WNAMES_STATIC;
+	DECLARE_REFLECTOR;
 	static const ApexHash HASH = 0xA37CA160;
 	Vector4 diffuseModulator;
 	float roughnessModulator,
@@ -247,12 +247,12 @@ struct FoliageConstants
 		leafStiffness,
 		windProperty7,
 		windProperty8;
-	EnumFlags<char, FoliageConstantsFlags> flags;
+	esFlags<char, FoliageConstantsFlags> flags;
 };
 
 struct HologramConstants
 {
-	DECLARE_REFLECTOR_WNAMES_STATIC;
+	DECLARE_REFLECTOR;
 	static const ApexHash HASH = 0x75AF78A;
 	Vector emissiveColor;
 	float emissiveIntensity,
@@ -279,7 +279,7 @@ struct HologramConstants
 
 struct LandmarkConstants
 {
-	DECLARE_REFLECTOR_WNAMES_STATIC;
+	DECLARE_REFLECTOR;
 	static const ApexHash HASH = 0xE73F3C81;
 	float specularGloss,
 		reflectivity,
@@ -295,7 +295,7 @@ struct LandmarkConstants
 
 struct EmissiveUIConstants
 {
-	DECLARE_REFLECTOR_WNAMES_STATIC;
+	DECLARE_REFLECTOR;
 	static const ApexHash HASH = 0x669097B7;
 	Vector primaryColor,
 		secondaryColor;

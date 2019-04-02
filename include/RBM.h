@@ -79,10 +79,7 @@ struct RBMMasterBlock : AdfProperties, Reflector
 };
 
 #define RBMCONSTRUCTOR(classname, shash) static const ApexHash ADFHASH = JenkinsHash(#classname, sizeof(#classname) - 1); static const uint64 HASH = shash;\
-classname(){typeHash = ADFHASH; hash.data = HASH; ConstructReflection();} const char *GetClassname() {return #classname;}
-
-#define RBMCONSTRUCTOR_NOREFL(classname, shash) static const ApexHash ADFHASH = JenkinsHash(#classname, sizeof(#classname) - 1); static const uint64 HASH = shash;\
-classname(){typeHash = ADFHASH; hash.data = HASH;} const char *GetClassname() {return #classname;}
+classname(){typeHash = ADFHASH; hash.data = HASH;} const char *GetClassname() { return #classname; }
 
 ES_FORCEINLINE AmfStreamAttribute *RBMNewDescriptor(AmfMesh &mesh, int &currentDesc, int &currentBufferOffset, int bufferStride, AmfUsage usage, AmfFormat format, int streamIndex = 0)
 {
@@ -99,10 +96,6 @@ ES_FORCEINLINE AmfStreamAttribute *RBMNewDescriptor(AmfMesh &mesh, int &currentD
 
 #define RBM_NEW_DESCRIPTOR(_usage, _format, _streamIndex) AmfStreamAttribute &descr = *RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, _usage, _format, _streamIndex);
 
-#define RBMREFLECTOR_FROM_PARENT(parentClass) ES_INLINE void ConstructReflection() \
-{\
-	_nTypes = parentClass::nTypes;\
-	_typeNames = parentClass::typeNames;\
-	_types = parentClass::types;\
-	thisAddr = reinterpret_cast<char*>(this);\
-}
+#define RBMREFLECTOR_FROM_PARENT(parentClass) \
+const reflectorInstanceConst _rfRetreive() const { return { parentClass::__rfPtrStatic, this }; }\
+const reflectorInstance _rfRetreive() { return { parentClass::__rfPtrStatic, this }; }

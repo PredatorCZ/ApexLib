@@ -20,7 +20,6 @@
 
 struct RBMVegetationFoliage3 : RBMMasterBlock
 {
-	DECLARE_REFLECTOR_EMPTY;
 	RBMCONSTRUCTOR(RBMVegetationFoliage3, 0x3d79884c6);
 
 	//PSH
@@ -41,7 +40,6 @@ struct RBMVegetationFoliage3 : RBMMasterBlock
 
 struct RBMFoliageBark2 : RBMMasterBlock
 {
-	DECLARE_REFLECTOR_EMPTY;
 	RBMCONSTRUCTOR(RBMFoliageBark2, 0x2b1f9133d);
 
 	//PSH
@@ -62,7 +60,6 @@ struct RBMFoliageBark2 : RBMMasterBlock
 
 struct RBMGeneralSimple : RBMMasterBlock
 {
-	DECLARE_REFLECTOR_EMPTY;
 	RBMCONSTRUCTOR(RBMGeneralSimple, 0x62ee0f4a9);
 
 	//PSH
@@ -83,7 +80,6 @@ struct RBMGeneralSimple : RBMMasterBlock
 
 struct RBMWaterHull : RBMMasterBlock
 {
-	DECLARE_REFLECTOR_EMPTY;
 	RBMCONSTRUCTOR(RBMWaterHull, 0x1f99c72a1);
 
 	//PSH
@@ -103,7 +99,6 @@ struct RBMSimpleGeometry : RBMWaterHull
 
 struct RBMBavariumShiled : RBMMasterBlock
 {
-	DECLARE_REFLECTOR_EMPTY;
 	RBMCONSTRUCTOR(RBMBavariumShiled, 0x1a5d24ccd);
 
 	//PSH
@@ -119,7 +114,6 @@ struct RBMBavariumShiled : RBMMasterBlock
 
 struct RBMWindow1 : RBMMasterBlock
 {
-	DECLARE_REFLECTOR_EMPTY;
 	RBMCONSTRUCTOR(RBMWindow1, 0x15b2003f6);
 
 	//PSH
@@ -135,7 +129,6 @@ struct RBMWindow1 : RBMMasterBlock
 
 struct RBMLayered: RBMMasterBlock
 {
-	DECLARE_REFLECTOR_EMPTY;
 	RBMCONSTRUCTOR(RBMLayered, 0x1c7021ee3);
 
 	//PSH
@@ -157,7 +150,6 @@ struct RBMLayered: RBMMasterBlock
 
 struct RBMLandmark : RBMMasterBlock
 {
-	DECLARE_REFLECTOR_EMPTY;
 	RBMCONSTRUCTOR(RBMLandmark, 0x73b630e6d);
 
 	//PSH
@@ -178,7 +170,6 @@ struct RBMLandmark : RBMMasterBlock
 
 struct RBMGeneralMK3 : RBMMasterBlock
 {
-	DECLARE_REFLECTOR_EMPTY;
 	RBMCONSTRUCTOR(RBMGeneralMK3, 0x52cec5ad5);
 
 	//PSH
@@ -203,7 +194,6 @@ struct RBMGeneralMK3 : RBMMasterBlock
 
 struct RBMGeneral6 : RBMMasterBlock
 {
-	DECLARE_REFLECTOR_EMPTY;
 	RBMCONSTRUCTOR(RBMGeneral6, 0x6a7583b2b);
 
 	//PSH
@@ -224,7 +214,6 @@ struct RBMGeneral6 : RBMMasterBlock
 
 struct RBMCarLight : RBMMasterBlock
 {
-	DECLARE_REFLECTOR_EMPTY;
 	RBMCONSTRUCTOR(RBMCarLight, 0x1db948bf1);
 
 	//PSH
@@ -240,7 +229,6 @@ struct RBMCarLight : RBMMasterBlock
 
 struct RBMCarPaint14 : RBMMasterBlock
 {
-	DECLARE_REFLECTOR_EMPTY;
 	RBMCONSTRUCTOR(RBMCarPaint14, 0xE483304d6);
 
 	//PSH
@@ -257,7 +245,6 @@ struct RBMCarPaint14 : RBMMasterBlock
 
 struct RBMGeneral3 : RBMMasterBlock
 {
-	DECLARE_REFLECTOR_EMPTY;
 	RBMCONSTRUCTOR(RBMGeneral3, 0x304894ecd);
 
 	//PSH
@@ -278,7 +265,6 @@ struct RBMGeneral3 : RBMMasterBlock
 
 struct RBMCharacter9 : RBMMasterBlock
 {
-	DECLARE_REFLECTOR_EMPTY;
 	RBMCONSTRUCTOR(RBMCharacter9, 0x99d6e332a);
 
 	//PSH
@@ -298,7 +284,6 @@ struct RBMCharacter9 : RBMMasterBlock
 
 struct RBMCharacter6 : RBMMasterBlock
 {
-	DECLARE_REFLECTOR_EMPTY;
 	RBMCONSTRUCTOR(RBMCharacter6, 0x6626f5e3b);
 
 	//PSH
@@ -318,7 +303,6 @@ struct RBMCharacter6 : RBMMasterBlock
 
 struct RBMRoad : RBMMasterBlock
 {
-	DECLARE_REFLECTOR_EMPTY;
 	RBMCONSTRUCTOR(RBMRoad, 0x1566dce92);
 
 	//PSH
@@ -348,7 +332,6 @@ struct RBMRoad : RBMMasterBlock
 
 struct RBMGeneralSimple3 : RBMMasterBlock
 {
-	DECLARE_REFLECTOR_EMPTY;
 	RBMCONSTRUCTOR(RBMGeneralSimple3, 0x335bf53d5);
 
 	//PSH

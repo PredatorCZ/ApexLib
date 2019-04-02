@@ -21,7 +21,6 @@
 
 struct RBMUIOverlay : RBMMasterBlock
 {
-	DECLARE_REFLECTOR_EMPTY;
 	RBMCONSTRUCTOR(RBMUIOverlay, 0xd7af3bee);
 
 	//VSH
@@ -32,6 +31,5 @@ struct RBMUIOverlay : RBMMasterBlock
 
 struct RBMScope : RBMUIOverlay
 {
-	DECLARE_REFLECTOR_EMPTY;
 	RBMCONSTRUCTOR(RBMScope, 0x7e407c92);
 };

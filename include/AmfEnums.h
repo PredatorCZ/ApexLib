@@ -18,7 +18,7 @@
 #pragma once
 #include "datas/reflector.hpp"
 
-REFLECTOR_ENUM_NAKED(AmfUsage, 0x111,
+REFLECTOR_ENUM_NAKED(AmfUsage,
 	AmfUsage_Unspecified, 
 	AmfUsage_Position, 
 	AmfUsage_TextureCoordinate, 
@@ -41,7 +41,7 @@ static constexpr int AmfFormatStrides[] =
 	4
 };
 
-REFLECTOR_ENUM_NAKED(AmfFormat, 0x112,
+REFLECTOR_ENUM_NAKED(AmfFormat,
 	AmfFormat_R32G32B32A32_FLOAT, 
 	AmfFormat_R32G32B32A32_UINT, 
 	AmfFormat_R32G32B32A32_SINT, 
@@ -114,33 +114,33 @@ static_assert(AmfFormatStrides[AmfFormat_R8_SINT] == 1, "AmfFormatStrides AmfFor
 static_assert(AmfFormatStrides[AmfFormat_R32_UNIT_VEC_AS_FLOAT] == 4, "AmfFormatStrides AmfFormat_R32_UNIT_VEC_AS_FLOAT");
 static_assert(AmfFormatStrides[AmfFormat_R8G8B8A8_TANGENT_SPACE] == 4, "AmfFormatStrides AmfFormat_R8G8B8A8_TANGENT_SPACE");
 
-REFLECTOR_ENUM(GeneralMeshConstantsFlags, 0x15EEC9DE, isDestructionMesh, isSkinnedMesh);
-REFLECTOR_ENUM(CarPaintMeshConstantsFlags, 0x1C363162, deformable, skinned);
+REFLECTOR_ENUM(GeneralMeshConstantsFlags, isDestructionMesh, isSkinnedMesh);
+REFLECTOR_ENUM(CarPaintMeshConstantsFlags, deformable, skinned);
 
-REFLECTOR_ENUM(GeneralConstantsFlags, 0x1B12D103, backfaceCulling, alphaBlend, alphaTest, dynamicEmissive, worldSpaceNormals, roadJunction, useVertexAnimation,
+REFLECTOR_ENUM(GeneralConstantsFlags, backfaceCulling, alphaBlend, alphaTest, dynamicEmissive, worldSpaceNormals, roadJunction, useVertexAnimation,
 	anisotropicFiltering, useCustomEmissiveHue, useMPMChannelInput, useDiffuseRoughness, useSpecularAniso, useTransmission, useClearCoat, wireAA,
 	HDRReference, layeredUseLayering, overlayUseOverlay, useEmissive, useEmissiveLightColor, roadDepthBias);
 
-REFLECTOR_ENUM(WindowConstantsFlags, 0x58D9967A, simple, oneSided);
+REFLECTOR_ENUM(WindowConstantsFlags, simple, oneSided);
 
-REFLECTOR_ENUM(CarPaintConstantsFlags0, 0x73375A05, decals, useDamageBlend, dirt, tint, tintSoftBlend, twoSided,
+REFLECTOR_ENUM(CarPaintConstantsFlags0, decals, useDamageBlend, dirt, tint, tintSoftBlend, twoSided,
 	alphaBlend, alphaTest, rotating, scrolling);
 
-REFLECTOR_ENUM(CarPaintConstantsFlags1, 0x73375A06, useCustomEmissiveHue, useMPMChannelInput);
+REFLECTOR_ENUM(CarPaintConstantsFlags1, useCustomEmissiveHue, useMPMChannelInput);
 
-REFLECTOR_ENUM(CarPaintConstantsFlags2, 0x73375A07, useCustomDiffuseRoughness, useSpecularAniso, useTransmission, useClearcoat);
+REFLECTOR_ENUM(CarPaintConstantsFlags2, useCustomDiffuseRoughness, useSpecularAniso, useTransmission, useClearcoat);
 
-REFLECTOR_ENUM(CharacterSkinConstantsFlags, 0xD8749464, doubleSided, useAlphaMask, useWrinkleMap, useFur,
+REFLECTOR_ENUM(CharacterSkinConstantsFlags, doubleSided, useAlphaMask, useWrinkleMap, useFur,
 	useMPMChannelInput, useCustomDiffuseRoughness, useTransmission, headMaterial);
 
-REFLECTOR_ENUM(CharacterConstantsFlags, 0x25970695, doubleSided, alphaTest, alphaBlending, useDetail, useDecal, useTint,
+REFLECTOR_ENUM(CharacterConstantsFlags, doubleSided, alphaTest, alphaBlending, useDetail, useDecal, useTint,
 	useTintSoftBlend, useWrinkleMap, useCustomEmissiveHue, useMPMChannelInput, useCustomDiffuseRoughness, useSpecularAniso, useTransmission);
 
-REFLECTOR_ENUM(EyeGlossConstantsFlags, 0x1BAC0639, customEyeReflectionCube);
+REFLECTOR_ENUM(EyeGlossConstantsFlags, customEyeReflectionCube);
 
-REFLECTOR_ENUM(HairConstantsFlags, 0x342303CE, doubleSided, alphaTest, alphaBlending);
+REFLECTOR_ENUM(HairConstantsFlags, doubleSided, alphaTest, alphaBlending);
 
-REFLECTOR_ENUM(BarkConstantsFlags, 0x60A5C450, useMPMChannelInput, useCustomDiffuseRoughness, detailNormalUseUV2, useNewAnimation);
+REFLECTOR_ENUM(BarkConstantsFlags, useMPMChannelInput, useCustomDiffuseRoughness, detailNormalUseUV2, useNewAnimation);
 
-REFLECTOR_ENUM(FoliageConstantsFlags, 0xA37CA160, renderTransparent, objectSpaceNormalMap, useInteractionDisplacement,
+REFLECTOR_ENUM(FoliageConstantsFlags, renderTransparent, objectSpaceNormalMap, useInteractionDisplacement,
 	useInteractionFlattening, useCharacterInteractionFlattening, useMPMChannelInput, useTransmission, useNewAnimation);

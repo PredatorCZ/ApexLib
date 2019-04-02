@@ -20,7 +20,6 @@
 
 struct RBNGeneral : RBMMasterBlock
 {
-	DECLARE_REFLECTOR_EMPTY;
 	RBMCONSTRUCTOR(RBNGeneral, 0x1070826f6ee);
 
 	//PSH
@@ -43,7 +42,6 @@ struct RBNGeneral : RBMMasterBlock
 
 struct RBNCharacter : RBMMasterBlock
 {
-	DECLARE_REFLECTOR_EMPTY;
 	RBMCONSTRUCTOR(RBNCharacter, 0x10d9d6e332a);
 
 	//PSH
@@ -63,7 +61,6 @@ struct RBNCharacter : RBMMasterBlock
 
 struct RBNCarPaint : RBMMasterBlock
 {
-	DECLARE_REFLECTOR_EMPTY;
 	RBMCONSTRUCTOR(RBNCarPaint, 0x104483304d6);
 
 	//PSH
@@ -82,7 +79,6 @@ struct RBNCarPaint : RBMMasterBlock
 
 struct RBNWindow : RBMMasterBlock
 {
-	DECLARE_REFLECTOR_EMPTY;
 	RBMCONSTRUCTOR(RBNWindow, 0x1055b2003f6);
 
 	//PSH
@@ -98,7 +94,6 @@ struct RBNWindow : RBMMasterBlock
 
 struct RBNXXXX : RBMMasterBlock
 {
-	DECLARE_REFLECTOR_EMPTY;
 	RBMCONSTRUCTOR(RBNXXXX, 0x104ed8b5331);
 
 	//PSH

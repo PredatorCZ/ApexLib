@@ -4,3 +4,6 @@
 [submodule "3rd_party/pugixml"]
 	path = 3rd_party/pugixml
 	url = https://github.com/zeux/pugixml.git
+[submodule "3rd_party/zstd"]
+	path = 3rd_party/zstd
+	url = https://github.com/facebook/zstd.git

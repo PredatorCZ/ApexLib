@@ -25,6 +25,18 @@
     <Filter Include="Header Files\RBM">
       <UniqueIdentifier>{8ec6d2cf-c20c-4015-bde5-994c0e3add54}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\ZSTD">
+      <UniqueIdentifier>{9d186175-ad50-4d0d-8735-99346974a2ad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ZSTD\common">
+      <UniqueIdentifier>{7c008eb1-889a-47fb-a178-a7526ca718f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ZSTD\compress">
+      <UniqueIdentifier>{f157dd0a-e67c-4ee1-9499-195bde915388}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ZSTD\decompress">
+      <UniqueIdentifier>{1d3bdc15-af63-42c2-be38-c2dcf99ceecc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\ADF.h">
@@ -74,6 +86,12 @@
     </ClInclude>
     <ClInclude Include="include\DeformPoints.h">
       <Filter>Header Files\ADF</Filter>
+    </ClInclude>
+    <ClInclude Include="include\StreamPatch.h">
+      <Filter>Header Files\ADF</Filter>
+    </ClInclude>
+    <ClInclude Include="include\AVTX.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -130,6 +148,78 @@
     </ClCompile>
     <ClCompile Include="src\DeformPoints.cpp">
       <Filter>Source Files\ADF</Filter>
+    </ClCompile>
+    <ClCompile Include="src\StreamPatch.cpp">
+      <Filter>Source Files\ADF</Filter>
+    </ClCompile>
+    <ClCompile Include="3rd_party\zstd\lib\common\debug.c">
+      <Filter>Source Files\ZSTD\common</Filter>
+    </ClCompile>
+    <ClCompile Include="3rd_party\zstd\lib\common\entropy_common.c">
+      <Filter>Source Files\ZSTD\common</Filter>
+    </ClCompile>
+    <ClCompile Include="3rd_party\zstd\lib\common\error_private.c">
+      <Filter>Source Files\ZSTD\common</Filter>
+    </ClCompile>
+    <ClCompile Include="3rd_party\zstd\lib\common\fse_decompress.c">
+      <Filter>Source Files\ZSTD\common</Filter>
+    </ClCompile>
+    <ClCompile Include="3rd_party\zstd\lib\common\pool.c">
+      <Filter>Source Files\ZSTD\common</Filter>
+    </ClCompile>
+    <ClCompile Include="3rd_party\zstd\lib\common\threading.c">
+      <Filter>Source Files\ZSTD\common</Filter>
+    </ClCompile>
+    <ClCompile Include="3rd_party\zstd\lib\common\xxhash.c">
+      <Filter>Source Files\ZSTD\common</Filter>
+    </ClCompile>
+    <ClCompile Include="3rd_party\zstd\lib\common\zstd_common.c">
+      <Filter>Source Files\ZSTD\common</Filter>
+    </ClCompile>
+    <ClCompile Include="3rd_party\zstd\lib\compress\fse_compress.c">
+      <Filter>Source Files\ZSTD\compress</Filter>
+    </ClCompile>
+    <ClCompile Include="3rd_party\zstd\lib\compress\hist.c">
+      <Filter>Source Files\ZSTD\compress</Filter>
+    </ClCompile>
+    <ClCompile Include="3rd_party\zstd\lib\compress\huf_compress.c">
+      <Filter>Source Files\ZSTD\compress</Filter>
+    </ClCompile>
+    <ClCompile Include="3rd_party\zstd\lib\compress\zstd_compress.c">
+      <Filter>Source Files\ZSTD\compress</Filter>
+    </ClCompile>
+    <ClCompile Include="3rd_party\zstd\lib\compress\zstd_double_fast.c">
+      <Filter>Source Files\ZSTD\compress</Filter>
+    </ClCompile>
+    <ClCompile Include="3rd_party\zstd\lib\compress\zstd_fast.c">
+      <Filter>Source Files\ZSTD\compress</Filter>
+    </ClCompile>
+    <ClCompile Include="3rd_party\zstd\lib\compress\zstd_lazy.c">
+      <Filter>Source Files\ZSTD\compress</Filter>
+    </ClCompile>
+    <ClCompile Include="3rd_party\zstd\lib\compress\zstd_ldm.c">
+      <Filter>Source Files\ZSTD\compress</Filter>
+    </ClCompile>
+    <ClCompile Include="3rd_party\zstd\lib\compress\zstd_opt.c">
+      <Filter>Source Files\ZSTD\compress</Filter>
+    </ClCompile>
+    <ClCompile Include="3rd_party\zstd\lib\compress\zstdmt_compress.c">
+      <Filter>Source Files\ZSTD\compress</Filter>
+    </ClCompile>
+    <ClCompile Include="3rd_party\zstd\lib\decompress\huf_decompress.c">
+      <Filter>Source Files\ZSTD\decompress</Filter>
+    </ClCompile>
+    <ClCompile Include="3rd_party\zstd\lib\decompress\zstd_ddict.c">
+      <Filter>Source Files\ZSTD\decompress</Filter>
+    </ClCompile>
+    <ClCompile Include="3rd_party\zstd\lib\decompress\zstd_decompress.c">
+      <Filter>Source Files\ZSTD\decompress</Filter>
+    </ClCompile>
+    <ClCompile Include="3rd_party\zstd\lib\decompress\zstd_decompress_block.c">
+      <Filter>Source Files\ZSTD\decompress</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AVTX.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

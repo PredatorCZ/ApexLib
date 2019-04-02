@@ -24,9 +24,9 @@
 #include "AmfModel.h"
 #include "AmfFormatEvaluators.h"
 #include "datas/reflectorRegistry.hpp"
-#include "datas/disabler.hpp"
 #include "StuntAreas.h"
 #include "DeformPoints.h"
+#include "StreamPatch.h"
 
 template<class C> ADFInstance *ADFCreateDerivedClass() { return new C{}; }
 template<class C> AdfProperties *ADFCreatePropClass() { return new C{}; }
@@ -35,12 +35,11 @@ template<class C> struct AdfProperties_t : Reflector, AdfProperties
 {
 	typedef C value_type;
 	C properties;
-
-	ADD_DISABLERS(C, noReflection);
-	enabledFunction(noReflection, void) ES_INLINE ConstructReflection() { _nTypes = C::nTypes; _typeNames = C::typeNames; _types = C::types; thisAddr = reinterpret_cast<char*>(&properties); }
-	disabledFunction(noReflection, void) ES_INLINE ConstructReflection() {}
- 
-	AdfProperties_t<C>() { typeHash = C::HASH; ConstructReflection(); }
+private:
+	const reflectorInstanceConst _rfRetreive() const { return properties._rfRetreive(); }
+	const reflectorInstance _rfRetreive() { return properties._rfRetreive(); }
+public:
+	AdfProperties_t() { typeHash = C::HASH; }
 	void Load(BinReader *rd) { rd->Read(properties); }
 	void *GetProperties() { return &properties; }
 };
@@ -156,7 +155,10 @@ static const std::map<ApexHash, ADFInstance *(*)()> ADFClassStorage =
 	AmfModel,
 	AmfMeshBuffers_TheHunter,
 	ADFStuntAreas,
-	ADFDeformPoints
+	ADFDeformPoints,
+	StreamPatchFileHeader,
+	StreamPatchBlockHeader,
+	TerrainPatch
 	)
 };
 

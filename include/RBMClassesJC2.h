@@ -19,7 +19,7 @@
 #include "RBM.h"
 #include "datas/flags.hpp"
 
-REFLECTOR_ENUM(RBMCarPaintSimpleFlags, 0x81938490,
+REFLECTOR_ENUM(RBMCarPaintSimpleFlags,
 	NoCulling,
 	Alpha,
 	TwoTone,
@@ -31,7 +31,7 @@ REFLECTOR_ENUM(RBMCarPaintSimpleFlags, 0x81938490,
 
 struct RBMCarPaintSimple : RBMMasterBlock
 {
-	DECLARE_REFLECTOR_WNAMES;
+	DECLARE_REFLECTOR;
 	RBMCONSTRUCTOR(RBMCarPaintSimple, 0x181938490);
 
 	//PSH
@@ -41,7 +41,7 @@ struct RBMCarPaintSimple : RBMMasterBlock
 	float depthBias;
 	float reflectionMultiplier;
 	float unk[4];
-	EnumFlags<uint, RBMCarPaintSimpleFlags> flags;
+	esFlags<uint, RBMCarPaintSimpleFlags> flags;
 
 	//VSH
 	uint type;
@@ -51,7 +51,6 @@ struct RBMCarPaintSimple : RBMMasterBlock
 
 struct RBMFoliageBark : RBMMasterBlock
 {
-	DECLARE_REFLECTOR_EMPTY;
 	RBMCONSTRUCTOR(RBMFoliageBark, 0xb1f9133d);
 
 	//PSH
@@ -65,7 +64,7 @@ struct RBMFoliageBark : RBMMasterBlock
 
 struct RBMVegetationFoliage : RBMMasterBlock
 {
-	DECLARE_REFLECTOR_WNAMES;
+	DECLARE_REFLECTOR;
 	RBMCONSTRUCTOR(RBMVegetationFoliage, 0xd79884c6);
 
 	//PSH
@@ -82,7 +81,6 @@ struct RBMVegetationFoliage : RBMMasterBlock
 
 struct RBMBillboardFoliage : RBMMasterBlock
 {
-	DECLARE_REFLECTOR_EMPTY;
 	RBMCONSTRUCTOR(RBMBillboardFoliage, 0xad529e70);
 
 	//VSH
@@ -93,7 +91,6 @@ struct RBMBillboardFoliage : RBMMasterBlock
 
 struct RBMHalo : RBMMasterBlock
 {
-	DECLARE_REFLECTOR_EMPTY;
 	RBMCONSTRUCTOR(RBMHalo, 0x65d9b5b2);
 
 	//VSH
@@ -104,7 +101,6 @@ struct RBMHalo : RBMMasterBlock
 
 struct RBMLambert : RBMMasterBlock
 {
-	DECLARE_REFLECTOR_EMPTY;
 	RBMCONSTRUCTOR(RBMLambert, 0x4d5d78ae0);
 
 	//PSH
@@ -121,7 +117,7 @@ struct RBMLambert : RBMMasterBlock
 	void Load(BinReader *rd);
 };
 
-REFLECTOR_ENUM(RBMGeneralFlags, 0xa7583b2b,
+REFLECTOR_ENUM(RBMGeneralFlags,
 	NoCulling,
 	Alpha,
 	AdditiveAlpha,
@@ -135,7 +131,7 @@ REFLECTOR_ENUM(RBMGeneralFlags, 0xa7583b2b,
 
 struct RBMGeneral : RBMMasterBlock
 {
-	DECLARE_REFLECTOR_WNAMES;
+	DECLARE_REFLECTOR;
 	RBMCONSTRUCTOR(RBMGeneral, 0x3a7583b2b);
 
 	//PSH
@@ -143,7 +139,7 @@ struct RBMGeneral : RBMMasterBlock
 	Vector4 channelAoMask;
 	float depthBias;
 	float specularPower;
-	EnumFlags<uint, RBMGeneralFlags> flags;
+	esFlags<uint, RBMGeneralFlags> flags;
 	float vertexScale;
 	Vector2 UV1Scale;
 	Vector2 UV2Scale;
@@ -156,7 +152,7 @@ struct RBMGeneral : RBMMasterBlock
 	void Load(BinReader *rd);
 };
 
-REFLECTOR_ENUM(RBMFacadeFlags, 0xce39d7bf,
+REFLECTOR_ENUM(RBMFacadeFlags,
 	NoCulling,
 	Alpha,
 	_null00,
@@ -167,7 +163,7 @@ REFLECTOR_ENUM(RBMFacadeFlags, 0xce39d7bf,
 
 struct RBMFacade : RBMMasterBlock
 {
-	DECLARE_REFLECTOR_WNAMES;
+	DECLARE_REFLECTOR;
 	RBMCONSTRUCTOR(RBMFacade, 0x1ce39d7bf);
 
 	//PSH
@@ -176,7 +172,7 @@ struct RBMFacade : RBMMasterBlock
 	Vector emissiveMultiplier;
 	float depthBias;
 	float specularPower;
-	EnumFlags<uint, RBMFacadeFlags> flags;
+	esFlags<uint, RBMFacadeFlags> flags;
 	float vertexScale;
 	uint unk1;
 
@@ -188,7 +184,7 @@ struct RBMFacade : RBMMasterBlock
 
 struct RBMWindow : RBMMasterBlock
 {
-	DECLARE_REFLECTOR_WNAMES;
+	DECLARE_REFLECTOR;
 	RBMCONSTRUCTOR(RBMWindow, 0x5b2003f6);
 
 	//PSH
@@ -211,7 +207,6 @@ struct RBMCarPaint : RBMCarPaintSimple
 
 struct RBMDeformWindow : RBMMasterBlock
 {
-	DECLARE_REFLECTOR_EMPTY;
 	RBMCONSTRUCTOR(RBMDeformWindow, 0x106B1F602);
 
 	//VSH
@@ -222,7 +217,6 @@ struct RBMDeformWindow : RBMMasterBlock
 
 struct RBMMerged : RBMMasterBlock
 {
-	DECLARE_REFLECTOR_EMPTY;
 	RBMCONSTRUCTOR(RBMMerged, 0x9185A4C3);
 
 	//VSH
@@ -233,7 +227,7 @@ struct RBMMerged : RBMMasterBlock
 	void Load(BinReader *rd);
 };
 
-REFLECTOR_ENUM(RBMSkinnedGeneralTechnique, 0x5e657f20,
+REFLECTOR_ENUM(RBMSkinnedGeneralTechnique,
 	Skin,
 	Hair,
 	Cloth,
@@ -241,7 +235,7 @@ REFLECTOR_ENUM(RBMSkinnedGeneralTechnique, 0x5e657f20,
 	EyeGloss,
 	SkinAlphaToCoverage);
 
-REFLECTOR_ENUM(RBMSkinnedGeneralFlags, 0x5e657f21,
+REFLECTOR_ENUM(RBMSkinnedGeneralFlags,
 	NoCulling,
 	AlphaTest,
 	NoShadowCasting,
@@ -249,7 +243,7 @@ REFLECTOR_ENUM(RBMSkinnedGeneralFlags, 0x5e657f21,
 
 struct RBMSkinnedGeneral : RBMMasterBlock
 {
-	DECLARE_REFLECTOR_WNAMES;
+	DECLARE_REFLECTOR;
 	RBMCONSTRUCTOR(RBMSkinnedGeneral, 0x35e657f20);
 
 	//PSH
@@ -259,7 +253,7 @@ struct RBMSkinnedGeneral : RBMMasterBlock
 		struct 
 		{
 			esEnum<uchar, RBMSkinnedGeneralTechnique> technique;
-			EnumFlags<uchar, RBMSkinnedGeneralFlags> flags;
+			esFlags<uchar, RBMSkinnedGeneralFlags> flags;
 			short null;
 		} f;
 		_Flags() : d(0) {}
