@@ -17,6 +17,9 @@
 
 #pragma once
 #include "datas/flags.hpp"
+#include "datas/esstring.h"
+
+class BinReader;
 
 struct AVTX
 {
@@ -58,11 +61,14 @@ struct AVTX
 	_declspec(align(8)) char *buffer;
 
 	Entry entries[numEntries];
-
-	int Load(const TSTRING filename, bool noBuffers = false);
+	
+	int Load(const esString filename, BinReader &rd, bool noBuffers = false);
+	template<class C> ES_FORCEINLINE int Load(const UniString<C> filename, bool noBuffers = false) { return Load(filename.c_str(), noBuffers); }
 	int BufferSize() const;
+	int Load(const esString filename, bool noBuffers);
 
 	AVTX() : magic(ID), version(1), group(0), dimension(2), numArrayElements(1), buffer(nullptr) {}
+	~AVTX();
 };
 
 static_assert(sizeof(AVTX) == 128, "Check assumptions");

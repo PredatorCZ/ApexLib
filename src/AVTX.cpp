@@ -19,6 +19,25 @@
 #include "datas/binreader.hpp"
 #include "datas/masterprinter.hpp"
 
+int AVTX::Load(const esString filename, bool noBuffers)
+{
+	BinReader rd(static_cast<TSTRING>(filename));
+
+	if (!rd.IsValid())
+	{
+		printerror("Could not open AVTX file.");
+		return 1;
+	}
+
+	return Load(filename, rd, noBuffers);
+}
+
+AVTX::~AVTX()
+{
+	if (buffer)
+		free(buffer);
+}
+
 int AVTX::BufferSize() const
 {
 	int fullSize = 0;
@@ -30,15 +49,9 @@ int AVTX::BufferSize() const
 	return fullSize;
 }
 
-int AVTX::Load(const TSTRING filename, bool noBuffers)
+int AVTX::Load(const esString _filename, BinReader &rd, bool noBuffers)
 {
-	BinReader rd(filename);
-
-	if (!rd.IsValid())
-	{
-		printerror("Could not open AVTX file.");
-		return 1;
-	}
+	const TSTRING filename = _filename;
 
 	rd.Read(*this);
 
@@ -47,6 +60,8 @@ int AVTX::Load(const TSTRING filename, bool noBuffers)
 		printerror("[AVTX] Invalid format.");
 		return 2;
 	}
+
+	buffer = nullptr;
 
 	if (noBuffers)
 		return 0;
