@@ -43,7 +43,7 @@ struct AVTX
 	enum Flags
 	{
 		Flag_ExternalBuffers = 0,
-		Flag_NoTiling = 2,
+		Flag_NoTiling = 3,
 		Flag_CubeMap = 6,
 	};
 
@@ -58,6 +58,7 @@ struct AVTX
 	esFlags<ushort, Flags> flags;
 	uchar mipCount,
 		headerMipCount;
+	ushort _pad;
 	_declspec(align(8)) char *buffer;
 
 	Entry entries[numEntries];
@@ -67,7 +68,7 @@ struct AVTX
 	int BufferSize() const;
 	int Load(const esString filename, bool noBuffers);
 
-	AVTX() : magic(ID), version(1), group(0), dimension(2), numArrayElements(1), buffer(nullptr) {}
+	AVTX() : magic(ID), version(1), group(0), dimension(2), numArrayElements(1), buffer(nullptr), headerMipCount(0), entries(), _pad(0) {}
 	~AVTX();
 };
 
