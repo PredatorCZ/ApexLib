@@ -388,7 +388,8 @@ void ADF::DescriptorExplicitEnum::XMLDump(pugi::xml_node * master)
 
 IADF *IADF::Create(const wchar_t *filePath)
 {
-	BinReader rd(filePath);
+	std::wstring filepath = filePath;
+	BinReader rd(filepath);
 	ADF *adf = new ADF();
 
 	if (!rd.IsValid())
