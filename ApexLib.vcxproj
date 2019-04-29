@@ -39,7 +39,6 @@
     <ClInclude Include="include\Units.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="3rd_party\PreCore\datas\esString.cpp" />
     <ClCompile Include="3rd_party\PreCore\datas\MasterPrinter.cpp" />
     <ClCompile Include="3rd_party\PreCore\datas\reflector.cpp" />
     <ClCompile Include="3rd_party\pugixml\src\pugixml.cpp" />

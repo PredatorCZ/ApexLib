@@ -37,13 +37,15 @@ class IADF
 public:
 	virtual int Load(BinReader *rd, bool supressErrors = false) = 0;
 	virtual int LoadAsRenderBlockModel(BinReader *rd, bool supressErrors = false) = 0;
-	virtual int DumpDefinitions(const wchar_t *fileName) = 0;
+	virtual int DumpDefinitions(const char *fileName) const = 0;
+	virtual int DumpDefinitions(const wchar_t *fileName) const = 0;
 	virtual ADFInstance *FindInstance(ApexHash hash) = 0;
 	virtual ~IADF() {};
 	template<class C> ES_FORCEINLINE C *FindInstance() { return static_cast<C*>(FindInstance(C::HASH)); }
 	template<class C> ES_FORCEINLINE C *AddUniqueInstance();
 	virtual void AddInstance(ADFInstance *instance, ApexHash hash) = 0;
-	static IADF *Create(const wchar_t *filePath);
+	static IADF *Create(const char *fileName);
+	static IADF *Create(const wchar_t *fileName);
 };
 
 template<class C>

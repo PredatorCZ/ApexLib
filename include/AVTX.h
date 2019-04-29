@@ -23,7 +23,7 @@ class BinReader;
 
 struct AVTX
 {
-	static const int ID = 0x58545641;
+	static const int ID = CompileFourCC("AVTX");
 	static const int numEntries = 8;
 
 	struct Entry
@@ -63,13 +63,23 @@ struct AVTX
 
 	Entry entries[numEntries];
 	
-	int Load(const esString filename, BinReader &rd, bool noBuffers = false);
-	template<class C> ES_FORCEINLINE int Load(const UniString<C> filename, bool noBuffers = false) { return Load(filename.c_str(), noBuffers); }
-	int BufferSize() const;
-	int Load(const esString filename, bool noBuffers);
+	int Load(const char *fileName, bool noBuffers = false);
+	int Load(const wchar_t *fileName, bool noBuffers = false);
+	int Load(const char *fileName, BinReader *rd, bool noBuffers = false);
+	int Load(const wchar_t *fileName, BinReader *rd, bool noBuffers = false);
 
+	int BufferSize() const;
+	
 	AVTX() : magic(ID), version(1), group(0), dimension(2), numArrayElements(1), buffer(nullptr), headerMipCount(0), entries(), _pad(0) {}
 	~AVTX();
+
+private:
+	template<class _Ty0>
+	//typedef wchar_t _Ty0;
+	int _Load(const _Ty0 *fileName, BinReader *rd, bool noBuffers = false);
+	template<class _Ty1>
+	//typedef wchar_t _Ty1;
+	int _Load(const _Ty1 *fileName, bool noBuffers = false);
 };
 
 static_assert(sizeof(AVTX) == 128, "Check assumptions");

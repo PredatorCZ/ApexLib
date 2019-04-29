@@ -15,6 +15,8 @@
 	along with this program.If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include <codecvt>
+#include <algorithm>
 #include <map>
 #include "ADF.h"
 #include "datas/binreader.hpp"
@@ -22,30 +24,131 @@
 #include "datas/esstring.h"
 #include "datas/fileinfo.hpp"
 #include "datas/MasterPrinter.hpp"
-#include <algorithm>
 #include "lookup3.h"
 
 #define ADFFOURCC 0x41444620
 
-static const std::map<ApexHash, const char*> types = {
-	{ 0x580D0A62, "char"},
-	{ 0x0CA2821D, "uchar" },
-	{ 0xD13FCF93, "short" },
-	{ 0x86D152BD, "ushort" },
-	{ 0x192FE633, "int" },
-	{ 0x075E4E4F, "uint" },
-	{ 0xAF41354F, "int64" },
-	{ 0xA139E01F, "uint64" },
-	{ 0x7515A207, "float" },
-	{ 0xC609F663, "double" },
-	{ 0x8955583E, "string" },
-	{ 0xDEFE88ED, "deferred" },
-	/*{ 0xC0C76FDA, "bitArray8" },
-	{ 0x61FAD529, "bitArray16" },
-	{ 0xF0587325, "bitArray32" },*/
-};
+ADFInstance *ADF::FindInstance(ApexHash hash)
+{
+	for (auto &i : instances)
+		if (i->typeHash == hash)
+			return i->instance;
 
-int ADF::Load(BinReader * rd, bool supressErrors)
+	return nullptr;
+}
+
+StringHash *ADF::AddStringHash(const char *input)
+{
+	ApexHash hash = JenkinsLookup3(input);
+	StringHash *foundString = FindStringHash(hash);
+
+	if (!foundString)
+	{
+		foundString = new StringHash();
+		foundString->hash = hash;
+		foundString->string = input;
+		hashes.push_back(foundString);
+	}
+
+	return foundString;
+}
+
+std::string *ADF::FindString(ApexHash hash)
+{
+	for (auto &n : hashes)
+		if (n->hash == hash)
+			return &n->string;
+
+	return nullptr;
+}
+
+StringHash * ADF::FindStringHash(ApexHash hash)
+{
+	for (auto &n : hashes)
+		if (n->hash == hash)
+			return n;
+
+	return nullptr;
+}
+
+void ADF::AddInstance(ADFInstance *instance, ApexHash hash)
+{
+	ADF::Instance *cInstance = new ADF::Instance();
+	cInstance->instance = instance;
+	cInstance->typeHash = hash;
+	instances.push_back(cInstance);
+}
+
+ADF::~ADF()
+{
+	for (auto &i : instances)
+		delete i;
+
+	for (auto &n : hashes)
+		delete n;
+
+	for (auto &n : names)
+		delete n;
+}
+
+ADF::Descriptor::~Descriptor()
+{
+	if (descriptorData)
+		delete descriptorData;
+}
+
+ADF::Instance::~Instance()
+{
+	if (instance)
+		delete instance;
+}
+
+void StringHash::Generate()
+{
+	if (!string.size())
+		return;
+	hash = JenkinsLookup3(string.c_str());
+}
+
+/************************************************************************/
+/***************************** LOADING **********************************/
+/************************************************************************/
+
+int ADF::DescriptorBase::Load(BinReader *rd, ADF *base)
+{
+	rd->Read(numMembers);
+	return numMembers;
+}
+
+int ADF::DescriptorStructure::Load(BinReader *rd, ADF *base)
+{
+	DescriptorBase::Load(rd, base);
+	members.resize(numMembers);
+
+	for (auto &m : members)
+	{
+		rd->Read(m, offsetof(ADF::DescriptorStructure::Member, defValue) + 8 - offsetof(ADF::DescriptorStructure::Member, nameIndex));
+		m.name = base->names[static_cast<size_t>(m.nameIndex)];
+	}
+
+	return 0;
+}
+
+int ADF::DescriptorExplicitEnum::Load(BinReader * rd, ADF * base)
+{
+	DescriptorBase::Load(rd, base);
+	members.resize(numMembers);
+
+	for (auto &m : members)
+	{
+		rd->Read(m, 12);
+		m.name = base->names[static_cast<size_t>(m.nameIndex)];
+	}
+
+	return 0;
+}
+
+int ADF::Load(BinReader *rd, bool supressErrors)
 {
 	rd->SavePos();
 	rd->Read(ID, offsetof(ADF, comment) - offsetof(ADF, ID));
@@ -128,10 +231,10 @@ int ADF::Load(BinReader * rd, bool supressErrors)
 			if (i->instance)
 			{
 				rd->SetRelativeOrigin(i->offset);
-				i->instance->Load(rd, this);	
+				i->instance->Load(rd, this);
 			}
 			else
-			{	
+			{
 				std::string *clname = nullptr;
 
 				for (auto &d : descriptors)
@@ -141,7 +244,7 @@ int ADF::Load(BinReader * rd, bool supressErrors)
 						break;
 					}
 
-				printwarning("[ADF] Uregistered class: ", 
+				printwarning("[ADF] Uregistered class: ",
 					<< (clname ? esString(*clname) : _T(""))
 					<< _T(" (0x") << std::hex << typehash << std::dec << ')'
 				)
@@ -154,117 +257,7 @@ int ADF::Load(BinReader * rd, bool supressErrors)
 	return 0;
 }
 
-int ADF::DumpDefinitions(const wchar_t * fileName)
-{
-	pugi::xml_document doc = {};
-	pugi::xml_node &master = doc.append_child("Definitions");
-
-	for (auto &d : descriptors)
-		d.XMLDump(&master);
-
-	if (numInstances)
-	{
-		pugi::xml_node &instNode = doc.append_child("Instances");
-
-		for (auto &i : instances)
-		{
-			pugi::xml_node &subinstNode = instNode.append_child(i->name->string.c_str());
-			subinstNode.append_attribute("hash").set_value(std::to_string(i->nameHash).c_str());
-			
-			std::string strTypename = std::to_string(i->typeHash);
-			const char *typeName = strTypename.c_str();
-
-			if (types.count(i->typeHash))
-			{
-				typeName = types.at(i->typeHash);
-			} 
-			
-			subinstNode.append_attribute("type").set_value(typeName);
-			subinstNode.append_attribute("offset").set_value(std::to_string(i->offset).c_str());
-			subinstNode.append_attribute("size").set_value(std::to_string(i->size).c_str());
-		}
-	}
-
-	if (numHashes)
-	{
-		pugi::xml_node &hashNode = doc.append_child("Strings");
-
-		for (auto &h : hashes)
-		{
-			pugi::xml_node &substrNode = hashNode.append_child("String");
-			substrNode.append_attribute("string").set_value(h->string.c_str());
-			substrNode.append_attribute("hash").set_value(std::to_string(h->hash).c_str());
-		}
-	}
-
-	doc.save_file(fileName, "\t", pugi::format_write_bom | pugi::format_indent);
-	return 0;
-}
-
-ADFInstance *ADF::FindInstance(ApexHash hash)
-{
-	for (auto &i : instances)
-		if (i->typeHash == hash)
-			return i->instance;
-
-	return nullptr;
-}
-
-StringHash *ADF::AddStringHash(const char *input)
-{
-	ApexHash hash = JenkinsLookup3(input);
-	StringHash *foundString = FindStringHash(hash);
-
-	if (!foundString)
-	{
-		foundString = new StringHash();
-		foundString->hash = hash;
-		foundString->string = input;
-		hashes.push_back(foundString);
-	}
-
-	return foundString;
-}
-
-std::string * ADF::FindString(ApexHash hash)
-{
-	for (auto &n : hashes)
-		if (n->hash == hash)
-			return &n->string;
-
-	return nullptr;
-}
-
-StringHash * ADF::FindStringHash(ApexHash hash)
-{
-	for (auto &n : hashes)
-		if (n->hash == hash)
-			return n;
-
-	return nullptr;
-}
-
-void ADF::AddInstance(ADFInstance *instance, ApexHash hash)
-{
-	ADF::Instance *cInstance = new ADF::Instance();
-	cInstance->instance = instance;
-	cInstance->typeHash = hash;
-	instances.push_back(cInstance);
-}
-
-ADF::~ADF()
-{
-	for (auto &i : instances)
-		delete i;
-
-	for (auto &n : hashes)
-		delete n;
-
-	for (auto &n : names)
-		delete n;
-}
-
-int ADF::Descriptor::Load(BinReader * rd, ADF *base)
+int ADF::Descriptor::Load(BinReader *rd, ADF *base)
 {
 
 	rd->Read(type, offsetof(ADF::Descriptor, elementSize) + 4 - offsetof(ADF::Descriptor, type));
@@ -281,120 +274,15 @@ int ADF::Descriptor::Load(BinReader * rd, ADF *base)
 	return descriptorData->Load(rd, base);
 }
 
-
-#define xmlAppAttr(_name_) append_attribute(#_name_).set_value(std::to_string(_name_).c_str());
-
-void ADF::Descriptor::XMLDump(pugi::xml_node * master)
+template<class T>
+IADF *CreateADF(const T *fileName)
 {
-	const char *_typeName = "Unknown";
-
-	if (type < Type_e_reflectedSize)
-		_typeName = Type_e_reflected[type];
-
-	pugi::xml_node &node = master->append_child(_typeName);
-	node.append_attribute("type").set_value(std::to_string(nameHash).c_str());
-	node.append_attribute("name").set_value(name->string.c_str());
-	node.append_attribute("size").set_value(std::to_string(size).c_str());
-
-	std::string strTypename = std::to_string(elementTypeHash);
-	const char *typeName = strTypename.c_str();
-
-	if (types.count(elementTypeHash))
-	{
-		typeName = types.at(elementTypeHash);
-	}
-
-	node.append_attribute("elementType").set_value(typeName);
-	descriptorData->XMLDump(&node);
-}
-
-ADF::Descriptor::~Descriptor()
-{
-	if (descriptorData)
-		delete descriptorData;
-}
-
-int ADF::DescriptorBase::Load(BinReader * rd, ADF *base)
-{
-	rd->Read(numMembers);
-	return numMembers;
-}
-
-void ADF::DescriptorBase::XMLDump(pugi::xml_node * master)
-{
-	master->xmlAppAttr(numMembers);
-}
-
-int ADF::DescriptorStructure::Load(BinReader * rd, ADF *base)
-{
-	DescriptorBase::Load(rd, base);
-	members.resize(numMembers);
-
-	for (auto &m : members)
-	{
-		rd->Read(m, offsetof(ADF::DescriptorStructure::Member, defValue) + 8 - offsetof(ADF::DescriptorStructure::Member, nameIndex));
-		m.name = base->names[static_cast<size_t>(m.nameIndex)];
-	}
-
-	return 0;
-}
-
-void ADF::DescriptorStructure::XMLDump(pugi::xml_node * master)
-{
-	DescriptorBase::XMLDump(master);
-
-	for (auto &m : members)
-	{
-		pugi::xml_node &node = master->append_child(m.name->string.c_str());
-
-		std::string strTypename = std::to_string(m.typeHash);
-		const char *typeName = strTypename.c_str();
-
-		if (types.count(m.typeHash))
-		{
-			typeName = types.at(m.typeHash);
-		}
-
-		node.append_attribute("type").set_value(typeName);
-		node.append_attribute("offset").set_value(std::to_string(m.offset).c_str());
-		node.append_attribute("size").set_value(std::to_string(m.size).c_str());
-		node.append_attribute("bitOffset").set_value(std::to_string(m.bitOffset).c_str());
-	}
-
-
-}
-
-int ADF::DescriptorExplicitEnum::Load(BinReader * rd, ADF *base)
-{
-	DescriptorBase::Load(rd, base);
-	members.resize(numMembers);
-
-	for (auto &m : members)
-	{
-		rd->Read(m, 12);
-		m.name = base->names[static_cast<size_t>(m.nameIndex)];
-	}
-
-	return 0;
-}
-
-void ADF::DescriptorExplicitEnum::XMLDump(pugi::xml_node * master)
-{
-	DescriptorBase::XMLDump(master);
-
-	for (auto &m : members)
-		master->append_child(m.name->string.c_str()).append_attribute("=").set_value(std::to_string(m.value).c_str());
-}
-
-IADF *IADF::Create(const wchar_t *filePath)
-{
-	std::wstring filepath = filePath;
-	BinReader rd(filepath);
+	BinReader rd(fileName);
 	ADF *adf = new ADF();
 
 	if (!rd.IsValid())
 	{
-		//printerror("Couldn't open file: ", << filePath);
+		//printerror("Couldn't open file: ", << fileName);
 		delete adf;
 		return nullptr;
 	}
@@ -407,7 +295,7 @@ IADF *IADF::Create(const wchar_t *filePath)
 		{
 			if (evalError & 0xf)
 			{
-				printerror("Couldn't detect file: ", << filePath);
+				printerror("Couldn't detect file: ", << fileName);
 			}
 
 			delete adf;
@@ -415,7 +303,7 @@ IADF *IADF::Create(const wchar_t *filePath)
 		}
 	}
 
-	TFileInfo selfPath(filePath);
+	_FileInfo_t<T> selfPath(fileName);
 
 	typedef ADF::Instances_type::iterator insIt;
 
@@ -431,20 +319,16 @@ IADF *IADF::Create(const wchar_t *filePath)
 		if (!req)
 			continue;
 
-		TFileInfo reqPath(static_cast<std::wstring>(esString(*req)));
-
-		TFileInfo::_vecType exVC = {};
-		reqPath.Explode(exVC);
-
-		TFileInfo::_strType rPath = reqPath.CatchBranch(selfPath.GetPath());
-		ADF *exAdf = static_cast<ADF*>(IADF::Create(rPath.c_str()));
+		_FileInfo_t<T> reqPath(static_cast<UniString<T>>(esString(*req)));
+		UniString<T> rPath = reqPath.CatchBranch(selfPath.GetPath());
+		ADF *exAdf = static_cast<ADF *>(CreateADF(rPath.c_str()));
 
 		if (exAdf)
 		{
-
 			for (auto &exi : exAdf->instances)
 			{
 				ADFInstance *exins = adf->FindInstance(exi->typeHash);
+
 				if (exins)
 				{
 					exins->Merge(exi->instance);
@@ -464,9 +348,10 @@ IADF *IADF::Create(const wchar_t *filePath)
 			exAdf->hashes.clear();
 			exAdf->instances.clear();
 		}
+
 		delete exAdf;
 	}
-	
+
 	for (auto &i : adf->instances)
 		if (i->instance)
 			i->instance->Link(adf);
@@ -474,14 +359,165 @@ IADF *IADF::Create(const wchar_t *filePath)
 	return adf;
 }
 
-ADF::Instance::~Instance()
+IADF *IADF::Create(const char *fileName)
 {
-	if (instance)
-		delete instance;
+	return CreateADF(fileName);
 }
-void StringHash::Generate()
+
+IADF *IADF::Create(const wchar_t *fileName)
 {
-	if (!string.size())
-		return;
-	hash = JenkinsLookup3(string.c_str());
+#ifdef UNICODE
+	return CreateADF(fileName);
+#else
+	return CreateADF(esStringConvert<char>(fileName).c_str());
+#endif
+}
+
+/************************************************************************/
+/******************************* XML ************************************/
+/************************************************************************/
+
+static const std::map<ApexHash, const char *> types = {
+	{ 0x580D0A62, "char"},
+	{ 0x0CA2821D, "uchar" },
+	{ 0xD13FCF93, "short" },
+	{ 0x86D152BD, "ushort" },
+	{ 0x192FE633, "int" },
+	{ 0x075E4E4F, "uint" },
+	{ 0xAF41354F, "int64" },
+	{ 0xA139E01F, "uint64" },
+	{ 0x7515A207, "float" },
+	{ 0xC609F663, "double" },
+	{ 0x8955583E, "string" },
+	{ 0xDEFE88ED, "deferred" },
+	/*{ 0xC0C76FDA, "bitArray8" },
+	{ 0x61FAD529, "bitArray16" },
+	{ 0xF0587325, "bitArray32" },*/
+};
+
+int ADF::DumpDefinitions(pugi::xml_node &node) const
+{
+	pugi::xml_node &master = node.append_child("Definitions");
+
+	for (auto &d : descriptors)
+		d.XMLDump(&master);
+
+	if (numInstances)
+	{
+		pugi::xml_node &instNode = node.append_child("Instances");
+
+		for (auto &i : instances)
+		{
+			pugi::xml_node &subinstNode = instNode.append_child(i->name->string.c_str());
+			subinstNode.append_attribute("hash").set_value(i->nameHash);
+
+			std::string strTypename = std::to_string(i->typeHash);
+			const char *typeName = strTypename.c_str();
+
+			if (types.count(i->typeHash))
+			{
+				typeName = types.at(i->typeHash);
+			}
+
+			subinstNode.append_attribute("type").set_value(typeName);
+			subinstNode.append_attribute("offset").set_value(i->offset);
+			subinstNode.append_attribute("size").set_value(i->size);
+		}
+	}
+
+	if (numHashes)
+	{
+		pugi::xml_node &hashNode = node.append_child("Strings");
+
+		for (auto &h : hashes)
+		{
+			pugi::xml_node &substrNode = hashNode.append_child("String");
+			substrNode.append_attribute("string").set_value(h->string.c_str());
+			substrNode.append_attribute("hash").set_value(h->hash);
+		}
+	}
+
+	return 0;
+}
+
+int ADF::DumpDefinitions(const char *fileName) const
+{
+	pugi::xml_document doc = {};
+	DumpDefinitions(doc);
+
+	if (!doc.save_file(fileName, "\t", pugi::format_write_bom | pugi::format_indent))
+		printerror("[ADF] Couldn't save XML file: ", << fileName);
+
+	return 0;
+}
+
+int ADF::DumpDefinitions(const wchar_t *fileName) const
+{
+	pugi::xml_document doc = {};
+	DumpDefinitions(doc);
+
+	if (!doc.save_file(fileName, "\t", pugi::format_write_bom | pugi::format_indent))
+		printerror("[ADF] Couldn't save XML file: ", << fileName);
+
+	return 0;
+}
+
+void ADF::DescriptorExplicitEnum::XMLDump(pugi::xml_node *master) const
+{
+	DescriptorBase::XMLDump(master);
+
+	for (auto &m : members)
+		master->append_child(m.name->string.c_str()).append_attribute("=").set_value(m.value);
+}
+
+void ADF::DescriptorStructure::XMLDump(pugi::xml_node *master) const
+{
+	DescriptorBase::XMLDump(master);
+
+	for (auto &m : members)
+	{
+		pugi::xml_node &node = master->append_child(m.name->string.c_str());
+
+		std::string strTypename = std::to_string(m.typeHash);
+		const char *typeName = strTypename.c_str();
+
+		if (types.count(m.typeHash))
+		{
+			typeName = types.at(m.typeHash);
+		}
+
+		node.append_attribute("type").set_value(typeName);
+		node.append_attribute("offset").set_value(m.offset);
+		node.append_attribute("size").set_value(m.size);
+		node.append_attribute("bitOffset").set_value(m.bitOffset);
+	}
+}
+
+void ADF::DescriptorBase::XMLDump(pugi::xml_node *master) const
+{
+	master->append_attribute("numMembers").set_value(numMembers);
+}
+
+void ADF::Descriptor::XMLDump(pugi::xml_node *master) const
+{
+	const char *_typeName = "Unknown";
+
+	if (type < Type_e_reflectedSize)
+		_typeName = Type_e_reflected[type];
+
+	pugi::xml_node &node = master->append_child(_typeName);
+	node.append_attribute("type").set_value(nameHash);
+	node.append_attribute("name").set_value(name->string.c_str());
+	node.append_attribute("size").set_value(size);
+
+	std::string strTypename = std::to_string(elementTypeHash);
+	const char *typeName = strTypename.c_str();
+
+	if (types.count(elementTypeHash))
+	{
+		typeName = types.at(elementTypeHash);
+	}
+
+	node.append_attribute("elementType").set_value(typeName);
+	descriptorData->XMLDump(&node);
 }

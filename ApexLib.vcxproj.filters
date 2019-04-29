@@ -134,9 +134,6 @@
     <ClCompile Include="3rd_party\pugixml\src\pugixml.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="3rd_party\PreCore\datas\esString.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="3rd_party\PreCore\datas\MasterPrinter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

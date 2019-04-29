@@ -19,19 +19,6 @@
 #include "datas/binreader.hpp"
 #include "datas/masterprinter.hpp"
 
-int AVTX::Load(const esString filename, bool noBuffers)
-{
-	BinReader rd(static_cast<TSTRING>(filename));
-
-	if (!rd.IsValid())
-	{
-		printerror("Could not open AVTX file.");
-		return 1;
-	}
-
-	return Load(filename, rd, noBuffers);
-}
-
 AVTX::~AVTX()
 {
 	if (buffer)
@@ -49,11 +36,11 @@ int AVTX::BufferSize() const
 	return fullSize;
 }
 
-int AVTX::Load(const esString _filename, BinReader &rd, bool noBuffers)
+template<class _Ty0>
+int AVTX::_Load(const _Ty0 *_fileName, BinReader *rd, bool noBuffers)
 {
-	const TSTRING filename = _filename;
-
-	rd.Read(*this);
+	UniString<_Ty0> fileName = _fileName;
+	rd->Read(*this);
 
 	if (magic != ID)
 	{
@@ -73,14 +60,14 @@ int AVTX::Load(const esString _filename, BinReader &rd, bool noBuffers)
 		if (entries[e].flags[Entry::Flag_Used])
 			externalCollection |= 1 << entries[e].externalID;
 
-	size_t lastDot = filename.find_last_of('.');
+	size_t lastDot = fileName.find_last_of('.');
 
-	if (lastDot == filename.npos)
+	if (lastDot == fileName.npos)
 	{
 		printwarning("[AVTX] Invalid file extension, external buffers won't be read.");
 
 		buffer = static_cast<char *>(malloc(entries[0].size));
-		rd.ReadBuffer(buffer, entries[0].size);
+		rd->ReadBuffer(buffer, entries[0].size);
 
 		if (externalCollection > 1)
 			for (int t = 0; t < numEntries; t++)
@@ -103,16 +90,16 @@ int AVTX::Load(const esString _filename, BinReader &rd, bool noBuffers)
 		if (!(externalCollection & externalMask))
 			continue;
 
-		std::wstring externalName = filename.substr(0, lastDot);
+		UniString<_Ty0> externalName = fileName.substr(0, lastDot);
 		std::ifstream & currentBuffer = ioBuffs[t - 1];
 		currentBuffer.setstate(std::ios::failbit);
 
 		if (possibleLegacy)
-			currentBuffer.open(externalName + L".hmddsc", std::ios::in | std::ios::binary);
+			currentBuffer.open(externalName + esStringConvert<_Ty0>(".hmddsc"), std::ios::in | std::ios::binary);
 
 		if (currentBuffer.fail())
 		{
-			externalName.append(L".atx") += std::to_wstring(t);
+			externalName.append(esStringConvert<_Ty0>(".atx")) += esToString(t, *_fileName);
 			currentBuffer.open(externalName, std::ios::in | std::ios::binary);
 		}
 
@@ -120,11 +107,11 @@ int AVTX::Load(const esString _filename, BinReader &rd, bool noBuffers)
 		{
 			if (possibleLegacy)
 			{
-				printwarning("[AVTX] Couldn't load external buffer for: ", << filename << _T(" (hmddsc or atx1)."));
+				printwarning("[AVTX] Couldn't load external buffer for: ", << _fileName << _T(" (hmddsc or atx1)."));
 			}
 			else
 			{
-				printwarning("[AVTX] Couldn't load external buffer: ", << externalName);
+				printwarning("[AVTX] Couldn't load external buffer: ", << externalName.c_str());
 			}
 		}
 	}
@@ -167,7 +154,7 @@ int AVTX::Load(const esString _filename, BinReader &rd, bool noBuffers)
 
 			if (!entries[lastKnownMipEntry].externalID)
 			{
-				rd.ReadBuffer(buffer, entries[lastKnownMipEntry].size);
+				rd->ReadBuffer(buffer, entries[lastKnownMipEntry].size);
 			}
 			else
 			{
@@ -201,7 +188,7 @@ int AVTX::Load(const esString _filename, BinReader &rd, bool noBuffers)
 			if (!entries[t].externalID)
 			{
 				entries[t].offset = currentBufferPos;
-				rd.ReadBuffer(buffer + currentBufferPos, entries[t].size);
+				rd->ReadBuffer(buffer + currentBufferPos, entries[t].size);
 				currentBufferPos += entries[t].size;
 				continue;
 			}
@@ -214,4 +201,46 @@ int AVTX::Load(const esString _filename, BinReader &rd, bool noBuffers)
 		}
 
 	return 0;
+}
+
+template<class T>
+int AVTX::_Load(const T *fileName, bool noBuffers)
+{
+	BinReader rd(fileName);
+
+	if (!rd.IsValid())
+	{
+		printerror("Could not open AVTX file.");
+		return 1;
+	}
+
+	return Load(fileName, &rd, noBuffers);
+}
+
+int AVTX::Load(const char *fileName, bool noBuffers)
+{
+	return _Load(fileName, noBuffers);
+}
+
+int AVTX::Load(const wchar_t *fileName, bool noBuffers)
+{
+#ifdef UNICODE
+	return _Load(fileName, noBuffers);
+#else
+	return _Load(esStringConvert<char>(fileName).c_str(), noBuffers);
+#endif
+}
+
+int AVTX::Load(const char *fileName, BinReader *rd, bool noBuffers)
+{
+	return _Load(fileName, rd, noBuffers);
+}
+
+int AVTX::Load(const wchar_t *fileName, BinReader *rd, bool noBuffers)
+{
+#ifdef UNICODE
+	return _Load(fileName, rd, noBuffers);
+#else
+	return _Load(esStringConvert<char>(fileName).c_str(), noBuffers);
+#endif
 }

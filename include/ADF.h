@@ -45,7 +45,7 @@ public:
 	{
 		int numMembers;
 		virtual int Load(BinReader *rd, ADF *base);
-		virtual void XMLDump(pugi::xml_node *master);
+		virtual void XMLDump(pugi::xml_node *master) const;
 		virtual ~DescriptorBase() {}
 	};
 
@@ -65,7 +65,7 @@ public:
 		};
 		std::vector<Member> members;
 		int Load(BinReader *rd, ADF *base);
-		void XMLDump(pugi::xml_node *master);
+		void XMLDump(pugi::xml_node *master) const;
 	};
 
 	struct DescriptorExplicitEnum : DescriptorBase
@@ -78,7 +78,7 @@ public:
 		};
 		std::vector<Member> members;
 		int Load(BinReader *rd, ADF *base);
-		void XMLDump(pugi::xml_node *master);
+		void XMLDump(pugi::xml_node *master) const;
 	};
 
 
@@ -108,7 +108,7 @@ public:
 		DescriptorBase *descriptorData;
 
 		int Load(BinReader *rd, ADF *base);
-		void XMLDump(pugi::xml_node *node);
+		void XMLDump(pugi::xml_node *node) const;
 		~Descriptor();
 	};
 
@@ -134,7 +134,9 @@ public:
 public:
 	int Load(BinReader *rd, bool supressErrors = false);
 	int LoadAsRenderBlockModel(BinReader *rd, bool supressErrors = false);
-	int DumpDefinitions(const wchar_t *fileName);
+	int DumpDefinitions(const char *fileName) const;
+	int DumpDefinitions(const wchar_t *fileName) const;
+	int DumpDefinitions(pugi::xml_node &node) const;
 	ADFInstance *FindInstance(ApexHash hash);
 	using IADF::FindInstance;
 	StringHash *AddStringHash(const char* input);
