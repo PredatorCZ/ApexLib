@@ -282,7 +282,7 @@ IADF *CreateADF(const T *fileName)
 
 	if (!rd.IsValid())
 	{
-		//printerror("Couldn't open file: ", << fileName);
+		printerror("Couldn't open file: ", << fileName);
 		delete adf;
 		return nullptr;
 	}

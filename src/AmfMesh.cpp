@@ -133,7 +133,7 @@ void AmfMesh::Link(ADF * linker)
 
 			if (bufferIndex < static_cast<int>(buff->vertexBuffers.size()))
 				l.buffer = buff->vertexBuffers[bufferIndex]->buffer + vertexStreamOffsets[l.Header.streamIndex] + l.Header.streamOffset;
-			else if (linkError)
+			else if (!linkError)
 				linkError = true;		
 		}
 
@@ -141,7 +141,7 @@ void AmfMesh::Link(ADF * linker)
 		{
 			if (Header.indexBufferIndex < buff->indexBuffers.size())
 				l.buffer = buff->indexBuffers[Header.indexBufferIndex]->buffer + Header.indexBufferOffset + l.Header.indexStreamOffset;
-			else if (linkError)
+			else if (!linkError)
 				linkError = true;
 		}
 
