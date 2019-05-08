@@ -66,7 +66,9 @@ static const std::map<ApexHash, AdfProperties *(*)()> ADFPropsStorage =
 	FoliageConstants,
 	HologramConstants,
 	LandmarkConstants,
-	EmissiveUIConstants
+	EmissiveUIConstants,
+	GeneralR2Constants,
+	GeneralMkIIIConstants
 	)
 };
 

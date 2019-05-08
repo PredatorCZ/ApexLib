@@ -144,3 +144,11 @@ REFLECTOR_ENUM(BarkConstantsFlags, useMPMChannelInput, useCustomDiffuseRoughness
 
 REFLECTOR_ENUM(FoliageConstantsFlags, renderTransparent, objectSpaceNormalMap, useInteractionDisplacement,
 	useInteractionFlattening, useCharacterInteractionFlattening, useMPMChannelInput, useTransmission, useNewAnimation);
+
+REFLECTOR_ENUM(GeneralR2ConstantsFlags, objectSpaceNormal, useEmissive, emissiveTextureHasColor, useEmissiveLightColor, 
+	doubleSided, decalBlend, alphaTest, detailUV2, useAlbedoDetail, albedoDetailAlphaGloss, useNormalDetail, useTint, 
+	tintUV2, useTextureBlend1, animateTexture, useVertexAnimations, fur, useTextureBlend2, UISurface, useColorMask);
+
+REFLECTOR_ENUM(GeneralMkIIIConstantsFlags, dynamicEmissive, alphaBlend, alphaTest, backfaceCulling, worldSpaceNormals,
+	usePropertyMasking, useLayered, useOverlay, useDecal, useDamage, useVertexAnimation, roadDepthBias, anisotropicFiltering, wireAA);
+

@@ -76,6 +76,20 @@ REFLECTOR_START_WNAMES(LandmarkConstants, specularGloss, reflectivity, emissive,
 REFLECTOR_START_WNAMES(EmissiveUIConstants, primaryColor, secondaryColor, bias, power, intensity,
 	opacity, usePanning, panningSpeed, panningScale);
 
+REFLECTOR_START_WNAMES(GeneralR2Constants, depthBias, detailRepeatU, detailRepeatV, terrainColorFactor,
+	terrainTopProjection, blendMaskContrast1, blendMaskContrast2, flags);
+
+REFLECTOR_START_WNAMES(GeneralMkIIIConstants, normalStrength, reflectivity_1, roughness_1, diffuseWrap_1, emissive_1, transmission_1, clearCoat_1,
+	roughness_2, diffuseWrap_2, emissive_2, transmission_2, reflectivity_2, clearCoat_2, roughness_3, diffuseWrap_3, emissive_3, transmission_3,
+	reflectivity_3, clearCoat_3, roughness_4, diffuseWrap_4, emissive_4, transmission_4, reflectivity_4, clearCoat_4, layeredHeightMapUVScale,
+	layeredUVScale, layeredHeight1Influence, layeredHeight2Influence, layeredHeightMapInfluence, layeredMaskInfluence, layeredShift,
+	layeredRoughness, layeredDiffuseWrap, layeredEmissive, layeredTransmission, layeredReflectivity, layeredClearCoat, decalBlend, decalBlendNormal,
+	decalReflectivity, decalRoughness, decalDiffuseWrap, decalEmissive, decalTransmission, decalClearCoat, overlayHeightInfluence, overlayHeightMapInfluence,
+	overlayMaskInfluence, overlayShift, overlayColorR, overlayColorG, overlayColorB, overlayBrightness, overlayGloss, overlayMetallic, overlayReflectivity,
+	overlayRoughness, overlayDiffuseWrap, overlayEmissive, overlayTransmission, overlayClearCoat, damageReflectivity, damageRoughness, damageDiffuseWrap,
+	damageEmissive, damageTransmission, damageHeightInfluence, damageMaskInfluence, damageClearCoat, depthBias, hardwareDepthBias, hardwareSlopeBias,
+	minTimeOfDayEmissive, startFadeOutDistanceEmissiveSq, gIEmissionModulator, rippleAngle, rippleSpeed, rippleMagnitude, flags);
+
 AmfMaterial * AmfModel::FindMaterial(StringHash * str)
 {
 	for (auto &m : materials)
