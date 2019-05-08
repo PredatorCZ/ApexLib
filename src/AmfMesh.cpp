@@ -98,6 +98,11 @@ int AmfMesh::Load(BinReader * rd, ADF *linker)
 
 	if (meshProperties)
 		meshProperties->Load(rd);
+	else if (propsHash)
+	{
+		std::string *fName = linker->FindString(Header.MeshTypeId);
+		printwarning("[ADF] Couldn't find AmfMesh property: ", << (fName ? fName->c_str() : 0) << '[' << propsHash << ']');
+	}
 
 	if (propsHash == CarPaintMeshConstants::HASH)
 	{

@@ -17,6 +17,7 @@
 
 #include "AmfModel.h"
 #include "datas/binreader.hpp"
+#include "datas/masterprinter.hpp"
 #include "ADF.h"
 
 REFLECTOR_START_WNAMES(GeneralConstants, overlayColor, roughnessModulator, metallicModulator, dielectricReflectance, emissiveIntensity, 
@@ -142,10 +143,17 @@ int AmfMaterial::Load(BinReader * rd, ADF * linker)
 
 	rd->Seek(Header.attributes.offset);
 
-	attributes = AdfProperties::ConstructProperty(static_cast<ApexHash>(Header.attributes.objectHash));
+
+	const ApexHash propsHash = static_cast<ApexHash>(Header.attributes.objectHash);
+	attributes = AdfProperties::ConstructProperty(propsHash);
 
 	if (attributes)
 		attributes->Load(rd);
+	else if (propsHash)
+	{
+		std::string *fName = linker->FindString(Header.renderBlockID);
+		printwarning("[ADF] Couldn't find AmfMaterial property: ", << (fName ? fName->c_str() : 0) << '[' << propsHash << ']');
+	}
 
 	rd->Seek(Header.textures.offset);
 	textures.resize(static_cast<size_t>(Header.textures.count));
