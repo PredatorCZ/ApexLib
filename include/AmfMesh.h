@@ -60,7 +60,7 @@ struct GeneralMeshConstants
 	DECLARE_REFLECTOR;
 	int pristineIndexCount;
 	esFlags<char, GeneralMeshConstantsFlags> flags;
-	static const ApexHash HASH = _EnumWrap<GeneralMeshConstantsFlags>::HASH;
+	static const ApexHash HASH = 0x15EEC9DE;
 };
 
 struct FoliageMeshConstants

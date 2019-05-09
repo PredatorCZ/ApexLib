@@ -91,6 +91,32 @@ REFLECTOR_START_WNAMES(GeneralMkIIIConstants, normalStrength, reflectivity_1, ro
 	damageEmissive, damageTransmission, damageHeightInfluence, damageMaskInfluence, damageClearCoat, depthBias, hardwareDepthBias, hardwareSlopeBias,
 	minTimeOfDayEmissive, startFadeOutDistanceEmissiveSq, gIEmissionModulator, rippleAngle, rippleSpeed, rippleMagnitude, flags);
 
+REFLECTOR_START_WNAMES(CharacterConstants_GZ, detailTilingFactorUV, specularGloss, transmissionIntensity, diffuseRoughness,
+	emissiveIntensity, nightVisibility, rimFrontStrength, cameraStrength, cameraSpecular, rimStrength, dirtFactor, flags);
+
+REFLECTOR_START_WNAMES(HairConstants_GZ, specularGloss, transmissionIntensity, specularFresnel, diffuseWrap, diffuseRoughness,
+	anisotropicStrength, anisotropicX, anisotropicY, rimStrength, ringStrength, ringAngle, ringOffset, flags);
+
+REFLECTOR_START_WNAMES(CharacterSkinConstants_GZ, detailTilingFactorUV, diffuseRoughness, transmissionModulator, cameraStrength,
+	cameraSpecular, dirtFactor, furLength, furThickness, furRoughness, furGravity, furSize, flags);
+
+REFLECTOR_START_WNAMES(WindowConstants_GZ, specGloss, specFresnel, diffuseRoughness, tintPower, tintMultiplier, minAlpha,
+	UVScale, chromaticAberration, refractionStrength, flags);
+
+REFLECTOR_START_WNAMES(BarkConstants_GZ, glossiness, normalStrength, diffuseWrap, fresnel, diffuseModulator, layeredHeightMapUVScale,
+	layeredUVScale, layeredHeight1Influence, layeredHeight2Influence, layeredHeightMapInfluence, layeredMaskInfluence, layeredShift,
+	layeredRoughness, layeredDiffuseWrap, layeredEmissive, layeredTransmission, layeredReflectivity, layeredClearCoat, layeredUpInfluence,
+	overlayHeightInfluence, overlayHeightMapInfluence, overlayMaskInfluence, overlayShift, overlayColor, overlayBrightness, overlayGloss,
+	overlayMetallic, overlayReflectivity, overlayRoughness, overlayDiffuseWrap, overlayEmissive, overlayTransmission, overlayClearCoat,
+	overlayUpInfluence, flags);
+
+REFLECTOR_START_WNAMES(FoliageConstants_GZ, diffuseModulator, specularGloss, emissionIntensity, transmissionIntensity, diffuseWrap,
+	reflectivity, specularFresnel, sphereNormalStrength, oneOverSubpixelDetailFadeRange, flags);
+
+REFLECTOR_START_WNAMES(CarLightConstants_GZ, diffuseModulator, detailTiling, specularGloss, reflectivity, emissiveHead,
+	emissiveBlinker, emissiveBrake, emissiveReverse, specularFresnel, doubleSided);
+
+
 AmfMaterial * AmfModel::FindMaterial(StringHash * str)
 {
 	for (auto &m : materials)
@@ -152,7 +178,7 @@ int AmfMaterial::Load(BinReader * rd, ADF * linker)
 	else if (propsHash)
 	{
 		std::string *fName = linker->FindString(Header.renderBlockID);
-		printwarning("[ADF] Couldn't find AmfMaterial property: ", << (fName ? fName->c_str() : 0) << '[' << propsHash << ']');
+		printwarning("[ADF] Couldn't find AmfMaterial property: ", << (fName ? fName->c_str() : 0) << '[' << std::hex  << std::uppercase << propsHash << ']');
 	}
 
 	rd->Seek(Header.textures.offset);

@@ -412,6 +412,194 @@ struct GeneralMkIIIConstants
 
 static_assert(sizeof(GeneralMkIIIConstants) == 320, "Check assumptions");
 
+struct CharacterConstants_GZ
+{
+	DECLARE_REFLECTOR;
+	static const ApexHash HASH = 0xCE6A3748;
+	Vector2 detailTilingFactorUV;
+	float specularGloss,
+		transmissionIntensity,
+		diffuseRoughness,
+		emissiveIntensity,
+		nightVisibility,
+		rimFrontStrength,
+		cameraStrength,
+		cameraSpecular,
+		rimStrength,
+		dirtFactor;		
+	esFlags<int, CharacterConstantsFlags_GZ> flags;
+};
+
+static_assert(sizeof(CharacterConstants_GZ) == 52, "Check assumptions");
+
+struct HairConstants_GZ
+{
+	DECLARE_REFLECTOR;
+	static const ApexHash HASH = 0x55204F03;
+	float specularGloss,
+		transmissionIntensity,
+		specularFresnel,
+		diffuseWrap,
+		diffuseRoughness,
+		anisotropicStrength,
+		anisotropicX,
+		anisotropicY,
+		rimStrength,
+		ringStrength,
+		ringAngle,
+		ringOffset;
+	esFlags<short, HairConstantsFlags_GZ> flags;
+};
+
+static_assert(sizeof(HairConstants_GZ) == 52, "Check assumptions");
+
+struct CharacterSkinConstants_GZ
+{
+	DECLARE_REFLECTOR;
+	static const ApexHash HASH = 0xA5A7B4D5;
+	Vector2 detailTilingFactorUV;
+	float diffuseRoughness,
+		transmissionModulator,
+		cameraStrength,
+		cameraSpecular,
+		dirtFactor,
+		furLength,
+		furThickness,
+		furRoughness,
+		furGravity,
+		furSize;
+	esFlags<short, CharacterSkinConstantsFlags_GZ> flags;
+};
+
+static_assert(sizeof(CharacterSkinConstants_GZ) == 52, "Check assumptions");
+
+struct WindowConstants_GZ
+{
+	DECLARE_REFLECTOR;
+	static const ApexHash HASH = 0x943EA98D;
+	float specGloss,
+		specFresnel,
+		diffuseRoughness,
+		tintPower,
+		tintMultiplier,
+		minAlpha,
+		UVScale,
+		chromaticAberration,
+		refractionStrength;
+	esFlags<short, WindowConstantsFlags_GZ> flags;
+};
+
+static_assert(sizeof(WindowConstants_GZ) == 40, "Check assumptions");
+
+struct BarkConstants_GZ
+{
+	DECLARE_REFLECTOR;
+	static const ApexHash HASH = 0xF5BBB286;
+	float glossiness,
+		normalStrength,
+		diffuseWrap,
+		fresnel;
+	Vector4 diffuseModulator;
+	float layeredHeightMapUVScale,
+		layeredUVScale,
+		layeredHeight1Influence,
+		layeredHeight2Influence,
+		layeredHeightMapInfluence,
+		layeredMaskInfluence,
+		layeredShift,
+		layeredRoughness,
+		layeredDiffuseWrap,
+		layeredEmissive,
+		layeredTransmission,
+		layeredReflectivity,
+		layeredClearCoat,
+		layeredUpInfluence,
+		overlayHeightInfluence,
+		overlayHeightMapInfluence,
+		overlayMaskInfluence,
+		overlayShift;
+	Vector overlayColor;
+	float overlayBrightness,
+		overlayGloss,
+		overlayMetallic,
+		overlayReflectivity,
+		overlayRoughness,
+		overlayDiffuseWrap,
+		overlayEmissive,
+		overlayTransmission,
+		overlayClearCoat,
+		overlayUpInfluence;
+	esFlags<short, BarkConstantsFlags_GZ> flags;
+};
+
+static_assert(sizeof(BarkConstants_GZ) == 160, "Check assumptions");
+
+struct FoliageConstants_GZ
+{
+	DECLARE_REFLECTOR;
+	static const ApexHash HASH = 0xD32674C9;
+	Vector4 diffuseModulator;
+	float specularGloss,
+		emissionIntensity,
+		transmissionIntensity,
+		diffuseWrap,
+		reflectivity,
+		specularFresnel,
+		sphereNormalStrength,
+		oneOverSubpixelDetailFadeRange;
+	esFlags<short, FoliageConstantsFlags> flags;
+};
+
+static_assert(sizeof(FoliageConstants_GZ) == 52, "Check assumptions");
+
+struct CarLightConstants_GZ
+{
+	DECLARE_REFLECTOR;
+	static const ApexHash HASH = 0xFB2F8330;
+	Vector4 diffuseModulator;
+	Vector2 detailTiling;
+	float specularGloss,
+		reflectivity,
+		emissiveHead,
+		emissiveBlinker,
+		emissiveBrake,
+		emissiveReverse,
+		specularFresnel;
+	bool doubleSided;
+};
+
+static_assert(sizeof(CarLightConstants_GZ) == 56, "Check assumptions");
+
+struct GeneralR2Constants_HU
+{
+	static const ApexHash HASH = 0xB3C503A8;
+};
+
+struct CharacterConstants_HU
+{
+	static const ApexHash HASH = 0xD5C4F848;
+};
+
+struct GeneralConstants_HU
+{
+	static const ApexHash HASH = 0xA59F1968;
+};
+
+struct PropConstants_HU
+{
+	static const ApexHash HASH = 0xCAF76915;
+};
+
+struct CarPaintMMConstants_HU
+{
+	static const ApexHash HASH = 0x99A777D9;
+};
+
+struct GeneralJC3Constants_HU
+{
+	static const ApexHash HASH = 0xD6ACDCC3;
+};
+
 struct AmfMaterial
 {
 	enum MaterialType

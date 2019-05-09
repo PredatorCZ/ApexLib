@@ -20,11 +20,12 @@
 #include "ApexApi.h"
 #include <string>
 
-struct AdfArray
+__declspec(align(8)) struct AdfArray
 {
 	int offset,
-		unk;
-	__int64	count;
+		unk01,
+		count,
+		unk02;
 };
 
 struct AdfBBOX

@@ -101,7 +101,7 @@ int AmfMesh::Load(BinReader * rd, ADF *linker)
 	else if (propsHash)
 	{
 		std::string *fName = linker->FindString(Header.MeshTypeId);
-		printwarning("[ADF] Couldn't find AmfMesh property: ", << (fName ? fName->c_str() : 0) << '[' << propsHash << ']');
+		printwarning("[ADF] Couldn't find AmfMesh property: ", << (fName ? fName->c_str() : 0) << '[' << std::hex << std::uppercase << propsHash << ']');
 	}
 
 	if (propsHash == CarPaintMeshConstants::HASH)
@@ -128,6 +128,10 @@ int AmfMesh::Load(BinReader * rd, ADF *linker)
 void AmfMesh::Link(ADF * linker)
 {
 	AmfMeshBuffers *buff = static_cast<IADF*>(linker)->FindInstance<AmfMeshBuffers>();
+
+	if (!buff)
+		buff = static_cast<IADF *>(linker)->FindInstance<AmfMeshBuffers_TheHunter>();
+
 	bool linkError = false;
 
 	if (buff)

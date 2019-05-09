@@ -19,14 +19,16 @@
 #include "ApexApi.h"
 #include "AdfBaseObject.h"
 #include "AmfEnums.h"
-#include "datas/binreader.hpp"
 #include "AmfMesh.h"
 #include "AmfModel.h"
 #include "AmfFormatEvaluators.h"
-#include "datas/reflectorRegistry.hpp"
 #include "StuntAreas.h"
 #include "DeformPoints.h"
 #include "StreamPatch.h"
+
+#include "datas/binreader.hpp"
+#include "datas/reflectorRegistry.hpp"
+#include "datas/disabler.hpp"
 
 template<class C> ADFInstance *ADFCreateDerivedClass() { return new C{}; }
 template<class C> AdfProperties *ADFCreatePropClass() { return new C{}; }
@@ -36,8 +38,16 @@ template<class C> struct AdfProperties_t : Reflector, AdfProperties
 	typedef C value_type;
 	C properties;
 private:
-	const reflectorInstanceConst _rfRetreive() const { return properties._rfRetreive(); }
-	const reflectorInstance _rfRetreive() { return properties._rfRetreive(); }
+	ADD_DISABLERS(C, _rfRetreive);
+
+	enabledFunction(const reflectorInstanceConst) __rfRetreiveC() const { return { &__null_statical, nullptr }; }
+	enabledFunction(const reflectorInstance) __rfRetreive() const { return { &__null_statical, nullptr }; }
+
+	disabledFunction(const reflectorInstanceConst) __rfRetreiveC() const { return properties._rfRetreive(); }
+	disabledFunction(const reflectorInstance) __rfRetreive() const { return properties._rfRetreive(); }
+
+	const reflectorInstanceConst _rfRetreive() const { return __rfRetreiveC(); }
+	const reflectorInstance _rfRetreive() { return __rfRetreive(); }
 public:
 	AdfProperties_t() { typeHash = C::HASH; }
 	void Load(BinReader *rd) { rd->Read(properties); }
@@ -68,7 +78,20 @@ static const std::map<ApexHash, AdfProperties *(*)()> ADFPropsStorage =
 	LandmarkConstants,
 	EmissiveUIConstants,
 	GeneralR2Constants,
-	GeneralMkIIIConstants
+	GeneralMkIIIConstants,
+	WindowConstants_GZ,
+	CharacterSkinConstants_GZ,
+	HairConstants_GZ,
+	CharacterConstants_GZ,
+	BarkConstants_GZ,
+	FoliageConstants_GZ,
+	CarLightConstants_GZ,
+	GeneralR2Constants_HU,
+	CharacterConstants_HU,
+	GeneralConstants_HU,
+	PropConstants_HU,
+	CarPaintMMConstants_HU,
+	GeneralJC3Constants_HU
 	)
 };
 
@@ -204,5 +227,10 @@ ADF::ADF()
 	REGISTER_ENUM(HairConstantsFlags);
 	REGISTER_ENUM(BarkConstantsFlags);
 	REGISTER_ENUM(FoliageConstantsFlags);
+	REGISTER_ENUM(CharacterConstantsFlags_GZ);
+	REGISTER_ENUM(HairConstantsFlags_GZ);
+	REGISTER_ENUM(CharacterSkinConstantsFlags_GZ);
+	REGISTER_ENUM(WindowConstantsFlags_GZ);
+	REGISTER_ENUM(BarkConstantsFlags_GZ);
 	EnumBuilded = 0xff;
 }

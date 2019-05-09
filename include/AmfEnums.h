@@ -152,3 +152,12 @@ REFLECTOR_ENUM(GeneralR2ConstantsFlags, objectSpaceNormal, useEmissive, emissive
 REFLECTOR_ENUM(GeneralMkIIIConstantsFlags, dynamicEmissive, alphaBlend, alphaTest, backfaceCulling, worldSpaceNormals,
 	usePropertyMasking, useLayered, useOverlay, useDecal, useDamage, useVertexAnimation, roadDepthBias, anisotropicFiltering, wireAA);
 
+REFLECTOR_ENUM(CharacterConstantsFlags_GZ, doubleSided, alphaTest, alphaBlending, featureMapTint, wrinkleMap, cameraLightingEnable);
+
+REFLECTOR_ENUM(HairConstantsFlags_GZ, doubleSided, alphaTest, alphaBlending, useColorMask);
+
+REFLECTOR_ENUM(CharacterSkinConstantsFlags_GZ, doubleSided, useAlphaMask, useFeatureTintMap, useWrinkleMap, useFur);
+
+REFLECTOR_ENUM(WindowConstantsFlags_GZ, simple, oneSided, lensOcclusion);
+
+REFLECTOR_ENUM(BarkConstantsFlags_GZ, noFade, useWaterFog, lowResShadows, useLayered, useOverlay, ignoreColorTint);
