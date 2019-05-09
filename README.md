@@ -15,6 +15,8 @@ NOTE: RBM, RBN, RBS files are roughly converted into ADF format.
 * Just Cause 3: RBM, ADF (vmodc [StuntAreas, DeformPoints])
 * Just Cause 4: ADF (vmodc [StuntAreas, DeformPoints], modelc, meshc)
 * Mad Max: RBN, RBS
+* Generation Zero: ADF (modelc, meshc)
+* All: AVTX (ddsc)
 
 Currently library supports only PC platform specific files.
 
@@ -25,3 +27,4 @@ This library uses following libraries:
 
 * PugiXml, Copyright (c) 2006-2019 Arseny Kapoulkine
 * PreCore, Copyright (c) 2016-2019 Lukas Cone
+* ZStandard, Copyright (c) 2016-present, Facebook, Inc. All rights reserved.
