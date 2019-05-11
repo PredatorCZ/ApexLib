@@ -25,6 +25,17 @@ namespace pugi
 	class xml_node;
 };
 
+REFLECTOR_ENUM(ADFDescriptorType,
+	Primitive,
+	Structure,
+	Pointer,
+	Array,
+	InlineArray,
+	String,
+	BitField,
+	Enumeration,
+	ExplicitEnumeration)
+
 class ADF : public IADF
 {
 public:
@@ -84,18 +95,7 @@ public:
 
 	struct Descriptor
 	{
-		REFLECTOR_ENUM_INCLASS(Type_e,
-			Primitive,
-			Structure,
-			Pointer,
-			Array,
-			InlineArray,
-			String,
-			BitField,
-			Enumeration,
-			ExplicitEnumeration)
-
-		Type_e type;
+		ADFDescriptorType type;
 		int size,
 			allignemt;
 		ApexHash nameHash;

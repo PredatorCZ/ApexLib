@@ -204,8 +204,8 @@ int ADF::Load(BinReader *rd, bool supressErrors)
 			if (result)
 			{
 				printerror("[ADF] Could load descriptor: ",
-					<< esString(i.name->string) << _T(" type: ")
-					<< (i.type < i.Type_e_reflectedSize ? esString(i.Type_e_reflected[i.type]) : _T("Undefined")));
+					<< i.name->string.c_str() << " type: "
+					<< (i.type < _EnumWrap<ADFDescriptorType>::_reflectedSize ? _EnumWrap<ADFDescriptorType>{}._reflected[i.type] : "Undefined"));
 				break;
 			}
 		}
@@ -260,13 +260,13 @@ int ADF::Load(BinReader *rd, bool supressErrors)
 int ADF::Descriptor::Load(BinReader *rd, ADF *base)
 {
 
-	rd->Read(type, offsetof(ADF::Descriptor, elementSize) + 4 - offsetof(ADF::Descriptor, type));
+	rd->Read(type, getBlockSize(ADF::Descriptor, type, elementSize));
 
 	name = base->names[static_cast<size_t>(nameIndex)];
 
-	if (type == Type_e::Structure)
+	if (type == ADFDescriptorType::Structure)
 		descriptorData = new DescriptorStructure();
-	else if (type == Type_e::ExplicitEnumeration)
+	else if (type == ADFDescriptorType::ExplicitEnumeration)
 		descriptorData = new DescriptorExplicitEnum();
 	else
 		descriptorData = new DescriptorBase();
@@ -502,8 +502,10 @@ void ADF::Descriptor::XMLDump(pugi::xml_node *master) const
 {
 	const char *_typeName = "Unknown";
 
-	if (type < Type_e_reflectedSize)
-		_typeName = Type_e_reflected[type];
+	_EnumWrap<ADFDescriptorType> ewrap;
+
+	if (type < ewrap._reflectedSize)
+		_typeName = ewrap._reflected[type];
 
 	pugi::xml_node &node = master->append_child(_typeName);
 	node.append_attribute("type").set_value(nameHash);
