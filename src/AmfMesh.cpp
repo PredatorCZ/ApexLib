@@ -148,6 +148,9 @@ void AmfMesh::Link(ADF * linker)
 
 		for (auto &l : subMeshes)
 		{
+			if (l.buffer)
+				continue;
+
 			if (Header.indexBufferIndex < buff->indexBuffers.size())
 				l.buffer = buff->indexBuffers[Header.indexBufferIndex]->buffer + Header.indexBufferOffset + l.Header.indexStreamOffset;
 			else if (!linkError)
