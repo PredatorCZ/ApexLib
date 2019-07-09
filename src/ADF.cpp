@@ -23,7 +23,7 @@
 #include "pugixml.hpp"
 #include "datas/esstring.h"
 #include "datas/fileinfo.hpp"
-#include "datas/MasterPrinter.hpp"
+#include "datas/masterprinter.hpp"
 #include "lookup3.h"
 
 #define ADFFOURCC 0x41444620
@@ -307,7 +307,7 @@ IADF *CreateADF(const T *fileName)
 
 	typedef ADF::Instances_type::iterator insIt;
 
-	for (insIt &it = adf->instances.begin(); it != adf->instances.end(); it++)
+	for (insIt it = adf->instances.begin(); it != adf->instances.end(); it++)
 	{
 		insIt::value_type &i = *it;
 
@@ -397,18 +397,18 @@ static const std::map<ApexHash, const char *> types = {
 
 int ADF::DumpDefinitions(pugi::xml_node &node) const
 {
-	pugi::xml_node &master = node.append_child("Definitions");
+	pugi::xml_node master = node.append_child("Definitions");
 
 	for (auto &d : descriptors)
 		d.XMLDump(&master);
 
 	if (numInstances)
 	{
-		pugi::xml_node &instNode = node.append_child("Instances");
+		pugi::xml_node instNode = node.append_child("Instances");
 
 		for (auto &i : instances)
 		{
-			pugi::xml_node &subinstNode = instNode.append_child(i->name->string.c_str());
+			pugi::xml_node subinstNode = instNode.append_child(i->name->string.c_str());
 			subinstNode.append_attribute("hash").set_value(i->nameHash);
 
 			std::string strTypename = std::to_string(i->typeHash);
@@ -427,11 +427,11 @@ int ADF::DumpDefinitions(pugi::xml_node &node) const
 
 	if (numHashes)
 	{
-		pugi::xml_node &hashNode = node.append_child("Strings");
+		pugi::xml_node hashNode = node.append_child("Strings");
 
 		for (auto &h : hashes)
 		{
-			pugi::xml_node &substrNode = hashNode.append_child("String");
+			pugi::xml_node substrNode = hashNode.append_child("String");
 			substrNode.append_attribute("string").set_value(h->string.c_str());
 			substrNode.append_attribute("hash").set_value(h->hash);
 		}
@@ -476,7 +476,7 @@ void ADF::DescriptorStructure::XMLDump(pugi::xml_node *master) const
 
 	for (auto &m : members)
 	{
-		pugi::xml_node &node = master->append_child(m.name->string.c_str());
+		pugi::xml_node node = master->append_child(m.name->string.c_str());
 
 		std::string strTypename = std::to_string(m.typeHash);
 		const char *typeName = strTypename.c_str();
@@ -507,7 +507,7 @@ void ADF::Descriptor::XMLDump(pugi::xml_node *master) const
 	if (type < ewrap._reflectedSize)
 		_typeName = ewrap._reflected[type];
 
-	pugi::xml_node &node = master->append_child(_typeName);
+	pugi::xml_node node = master->append_child(_typeName);
 	node.append_attribute("type").set_value(nameHash);
 	node.append_attribute("name").set_value(name->string.c_str());
 	node.append_attribute("size").set_value(size);

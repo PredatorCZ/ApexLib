@@ -81,7 +81,7 @@ struct RBMMasterBlock : AdfProperties, Reflector
 #define RBMCONSTRUCTOR(classname, shash) static const ApexHash ADFHASH = JenkinsHash(#classname, sizeof(#classname) - 1); static const uint64 HASH = shash;\
 classname(){typeHash = ADFHASH; hash.data = HASH;} const char *GetClassname() { return #classname; }
 
-ES_FORCEINLINE AmfStreamAttribute *RBMNewDescriptor(AmfMesh &mesh, int &currentDesc, int &currentBufferOffset, int bufferStride, AmfUsage usage, AmfFormat format, int streamIndex = 0)
+ES_INLINE AmfStreamAttribute *RBMNewDescriptor(AmfMesh &mesh, int &currentDesc, int &currentBufferOffset, int bufferStride, AmfUsage usage, AmfFormat format, int streamIndex = 0)
 {
 	AmfStreamAttribute &descr = mesh.streamAttributes[currentDesc++];
 	descr.Header.usage = usage;

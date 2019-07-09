@@ -16,7 +16,7 @@
 */
 
 #pragma once
-#include <xstring>
+#include <string>
 #include "datas/supercore.hpp"
 class BinReader;
 class ADF;

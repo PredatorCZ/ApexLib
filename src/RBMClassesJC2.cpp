@@ -15,9 +15,10 @@
 	along with this program.If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include <climits>
 #include "RBMClassesJC2.h"
 #include "datas/binreader.hpp"
-#include "datas\masterprinter.hpp"
+#include "datas/masterprinter.hpp"
 #include "ADF.h"
 #include "AmfModel.h"
 #include "AmfMesh.h"

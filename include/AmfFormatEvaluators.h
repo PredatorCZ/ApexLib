@@ -16,6 +16,7 @@
 */
 
 #pragma once
+#include <climits>
 #include "AmfEnums.h"
 #include "Units.h"
 

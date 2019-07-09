@@ -59,7 +59,7 @@ struct AVTX
 	uchar mipCount,
 		headerMipCount;
 	ushort _pad;
-	_declspec(align(8)) char *buffer;
+	char alignas(8) *buffer;
 
 	Entry entries[numEntries];
 	

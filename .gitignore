@@ -34,3 +34,5 @@
 *ObjDump/*
 *.bat
 *.vs/*
+build/*
+.vscode/*

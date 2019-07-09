@@ -33,23 +33,23 @@
 template<class C> ADFInstance *ADFCreateDerivedClass() { return new C{}; }
 template<class C> AdfProperties *ADFCreatePropClass() { return new C{}; }
 
-template<class C> struct AdfProperties_t : Reflector, AdfProperties
+template<class _Ty> struct AdfProperties_t : Reflector, AdfProperties
 {
-	typedef C value_type;
-	C properties;
+	typedef _Ty value_type;
+	_Ty properties;
 private:
-	ADD_DISABLERS(C, _rfRetreive);
+	ADD_DISABLERS(value_type, _rfRetreive);
 
-	enabledFunction(const reflectorInstanceConst) __rfRetreiveC() const { return { &__null_statical, nullptr }; }
-	enabledFunction(const reflectorInstance) __rfRetreive() const { return { &__null_statical, nullptr }; }
+	enabledFunction(_rfRetreive, const reflectorInstanceConst) __rfRetreiveC() const { return { &__null_statical, nullptr }; }
+	enabledFunction(_rfRetreive, const reflectorInstance) __rfRetreive() const { return { &__null_statical, nullptr }; }
 
-	disabledFunction(const reflectorInstanceConst) __rfRetreiveC() const { return properties._rfRetreive(); }
-	disabledFunction(const reflectorInstance) __rfRetreive() const { return properties._rfRetreive(); }
+	disabledFunction(_rfRetreive, const reflectorInstanceConst) __rfRetreiveC() const { return properties._rfRetreive(); }
+	disabledFunction(_rfRetreive, const reflectorInstance) __rfRetreive() const { return properties._rfRetreive(); }
 
 	const reflectorInstanceConst _rfRetreive() const { return __rfRetreiveC(); }
 	const reflectorInstance _rfRetreive() { return __rfRetreive(); }
 public:
-	AdfProperties_t() { typeHash = C::HASH; }
+	AdfProperties_t() { typeHash = _Ty::HASH; }
 	void Load(BinReader *rd) { rd->Read(properties); }
 	void *GetProperties() { return &properties; }
 };

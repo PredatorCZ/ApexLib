@@ -45,7 +45,7 @@ public:
 		ApexHash typeHash;
 		int offset;
 		int size;
-		__int64 nameIndex;
+		int64 nameIndex;
 
 		StringHash *name;
 		ADFInstance *instance;
@@ -64,13 +64,13 @@ public:
 	{
 		struct Member
 		{
-			__int64 nameIndex;
+			int64 nameIndex;
 			ApexHash typeHash;
 			int	size;
 			short offset;
 			char pad, bitOffset;
 			ApexHash defType;
-			__int64 defValue;
+			int64 defValue;
 
 			StringHash *name;
 		};
@@ -83,7 +83,7 @@ public:
 	{
 		struct Member 
 		{
-			__int64 nameIndex;
+			int64 nameIndex;
 			int value;
 			StringHash *name;
 		};
@@ -99,7 +99,7 @@ public:
 		int size,
 			allignemt;
 		ApexHash nameHash;
-		__int64 nameIndex;
+		int64 nameIndex;
 		int flags;
 		ApexHash elementTypeHash;
 		int elementSize;

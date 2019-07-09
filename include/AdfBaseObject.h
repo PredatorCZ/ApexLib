@@ -20,7 +20,7 @@
 #include "ApexApi.h"
 #include <string>
 
-__declspec(align(8)) struct AdfArray
+struct alignas(8) AdfArray
 {
 	int offset,
 		unk01,
@@ -38,7 +38,7 @@ struct AdfDeferred
 {
 	int offset,
 		unk;
-	__int64	objectHash;
+	int64 objectHash;
 };
 
 struct AdfProperties
@@ -59,7 +59,7 @@ struct StringHash
 	void Generate();
 };
 
-__declspec(align(8)) union AdfString
+union alignas(8) AdfString
 {
 	uint offset;
 	StringHash *str;

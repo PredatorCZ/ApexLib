@@ -1,4 +1,5 @@
 #pragma once
+#include "datas/supercore.hpp"
 #include <stdint.h>
 
 #if defined(__cplusplus) || defined(c_plusplus)
@@ -93,7 +94,7 @@ extern "C" {
 #if defined(__cplusplus) || defined(c_plusplus)
 }
 #include <string.h>
-__forceinline uint32_t JenkinsLookup3(const char *input)
+ES_FORCEINLINE uint32_t JenkinsLookup3(const char *input)
 {
 	return hashlittle(input, strlen(input), 0);
 }
