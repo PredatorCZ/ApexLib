@@ -18,6 +18,7 @@
 #pragma once
 #include <cmath>
 #include "datas/halfFloat.hpp"
+#include "datas/vectors.hpp"
 
 typedef t_Vector4<float16> HVector4;
 typedef t_Vector2<float16> HVector2;

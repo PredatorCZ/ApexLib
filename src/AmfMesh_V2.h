@@ -15,19 +15,21 @@
 	along with this program.If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "StuntAreas.h"
+#pragma once
+#include "AmfMesh_V1.h"
 
-void StuntArea::Fixup(char *masterBuffer)
+struct AmfMeshBuffers_V2
 {
-	name.string.Fixup(masterBuffer);
-	partName.string.Fixup(masterBuffer);
-}
+	int memoryTag;
+	AdfArray<uint> indexOffsets;
+	AdfArray<uint> vertexOffsets;
+	AmfBuffer_V1 mergedBuffer;
 
-ES_INLINE void StuntAreas::Fixup(char *masterBuffer)
-{
-	for (auto &s : stuntAreas)
-		s.Fixup(masterBuffer);
-}
+	ES_FORCEINLINE void Fixup(char *masterBuffer) 
+	{
+		indexOffsets.items.Fixup(masterBuffer);
+		vertexOffsets.items.Fixup(masterBuffer);
+		mergedBuffer.Fixup(masterBuffer);
+	}
+};
 
-StuntAreas_wrap::StuntAreas_wrap(void *_data, ADF *_main): data(static_cast<StuntAreas*>(_data)) {}
-void StuntAreas_wrap::Fixup(char *masterBuffer) { data->Fixup(masterBuffer); }

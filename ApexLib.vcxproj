@@ -69,17 +69,11 @@
     <ClCompile Include="src\AmfMesh.cpp" />
     <ClCompile Include="src\AmfModel.cpp" />
     <ClCompile Include="src\AVTX.cpp" />
-    <ClCompile Include="src\DeformPoints.cpp" />
     <ClCompile Include="src\lookup3.c" />
     <ClCompile Include="src\RBM.cpp" />
-    <ClCompile Include="src\RBMClassesHU.cpp" />
     <ClCompile Include="src\RBMClassesJC2.cpp" />
-    <ClCompile Include="src\RBMClassesJC3.cpp" />
     <ClCompile Include="src\RBMReg.cpp" />
     <ClCompile Include="src\RBNClasses.cpp" />
-    <ClCompile Include="src\RBSClasses.cpp" />
-    <ClCompile Include="src\StreamPatch.cpp" />
-    <ClCompile Include="src\StuntAreas.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{FF2D4844-A0C8-4906-BB79-4C8D11E2E5EC}</ProjectGuid>
@@ -140,7 +134,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
     <ClCompile>
-      <Optimization>MaxSpeed</Optimization>
+      <Optimization>Disabled</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
     </ClCompile>

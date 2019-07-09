@@ -15,14 +15,11 @@
 	along with this program.If not, see <https://www.gnu.org/licenses/>.
 */
 
-#pragma once
-#include "RBM.h"
-
-struct RBNGeneral : RBMMasterBlock
+struct RBNGeneralConstants
 {
-	RBMCONSTRUCTOR(RBNGeneral, 0x1070826f6ee);
+	DECLARE_REFLECTOR;
+	DEFINE_PROPERTY(RBNGeneralConstants);
 
-	//PSH
 	uint unk[2];
 	float vertexScale;
 	Vector2 UV1Scale;
@@ -33,79 +30,49 @@ struct RBNGeneral : RBMMasterBlock
 	float flt2[7];
 	float fltend;
 
-	//VSH
-	uint rbshash;
-
-	void Load(BinReader *rd);
-	void Link(ADF *base);
 };
 
-struct RBNCharacter : RBMMasterBlock
+struct RBNCharacterConstants
 {
-	RBMCONSTRUCTOR(RBNCharacter, 0x10d9d6e332a);
+	DECLARE_REFLECTOR;
+	DEFINE_PROPERTY(RBNCharacterConstants);
 
-	//PSH
 	uint flags; //0x10000 = 2 boneWeights
 	float vertexScale;
 	float flt1[11];
 	uint additionalUVSets;
 	float flt2[17];
 	float fltend;
-
-	//VSH
-	uint rbshash;
-
-	void Load(BinReader *rd);
-	void Link(ADF *base);
 };
 
-struct RBNCarPaint : RBMMasterBlock
+struct RBNCarPaintConstants
 {
-	RBMCONSTRUCTOR(RBNCarPaint, 0x104483304d6);
+	DECLARE_REFLECTOR;
+	DEFINE_PROPERTY(RBNCarPaintConstants);
 
-	//PSH
 	uint unk;
 	float flt1[2];
 	uint flags; //0x8 deformable
 	float flt2;
 	float fltend;
-
-	//VSH
-	uint rbshash;
-
-	void Load(BinReader *rd);
-	void Link(ADF *base);
 };
 
-struct RBNWindow : RBMMasterBlock
+struct RBNWindowConstants
 {
-	RBMCONSTRUCTOR(RBNWindow, 0x1055b2003f6);
+	DECLARE_REFLECTOR;
+	DEFINE_PROPERTY(RBNWindowConstants);
 
-	//PSH
 	float flt1[3];
 	uint unk;
-
-	//VSH
-	uint rbshash;
-
-	void Load(BinReader *rd);
-	void Link(ADF *base);
 };
 
-struct RBNXXXX : RBMMasterBlock
+struct RBNXXXXConstants
 {
-	RBMCONSTRUCTOR(RBNXXXX, 0x104ed8b5331);
+	DECLARE_REFLECTOR;
+	DEFINE_PROPERTY(RBNXXXXConstants);
 
-	//PSH
 	uint unk;
 	float vertexScale;
 	Vector2 UV1Scale;
 	float fltend;
-
-	//VSH
-	uint rbshash;
-
-	void Load(BinReader *rd);
-	void Link(ADF *base);
 };
-

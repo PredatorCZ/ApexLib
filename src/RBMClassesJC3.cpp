@@ -18,1151 +18,1063 @@
 #include "RBMClassesJC3.h"
 #include "datas/binreader.hpp"
 #include "datas/masterprinter.hpp"
-#include "ADF.h"
-#include "AmfModel.h"
-#include "AmfMesh.h"
 
-void RBMVegetationFoliage3::Load(BinReader * rd)
+void RBMVegetationFoliage3::ReadRBM(BinReader *rd, char *&curBuffer, RBMMesh &mesh)
 {
-	rd->Read(flt, getBlockSize(RBMVegetationFoliage3, flt, null));
-	ReadTextures(rd);
-	rd->Read(wireScale, getBlockSize(RBMVegetationFoliage3, wireScale, textureDensities));
+	RBMVegetationFoliage3Constants *atts = properties.GetItem<RBMVegetationFoliage3Constants>();
 
-	uint numVertices;
-	rd->Read(numVertices);
+	rd->Read(mesh.numVertices);
 
 	uint currentStride = 12;
-	const uint currentStrideSecondary = 8;
-	const uint vBufferSize = numVertices * currentStride + numVertices * currentStrideSecondary + 4;
+	uint vBufferSize = mesh.numVertices * currentStride;
+	const char *vtBuffer = curBuffer;
 
-	rd->SavePos();
-	rd->Skip(vBufferSize);
-
-	uint numFaces;
-	rd->Read(numFaces);
-	rd->RestorePos();
-
-	const uint bufferSize = 2 * numFaces + vBufferSize;
-
-	AmfBuffer *cBuffer;
-	AmfMesh &mesh = LoadDependencies(bufferSize, numVertices, currentStride, cBuffer, currentStrideSecondary);
-	rd->ReadBuffer(cBuffer->buffer, vBufferSize);
-	LoadFaces(rd, mesh, vBufferSize, cBuffer);
-
-	mesh.streamAttributes.resize(5);
+	rd->ReadBuffer(curBuffer, vBufferSize);
+	curBuffer += vBufferSize;
+	mesh.descriptors.resize(5);
 
 	int currentBufferOffset = 0;
 	int currentDesc = 0;
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Position, AmfFormat_R16G16B16_SNORM, 0);
-		*reinterpret_cast<float*>(descr.Header.packingData) = vertexScale;
+		RBM_NEW_DESCRIPTOR(AmfUsage_Position, AmfFormat_R16G16B16_SNORM);
+		*reinterpret_cast<float*>(descr.packingData) = atts->vertexScale;
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Unspecified, AmfFormat_R16_SINT, 0);
+		RBM_NEW_DESCRIPTOR(AmfUsage_Unspecified, AmfFormat_R16_SINT);
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM, 0);
-		*reinterpret_cast<Vector2*>(descr.Header.packingData) = UV1Scale;
+		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM);
+		*reinterpret_cast<Vector2*>(descr.packingData) = atts->UV1Scale;
 	}
 
 	currentBufferOffset = 0;
-	currentStride = currentStrideSecondary;
+	currentStride = 8;
+	rd->Read(mesh.numVertices);
+	vtBuffer = curBuffer;
+	vBufferSize = mesh.numVertices * currentStride;
+	rd->ReadBuffer(curBuffer, vBufferSize);
+	curBuffer += vBufferSize;
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM, 1);
-		*reinterpret_cast<Vector2*>(descr.Header.packingData) = UV2Scale;
+		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM);
+		*reinterpret_cast<Vector2*>(descr.packingData) = atts->UV2Scale;
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_TangentSpace, AmfFormat_R8G8B8A8_TANGENT_SPACE, 1);
+		RBM_NEW_DESCRIPTOR(AmfUsage_TangentSpace, AmfFormat_R8G8B8A8_TANGENT_SPACE);
 	}
+
+	rd->Read(mesh.numIndices);
+	mesh.indexBuffer = reinterpret_cast<ushort *>(curBuffer);
+	rd->ReadBuffer(curBuffer, mesh.numIndices * 2);
+	curBuffer += mesh.numIndices * 2;
+	ApplyPadding(curBuffer);
 }
 
-void RBMFoliageBark2::Load(BinReader * rd)
+void RBMFoliageBark2::ReadRBM(BinReader *rd, char *&curBuffer, RBMMesh &mesh)
 {
-	rd->Read(vertexScale, getBlockSize(RBMFoliageBark2, vertexScale, endflt));
-	ReadTextures(rd);
-	rd->Read(wireScale, getBlockSize(RBMFoliageBark2, wireScale, textureDensities));
+	RBMFoliageBark2Constants *atts = properties.GetItem<RBMFoliageBark2Constants>();
 
-	uint numVertices;
-	rd->Read(numVertices);
+	rd->Read(mesh.numVertices);
 
 	uint currentStride = 12;
-	const uint currentStrideSecondary = 8;
-	const uint vBufferSize = numVertices * currentStride + numVertices * currentStrideSecondary + 4;
+	uint vBufferSize = mesh.numVertices * currentStride;
+	const char *vtBuffer = curBuffer;
 
-	rd->SavePos();
-	rd->Skip(vBufferSize);
-
-	uint numFaces;
-	rd->Read(numFaces);
-	rd->RestorePos();
-
-	const uint bufferSize = 2 * numFaces + vBufferSize;
-
-	AmfBuffer *cBuffer;
-	AmfMesh &mesh = LoadDependencies(bufferSize, numVertices, currentStride, cBuffer, currentStrideSecondary);
-	rd->ReadBuffer(cBuffer->buffer, vBufferSize);
-	LoadFaces(rd, mesh, vBufferSize, cBuffer);
-
-	mesh.streamAttributes.resize(5);
+	rd->ReadBuffer(curBuffer, vBufferSize);
+	curBuffer += vBufferSize;
+	mesh.descriptors.resize(5);
 
 	int currentBufferOffset = 0;
 	int currentDesc = 0;
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Position, AmfFormat_R16G16B16_SNORM, 0);
-		*reinterpret_cast<float*>(descr.Header.packingData) = vertexScale;
+		RBM_NEW_DESCRIPTOR(AmfUsage_Position, AmfFormat_R16G16B16_SNORM);
+		*reinterpret_cast<float*>(descr.packingData) = atts->vertexScale;
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Unspecified, AmfFormat_R16_SINT, 0);
+		RBM_NEW_DESCRIPTOR(AmfUsage_Unspecified, AmfFormat_R16_SINT);
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_TangentSpace, AmfFormat_R8G8B8A8_TANGENT_SPACE, 0);
+		RBM_NEW_DESCRIPTOR(AmfUsage_TangentSpace, AmfFormat_R8G8B8A8_TANGENT_SPACE);
 	}
 
 	currentBufferOffset = 0;
-	currentStride = currentStrideSecondary;
+	currentStride = 8;
+	rd->Read(mesh.numVertices);
+	vtBuffer = curBuffer;
+	vBufferSize = mesh.numVertices * currentStride;
+	rd->ReadBuffer(curBuffer, vBufferSize);
+	curBuffer += vBufferSize;
 	
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM, 1);
-		*reinterpret_cast<Vector2*>(descr.Header.packingData) = UV1Scale;
+		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM);
+		*reinterpret_cast<Vector2*>(descr.packingData) = atts->UV1Scale;
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM, 1);
-		*reinterpret_cast<Vector2*>(descr.Header.packingData) = UV2Scale;
+		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM);
+		*reinterpret_cast<Vector2*>(descr.packingData) = atts->UV2Scale;
 	}
+
+	rd->Read(mesh.numIndices);
+	mesh.indexBuffer = reinterpret_cast<ushort *>(curBuffer);
+	rd->ReadBuffer(curBuffer, mesh.numIndices * 2);
+	curBuffer += mesh.numIndices * 2;
+	ApplyPadding(curBuffer);
 }
 
-void RBMGeneralSimple::Load(BinReader * rd)
+void RBMGeneralSimple::ReadRBM(BinReader *rd, char *&curBuffer, RBMMesh &mesh)
 {
-	rd->Read(flt, getBlockSize(RBMGeneralSimple, flt, unkend));
-	ReadTextures(rd);
-	rd->Read(wireScale, getBlockSize(RBMGeneralSimple, wireScale, textureDensities));
+	RBMGeneralSimpleConstants *atts = properties.GetItem<RBMGeneralSimpleConstants>();
 
-	uint numVertices;
-	rd->Read(numVertices);
+	rd->Read(mesh.numVertices);
 
 	uint currentStride = 8;
-	const uint currentStrideSecondary = 20;
-	const uint vBufferSize = numVertices * currentStride + numVertices * currentStrideSecondary + 4;
+	uint vBufferSize = mesh.numVertices * currentStride;
+	const char *vtBuffer = curBuffer;
 
-	rd->SavePos();
-	rd->Skip(vBufferSize);
-
-	uint numFaces;
-	rd->Read(numFaces);
-	rd->RestorePos();
-
-	const uint bufferSize = 2 * numFaces + vBufferSize;
-
-	AmfBuffer *cBuffer;
-	AmfMesh &mesh = LoadDependencies(bufferSize, numVertices, currentStride, cBuffer, currentStrideSecondary);
-	rd->ReadBuffer(cBuffer->buffer, vBufferSize);
-	LoadFaces(rd, mesh, vBufferSize, cBuffer);
-
-	mesh.streamAttributes.resize(7);
+	rd->ReadBuffer(curBuffer, vBufferSize);
+	curBuffer += vBufferSize;
+	mesh.descriptors.resize(7);
 
 	int currentBufferOffset = 0;
 	int currentDesc = 0;
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Position, AmfFormat_R16G16B16_SNORM, 0);
-		*reinterpret_cast<float*>(descr.Header.packingData) = vertexScale;
+		RBM_NEW_DESCRIPTOR(AmfUsage_Position, AmfFormat_R16G16B16_SNORM);
+		*reinterpret_cast<float*>(descr.packingData) = atts->vertexScale;
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Unspecified, AmfFormat_R16_SINT, 0);
+		RBM_NEW_DESCRIPTOR(AmfUsage_Unspecified, AmfFormat_R16_SINT);
 	}
 
 	currentBufferOffset = 0;
-	currentStride = currentStrideSecondary;
+	currentStride = 20;
+	rd->Read(mesh.numVertices);
+	vtBuffer = curBuffer;
+	vBufferSize = mesh.numVertices * currentStride;
+	rd->ReadBuffer(curBuffer, vBufferSize);
+	curBuffer += vBufferSize;
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM, 1);
-		*reinterpret_cast<Vector2*>(descr.Header.packingData) = UV1Scale;
+		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM);
+		*reinterpret_cast<Vector2*>(descr.packingData) = atts->UV1Scale;
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM, 1);
-		*reinterpret_cast<Vector2*>(descr.Header.packingData) = UV2Scale;
+		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM);
+		*reinterpret_cast<Vector2*>(descr.packingData) = atts->UV2Scale;
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Normal, AmfFormat_R32_UNIT_VEC_AS_FLOAT, 1);
+		RBM_NEW_DESCRIPTOR(AmfUsage_Normal, AmfFormat_R32_UNIT_VEC_AS_FLOAT);
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Tangent, AmfFormat_R32_UNIT_VEC_AS_FLOAT, 1);
+		RBM_NEW_DESCRIPTOR(AmfUsage_Tangent, AmfFormat_R32_UNIT_VEC_AS_FLOAT);
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Color, AmfFormat_R32_R8G8B8A8_UNORM_AS_FLOAT, 1);
+		RBM_NEW_DESCRIPTOR(AmfUsage_Color, AmfFormat_R32_R8G8B8A8_UNORM_AS_FLOAT);
 	}
+
+	rd->Read(mesh.numIndices);
+	mesh.indexBuffer = reinterpret_cast<ushort *>(curBuffer);
+	rd->ReadBuffer(curBuffer, mesh.numIndices * 2);
+	curBuffer += mesh.numIndices * 2;
+	ApplyPadding(curBuffer);
 }
 
-void RBMWaterHull::Load(BinReader * rd)
+void RBMWaterHull::ReadRBM(BinReader *rd, char *&curBuffer, RBMMesh &mesh)
 {
-	rd->Read(flt);
-	rd->Read(wireScale, getBlockSize(RBMGeneralSimple, wireScale, textureDensities));
-
-	uint numVertices;
-	rd->Read(numVertices);
+	rd->Read(mesh.numVertices);
 
 	uint currentStride = 12;
-	const uint vBufferSize = numVertices * currentStride;
+	uint vBufferSize = mesh.numVertices * currentStride;
+	const char *vtBuffer = curBuffer;
 
-	rd->SavePos();
-	rd->Skip(vBufferSize);
+	rd->ReadBuffer(curBuffer, vBufferSize);
+	curBuffer += vBufferSize;
 
-	uint numFaces;
-	rd->Read(numFaces);
-	rd->RestorePos();
+	rd->Read(mesh.numIndices);
+	mesh.indexBuffer = reinterpret_cast<ushort *>(curBuffer);
+	rd->ReadBuffer(curBuffer, mesh.numIndices * 2);
+	curBuffer += mesh.numIndices * 2;
+	ApplyPadding(curBuffer);
 
-	const uint bufferSize = 2 * numFaces + vBufferSize;
-
-	AmfBuffer *cBuffer;
-	AmfMesh &mesh = LoadDependencies(bufferSize, numVertices, currentStride, cBuffer);
-	rd->ReadBuffer(cBuffer->buffer, vBufferSize);
-	LoadFaces(rd, mesh, vBufferSize, cBuffer);
-
-	mesh.streamAttributes.resize(1);
+	mesh.descriptors.resize(1);
 
 	int currentBufferOffset = 0;
 	int currentDesc = 0;
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Position, AmfFormat_R32G32B32_FLOAT, 0);
+		RBM_NEW_DESCRIPTOR(AmfUsage_Position, AmfFormat_R32G32B32_FLOAT);
 	}
 }
 
-void RBMBavariumShiled::Load(BinReader * rd)
+void RBMBavariumShiled::ReadRBM(BinReader *rd, char *&curBuffer, RBMMesh &mesh)
 {
-	rd->Read(flt, getBlockSize(RBMBavariumShiled, flt, endflt));
-	ReadTextures(rd);
-	rd->Read(wireScale, getBlockSize(RBMBavariumShiled, wireScale, textureDensities));
-
-	uint numVertices;
-	rd->Read(numVertices);
+	rd->Read(mesh.numVertices);
 
 	uint currentStride = 28;
-	const uint vBufferSize = numVertices * currentStride;
+	uint vBufferSize = mesh.numVertices * currentStride;
+	const char *vtBuffer = curBuffer;
 
-	rd->SavePos();
-	rd->Skip(vBufferSize);
+	rd->ReadBuffer(curBuffer, vBufferSize);
+	curBuffer += vBufferSize;
 
-	uint numFaces;
-	rd->Read(numFaces);
-	rd->RestorePos();
+	rd->Read(mesh.numIndices);
+	mesh.indexBuffer = reinterpret_cast<ushort *>(curBuffer);
+	rd->ReadBuffer(curBuffer, mesh.numIndices * 2);
+	curBuffer += mesh.numIndices * 2;
+	ApplyPadding(curBuffer);
 
-	const uint bufferSize = 2 * numFaces + vBufferSize;
-
-	AmfBuffer *cBuffer;
-	AmfMesh &mesh = LoadDependencies(bufferSize, numVertices, currentStride, cBuffer);
-	rd->ReadBuffer(cBuffer->buffer, vBufferSize);
-	LoadFaces(rd, mesh, vBufferSize, cBuffer);
-
-	mesh.streamAttributes.resize(4);
+	mesh.descriptors.resize(4);
 
 	int currentBufferOffset = 0;
 	int currentDesc = 0;
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Position, AmfFormat_R32G32B32_FLOAT, 0);
+		RBM_NEW_DESCRIPTOR(AmfUsage_Position, AmfFormat_R32G32B32_FLOAT);
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R32G32_FLOAT, 0);
+		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R32G32_FLOAT);
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Normal, AmfFormat_R32_UNIT_VEC_AS_FLOAT, 0);
+		RBM_NEW_DESCRIPTOR(AmfUsage_Normal, AmfFormat_R32_UNIT_VEC_AS_FLOAT);
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Tangent, AmfFormat_R32_UNIT_VEC_AS_FLOAT, 0);
+		RBM_NEW_DESCRIPTOR(AmfUsage_Tangent, AmfFormat_R32_UNIT_VEC_AS_FLOAT);
 	}
 }
 
-void RBMWindow1::Load(BinReader * rd)
+void RBMWindow1::ReadRBM(BinReader *rd, char *&curBuffer, RBMMesh &mesh)
 {
-	rd->Read(flt, getBlockSize(RBMWindow1, flt, unk));
-	ReadTextures(rd);
-	rd->Read(wireScale, getBlockSize(RBMWindow1, wireScale, textureDensities));
-
-	uint numVertices;
-	rd->Read(numVertices);
+	rd->Read(mesh.numVertices);
 
 	uint currentStride = 40;
-	const uint vBufferSize = numVertices * currentStride;
+	uint vBufferSize = mesh.numVertices * currentStride;
+	const char *vtBuffer = curBuffer;
 
-	rd->SavePos();
-	rd->Skip(vBufferSize);
+	rd->ReadBuffer(curBuffer, vBufferSize);
+	curBuffer += vBufferSize;
 
-	uint numFaces;
-	rd->Read(numFaces);
-	rd->RestorePos();
+	rd->Read(mesh.numIndices);
+	mesh.indexBuffer = reinterpret_cast<ushort *>(curBuffer);
+	rd->ReadBuffer(curBuffer, mesh.numIndices * 2);
+	curBuffer += mesh.numIndices * 2;
+	ApplyPadding(curBuffer);
 
-	const uint bufferSize = 2 * numFaces + vBufferSize;
-
-	AmfBuffer *cBuffer;
-	AmfMesh &mesh = LoadDependencies(bufferSize, numVertices, currentStride, cBuffer);
-	rd->ReadBuffer(cBuffer->buffer, vBufferSize);
-	LoadFaces(rd, mesh, vBufferSize, cBuffer);
-
-	mesh.streamAttributes.resize(6);
+	mesh.descriptors.resize(6);
 
 	int currentBufferOffset = 0;
 	int currentDesc = 0;
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Position, AmfFormat_R32G32B32_FLOAT, 0);
+		RBM_NEW_DESCRIPTOR(AmfUsage_Position, AmfFormat_R32G32B32_FLOAT);
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R32G32_FLOAT, 0);
+		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R32G32_FLOAT);
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R32G32_FLOAT, 0);
+		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R32G32_FLOAT);
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Normal, AmfFormat_R32_UNIT_VEC_AS_FLOAT, 0);
+		RBM_NEW_DESCRIPTOR(AmfUsage_Normal, AmfFormat_R32_UNIT_VEC_AS_FLOAT);
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Tangent, AmfFormat_R32_UNIT_VEC_AS_FLOAT, 0);
+		RBM_NEW_DESCRIPTOR(AmfUsage_Tangent, AmfFormat_R32_UNIT_VEC_AS_FLOAT);
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Color, AmfFormat_R32_R8G8B8A8_UNORM_AS_FLOAT, 0);
+		RBM_NEW_DESCRIPTOR(AmfUsage_Color, AmfFormat_R32_R8G8B8A8_UNORM_AS_FLOAT);
 	}
 }
 
-void RBMLayered::Load(BinReader * rd)
+void RBMLayered::ReadRBM(BinReader *rd, char *&curBuffer, RBMMesh &mesh)
 {
-	rd->Read(flt, getBlockSize(RBMLayered, flt, endflt));
-	ReadTextures(rd);
-	rd->Read(wireScale, getBlockSize(RBMLayered, wireScale, textureDensities));
+	RBMLayeredConstants *atts = properties.GetItem<RBMLayeredConstants>();
 
-	uint numVertices;
-	rd->Read(numVertices);
+	rd->Read(mesh.numVertices);
 
 	uint currentStride = 8;
-	const uint currentStrideSecondary = 20;
-	const uint vBufferSize = numVertices * currentStride + numVertices * currentStrideSecondary + 4;
+	uint vBufferSize = mesh.numVertices * currentStride;
+	const char *vtBuffer = curBuffer;
 
-	rd->SavePos();
-	rd->Skip(vBufferSize);
-
-	uint numFaces;
-	rd->Read(numFaces);
-	rd->RestorePos();
-
-	const uint bufferSize = 2 * numFaces + vBufferSize;
-
-	AmfBuffer *cBuffer;
-	AmfMesh &mesh = LoadDependencies(bufferSize, numVertices, currentStride, cBuffer, currentStrideSecondary);
-	rd->ReadBuffer(cBuffer->buffer, vBufferSize);
-	LoadFaces(rd, mesh, vBufferSize, cBuffer);
-
-	mesh.streamAttributes.resize(7);
+	rd->ReadBuffer(curBuffer, vBufferSize);
+	curBuffer += vBufferSize;
+	mesh.descriptors.resize(7);
 
 	int currentBufferOffset = 0;
 	int currentDesc = 0;
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Position, AmfFormat_R16G16B16_SNORM, 0);
-		*reinterpret_cast<float*>(descr.Header.packingData) = vertexScale;
+		RBM_NEW_DESCRIPTOR(AmfUsage_Position, AmfFormat_R16G16B16_SNORM);
+		*reinterpret_cast<float*>(descr.packingData) = atts->vertexScale;
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Unspecified, AmfFormat_R16_SINT, 0);
+		RBM_NEW_DESCRIPTOR(AmfUsage_Unspecified, AmfFormat_R16_SINT);
 	}
 
 	currentBufferOffset = 0;
-	currentStride = currentStrideSecondary;
+	currentStride = 20;
+	rd->Read(mesh.numVertices);
+	vtBuffer = curBuffer;
+	vBufferSize = mesh.numVertices * currentStride;
+	rd->ReadBuffer(curBuffer, vBufferSize);
+	curBuffer += vBufferSize;
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM, 1);
-		*reinterpret_cast<Vector2*>(descr.Header.packingData) = UV1Scale;
+		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM);
+		*reinterpret_cast<Vector2*>(descr.packingData) = atts->UV1Scale;
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM, 1);
-		*reinterpret_cast<Vector2*>(descr.Header.packingData) = UV2Scale;
+		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM);
+		*reinterpret_cast<Vector2*>(descr.packingData) = atts->UV2Scale;
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Normal, AmfFormat_R32_UNIT_VEC_AS_FLOAT, 1);
+		RBM_NEW_DESCRIPTOR(AmfUsage_Normal, AmfFormat_R32_UNIT_VEC_AS_FLOAT);
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Tangent, AmfFormat_R32_UNIT_VEC_AS_FLOAT, 1);
+		RBM_NEW_DESCRIPTOR(AmfUsage_Tangent, AmfFormat_R32_UNIT_VEC_AS_FLOAT);
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Color, AmfFormat_R32_R8G8B8A8_UNORM_AS_FLOAT, 1);
+		RBM_NEW_DESCRIPTOR(AmfUsage_Color, AmfFormat_R32_R8G8B8A8_UNORM_AS_FLOAT);
 	}
+
+	rd->Read(mesh.numIndices);
+	mesh.indexBuffer = reinterpret_cast<ushort *>(curBuffer);
+	rd->ReadBuffer(curBuffer, mesh.numIndices * 2);
+	curBuffer += mesh.numIndices * 2;
+	ApplyPadding(curBuffer);
 }
 
-void RBMLandmark::Load(BinReader * rd)
+void RBMLandmark::ReadRBM(BinReader *rd, char *&curBuffer, RBMMesh &mesh)
 {
-	rd->Read(flt, getBlockSize(RBMLandmark, flt, endunk));
-	ReadTextures(rd);
-	rd->Read(wireScale, getBlockSize(RBMLandmark, wireScale, textureDensities));
+	RBMLandmarkConstants *atts = properties.GetItem<RBMLandmarkConstants>();
 
-	uint numVertices;
-	rd->Read(numVertices);
+	rd->Read(mesh.numVertices);
 
-	uint currentStride = 8;
-	const uint currentStrideSecondary = 8;
-	const uint vBufferSize = numVertices * currentStride + numVertices * currentStrideSecondary + 4;
+	const uint currentStride = 8;
+	const uint vBufferSize = mesh.numVertices * currentStride;
+	const char *vtBuffer = curBuffer;
 
-	rd->SavePos();
-	rd->Skip(vBufferSize);
-
-	uint numFaces;
-	rd->Read(numFaces);
-	rd->RestorePos();
-
-	const uint bufferSize = 2 * numFaces + vBufferSize;
-
-	AmfBuffer *cBuffer;
-	AmfMesh &mesh = LoadDependencies(bufferSize, numVertices, currentStride, cBuffer, currentStrideSecondary);
-	rd->ReadBuffer(cBuffer->buffer, vBufferSize);
-	LoadFaces(rd, mesh, vBufferSize, cBuffer);
-
-	mesh.streamAttributes.resize(4);
+	rd->ReadBuffer(curBuffer, vBufferSize);
+	curBuffer += vBufferSize;
+	mesh.descriptors.resize(4);
 
 	int currentBufferOffset = 0;
 	int currentDesc = 0;
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Position, AmfFormat_R16G16B16_SNORM, 0);
-		*reinterpret_cast<float*>(descr.Header.packingData) = vertexScale;
+		RBM_NEW_DESCRIPTOR(AmfUsage_Position, AmfFormat_R16G16B16_SNORM);
+		*reinterpret_cast<float*>(descr.packingData) = atts->vertexScale;
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Unspecified, AmfFormat_R16_SINT, 0);
+		RBM_NEW_DESCRIPTOR(AmfUsage_Unspecified, AmfFormat_R16_SINT);
 	}
 
 	currentBufferOffset = 0;
-	currentStride = currentStrideSecondary;
+	rd->Read(mesh.numVertices);
+	vtBuffer = curBuffer;
+	rd->ReadBuffer(curBuffer, vBufferSize);
+	curBuffer += vBufferSize;
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM, 1);
-		*reinterpret_cast<Vector2*>(descr.Header.packingData) = UV1Scale;
+		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM);
+		*reinterpret_cast<Vector2*>(descr.packingData) = atts->UV1Scale;
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Color, AmfFormat_R32_R8G8B8A8_UNORM_AS_FLOAT, 1);
+		RBM_NEW_DESCRIPTOR(AmfUsage_Color, AmfFormat_R32_R8G8B8A8_UNORM_AS_FLOAT);
 	}
+
+	rd->Read(mesh.numIndices);
+	mesh.indexBuffer = reinterpret_cast<ushort *>(curBuffer);
+	rd->ReadBuffer(curBuffer, mesh.numIndices * 2);
+	curBuffer += mesh.numIndices * 2;
+	ApplyPadding(curBuffer);
 }
 
-void RBMGeneralMK3::Load(BinReader * rd)
+void RBMGeneralMK3::ReadRBM(BinReader *rd, char *&curBuffer, RBMMesh &mesh)
 {
-	rd->Read(flt, getBlockSize(RBMGeneralMK3, flt, unk03));
-	ReadTextures(rd);
-	rd->Read(wireScale, getBlockSize(RBMGeneralMK3, wireScale, textureDensities));
+	RBMGeneralMK3Constants *atts = properties.GetItem<RBMGeneralMK3Constants>();
 
-	uint numVertices;
-	rd->Read(numVertices);
+	bool skinned = (atts->flags & 0x20) != 0;
+	bool singleskin = (atts->flags & 0x8000) != 0;
 
-	bool skinned = (flags & 0x20) != 0;
-	bool singleskin = (flags & 0x8000) != 0;
-
-	uint currentStride = skinned ? 16 : 8;
-	const uint currentStrideSecondary = 20;
-	const uint vBufferSize = numVertices * currentStride + numVertices * currentStrideSecondary + 4;
-
-	rd->SavePos();
-	rd->Skip(vBufferSize);
-
-	if (skinned || singleskin)
-		ReadRemaps(rd);
-
-	uint numFaces;
-	rd->Read(numFaces);
-	rd->RestorePos();
-
-	const uint bufferSize = 2 * numFaces + vBufferSize;
-
-	AmfBuffer *cBuffer;
-	AmfMesh &mesh = LoadDependencies(bufferSize, numVertices, currentStride, cBuffer, currentStrideSecondary);
-	mesh.meshProperties = AdfProperties::ConstructProperty(GeneralMeshConstants::HASH);
-	GeneralMeshConstants *cn = static_cast<GeneralMeshConstants*>(mesh.meshProperties->GetProperties());
+	GeneralMeshConstants *cn = new GeneralMeshConstants();
 	cn->flags(GeneralMeshConstantsFlags::isDestructionMesh, singleskin);
 	cn->flags(GeneralMeshConstantsFlags::isSkinnedMesh, skinned);
+	mesh.properties.item.vPtr = cn;
+	mesh.properties.objectHash = GeneralMeshConstants::HASH;
 
-	rd->ReadBuffer(cBuffer->buffer, vBufferSize);
+	rd->Read(mesh.numVertices);
 
-	if (skinned || singleskin)
-		ReadRemaps(rd, &mesh);
+	uint currentStride = skinned ? 16 : 8;
+	uint vBufferSize = mesh.numVertices * currentStride;
+	const char *vtBuffer = curBuffer;
 
-	LoadFaces(rd, mesh, vBufferSize, cBuffer);
-
-	mesh.streamAttributes.resize(skinned ? 9 : 7);
+	rd->ReadBuffer(curBuffer, vBufferSize);
+	curBuffer += vBufferSize;
+	mesh.descriptors.resize(skinned ? 9 : 7);
 
 	int currentBufferOffset = 0;
 	int currentDesc = 0;
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Position, AmfFormat_R16G16B16_SNORM, 0);
-		*reinterpret_cast<float*>(descr.Header.packingData) = vertexScale;
+		RBM_NEW_DESCRIPTOR(AmfUsage_Position, AmfFormat_R16G16B16_SNORM);
+		*reinterpret_cast<float*>(descr.packingData) = atts->vertexScale;
 	}
 	if (singleskin)
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_BoneIndex, AmfFormat_R16_SINT, 0);
+		RBM_NEW_DESCRIPTOR(AmfUsage_BoneIndex, AmfFormat_R16_SINT);
 	}
 	else
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Unspecified, AmfFormat_R16_SINT, 0);
+		RBM_NEW_DESCRIPTOR(AmfUsage_Unspecified, AmfFormat_R16_SINT);
 	}
 
 	if (skinned)
 	{
 		{
-			RBM_NEW_DESCRIPTOR(AmfUsage_BoneWeight, AmfFormat_R8G8B8A8_UNORM, 0);
+			RBM_NEW_DESCRIPTOR(AmfUsage_BoneWeight, AmfFormat_R8G8B8A8_UNORM);
 		}
 
 		{
-			RBM_NEW_DESCRIPTOR(AmfUsage_BoneIndex, AmfFormat_R8G8B8A8_UINT, 0);
+			RBM_NEW_DESCRIPTOR(AmfUsage_BoneIndex, AmfFormat_R8G8B8A8_UINT);
 		}
 	}
 
 	currentBufferOffset = 0;
-	currentStride = currentStrideSecondary;
+	currentStride = 20;
+	rd->Read(mesh.numVertices);
+	vtBuffer = curBuffer;
+	vBufferSize = mesh.numVertices * currentStride;
+	rd->ReadBuffer(curBuffer, vBufferSize);
+	curBuffer += vBufferSize;
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM, 1);
-		*reinterpret_cast<Vector2*>(descr.Header.packingData) = UV1Scale;
+		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM);
+		*reinterpret_cast<Vector2*>(descr.packingData) = atts->UV1Scale;
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM, 1);
-		*reinterpret_cast<Vector2*>(descr.Header.packingData) = UV2Scale;
+		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM);
+		*reinterpret_cast<Vector2*>(descr.packingData) = atts->UV2Scale;
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Normal, AmfFormat_R32_UNIT_VEC_AS_FLOAT, 1);
+		RBM_NEW_DESCRIPTOR(AmfUsage_Normal, AmfFormat_R32_UNIT_VEC_AS_FLOAT);
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Tangent, AmfFormat_R32_UNIT_VEC_AS_FLOAT, 1);
+		RBM_NEW_DESCRIPTOR(AmfUsage_Tangent, AmfFormat_R32_UNIT_VEC_AS_FLOAT);
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Color, AmfFormat_R32_R8G8B8A8_UNORM_AS_FLOAT, 1);
+		RBM_NEW_DESCRIPTOR(AmfUsage_Color, AmfFormat_R32_R8G8B8A8_UNORM_AS_FLOAT);
 	}
+
+	if (skinned || singleskin)
+	{
+		RBMGeneralMK3Mesh *cMesh = static_cast<RBMGeneralMK3Mesh *>(&mesh);
+		rd->Read(cMesh->remapHdr);
+		cMesh->remaps = reinterpret_cast<ushort *>(curBuffer);
+		rd->ReadBuffer(curBuffer, cMesh->remapHdr.numRemaps);
+		curBuffer += cMesh->remapHdr.numRemaps;
+		ApplyPadding(curBuffer, 2);
+	}
+
+	rd->Read(mesh.numIndices);
+	mesh.indexBuffer = reinterpret_cast<ushort *>(curBuffer);
+	rd->ReadBuffer(curBuffer, mesh.numIndices * 2);
+	curBuffer += mesh.numIndices * 2;
+	ApplyPadding(curBuffer);
 }
 
-void RBMGeneral6::Load(BinReader * rd)
+void RBMGeneral6::ReadRBM(BinReader *rd, char *&curBuffer, RBMMesh &mesh)
 {
-	rd->Read(flt, getBlockSize(RBMGeneral6, flt, bbox));
-	ReadTextures(rd);
-	rd->Read(wireScale, getBlockSize(RBMGeneral6, wireScale, textureDensities));
+	RBMGeneral6Constants *atts = properties.GetItem<RBMGeneral6Constants>();
 
-	uint numVertices;
-	rd->Read(numVertices);
+	rd->Read(mesh.numVertices);
 
 	uint currentStride = 8;
-	const uint currentStrideSecondary = 20;
-	const uint vBufferSize = numVertices * currentStride + numVertices * currentStrideSecondary + 4;
+	uint vBufferSize = mesh.numVertices * currentStride;
+	const char *vtBuffer = curBuffer;
 
-	rd->SavePos();
-	rd->Skip(vBufferSize);
-
-	uint numFaces;
-	rd->Read(numFaces);
-	rd->RestorePos();
-
-	const uint bufferSize = 2 * numFaces + vBufferSize;
-
-	AmfBuffer *cBuffer;
-	AmfMesh &mesh = LoadDependencies(bufferSize, numVertices, currentStride, cBuffer, currentStrideSecondary);
-	rd->ReadBuffer(cBuffer->buffer, vBufferSize);
-	LoadFaces(rd, mesh, vBufferSize, cBuffer);
-
-	mesh.streamAttributes.resize(7);
+	rd->ReadBuffer(curBuffer, vBufferSize);
+	curBuffer += vBufferSize;
+	mesh.descriptors.resize(7);
 
 	int currentBufferOffset = 0;
 	int currentDesc = 0;
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Position, AmfFormat_R16G16B16_SNORM, 0);
-		*reinterpret_cast<float*>(descr.Header.packingData) = vertexScale;
+		RBM_NEW_DESCRIPTOR(AmfUsage_Position, AmfFormat_R16G16B16_SNORM);
+		*reinterpret_cast<float*>(descr.packingData) = atts->vertexScale;
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Unspecified, AmfFormat_R16_SINT, 0);
+		RBM_NEW_DESCRIPTOR(AmfUsage_Unspecified, AmfFormat_R16_SINT);
 	}
 
 	currentBufferOffset = 0;
-	currentStride = currentStrideSecondary;
+	currentStride = 20;
+	rd->Read(mesh.numVertices);
+	vtBuffer = curBuffer;
+	vBufferSize = mesh.numVertices * currentStride;
+	rd->ReadBuffer(curBuffer, vBufferSize);
+	curBuffer += vBufferSize;
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM, 1);
-		*reinterpret_cast<Vector2*>(descr.Header.packingData) = UV1Scale;
+		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM);
+		*reinterpret_cast<Vector2*>(descr.packingData) = atts->UV1Scale;
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM, 1);
-		*reinterpret_cast<Vector2*>(descr.Header.packingData) = UV2Scale;
+		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM);
+		*reinterpret_cast<Vector2*>(descr.packingData) = atts->UV2Scale;
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Normal, AmfFormat_R32_UNIT_VEC_AS_FLOAT, 1);
+		RBM_NEW_DESCRIPTOR(AmfUsage_Normal, AmfFormat_R32_UNIT_VEC_AS_FLOAT);
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Tangent, AmfFormat_R32_UNIT_VEC_AS_FLOAT, 1);
+		RBM_NEW_DESCRIPTOR(AmfUsage_Tangent, AmfFormat_R32_UNIT_VEC_AS_FLOAT);
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Color, AmfFormat_R32_R8G8B8A8_UNORM_AS_FLOAT, 1);
+		RBM_NEW_DESCRIPTOR(AmfUsage_Color, AmfFormat_R32_R8G8B8A8_UNORM_AS_FLOAT);
 	}
+
+	rd->Read(mesh.numIndices);
+	mesh.indexBuffer = reinterpret_cast<ushort *>(curBuffer);
+	rd->ReadBuffer(curBuffer, mesh.numIndices * 2);
+	curBuffer += mesh.numIndices * 2;
+	ApplyPadding(curBuffer);
 }
 
-void RBMCarLight::Load(BinReader * rd)
+void RBMCarLight::ReadRBM(BinReader *rd, char *&curBuffer, RBMMesh &mesh)
 {
-	rd->Read(flt, getBlockSize(RBMCarLight, flt, endflt));
-	rd->Skip(1024);
-	ReadTextures(rd);
-	rd->Read(wireScale, getBlockSize(RBMCarLight, wireScale, textureDensities));
+	RBMCarLightConstants *atts = properties.GetItem<RBMCarLightConstants>();
+	RBMCarLightMesh *msh = static_cast<RBMCarLightMesh*>(&mesh);
 
-	uint numVertices;
-	rd->Read(numVertices);
+	msh->remaps = atts->remapTable;
+
+	rd->Read(mesh.numVertices);
 
 	uint currentStride = 12;
-	const uint currentStrideSecondary = 24;
-	const uint vBufferSize = numVertices * currentStride + numVertices * currentStrideSecondary + 4;
+	uint vBufferSize = mesh.numVertices * currentStride;
+	const char *vtBuffer = curBuffer;
 
-	rd->SavePos();
-	rd->Skip(vBufferSize);
-
-	uint numFaces;
-	rd->Read(numFaces);
-	rd->RestorePos();
-
-	const uint bufferSize = 2 * numFaces + vBufferSize;
-
-	AmfBuffer *cBuffer;
-	AmfMesh &mesh = LoadDependencies(bufferSize, numVertices, currentStride, cBuffer, currentStrideSecondary);
-	rd->ReadBuffer(cBuffer->buffer, vBufferSize);
-	LoadFaces(rd, mesh, vBufferSize, cBuffer);
-
-	mesh.streamAttributes.resize(5);
+	rd->ReadBuffer(curBuffer, vBufferSize);
+	curBuffer += vBufferSize;
+	mesh.descriptors.resize(5);
 
 	int currentBufferOffset = 0;
 	int currentDesc = 0;
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Position, AmfFormat_R32G32B32_FLOAT, 0);
+		RBM_NEW_DESCRIPTOR(AmfUsage_Position, AmfFormat_R32G32B32_FLOAT);
 	}
 
 	currentBufferOffset = 0;
-	currentStride = currentStrideSecondary;
+	currentStride = 24;
+	rd->Read(mesh.numVertices);
+	vtBuffer = curBuffer;
+	vBufferSize = mesh.numVertices * currentStride;
+	rd->ReadBuffer(curBuffer, vBufferSize);
+	curBuffer += vBufferSize;
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R32G32_FLOAT, 1);
+		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R32G32_FLOAT);
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R32G32_FLOAT, 1);
+		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R32G32_FLOAT);
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Normal, AmfFormat_R32_UNIT_VEC_AS_FLOAT, 1);
+		RBM_NEW_DESCRIPTOR(AmfUsage_Normal, AmfFormat_R32_UNIT_VEC_AS_FLOAT);
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Tangent, AmfFormat_R32_UNIT_VEC_AS_FLOAT, 1);
+		RBM_NEW_DESCRIPTOR(AmfUsage_Tangent, AmfFormat_R32_UNIT_VEC_AS_FLOAT);
 	}
+
+	rd->Read(mesh.numIndices);
+	mesh.indexBuffer = reinterpret_cast<ushort *>(curBuffer);
+	rd->ReadBuffer(curBuffer, mesh.numIndices * 2);
+	curBuffer += mesh.numIndices * 2;
+	ApplyPadding(curBuffer);
 }
 
-void RBMCarPaint14::Load(BinReader * rd)
+void RBMCarPaint14::ReadRBM(BinReader *rd, char *&curBuffer, RBMMesh &mesh)
 {
-	std::vector<int> deformTable;
-	
-	rd->Read(flags, getBlockSize(RBMCarPaint14, flags, endflt));
-	rd->ReadContainer(deformTable, 256);
-	ReadTextures(rd);
-	rd->Read(wireScale, getBlockSize(RBMCarPaint14, wireScale, textureDensities));
+	RBMCarPaint14Constants *atts = properties.GetItem<RBMCarPaint14Constants>();
+	RBMCarPaint14Mesh *msh = static_cast<RBMCarPaint14Mesh*>(&mesh);
 
-	bool deformable = (flags & 0x1000) != 0;
-	bool skinned = (flags & 0x2000) != 0;
-	bool uv3 = ((flags & 0x20) | (flags & 0x40)) != 0;
+	bool deformable = (atts->flags & 0x1000) != 0;
+	bool skinned = (atts->flags & 0x2000) != 0;
+	bool uv3 = ((atts->flags & 0x20) | (atts->flags & 0x40)) != 0;
 
-	AdfProperties *props = AdfProperties::ConstructProperty(CarPaintMeshConstants::HASH);
-	CarPaintMeshConstants *carPaintProps = static_cast<CarPaintMeshConstants*>(props->GetProperties());
-	carPaintProps->flags(CarPaintMeshConstantsFlags::deformable, deformable);
-	carPaintProps->flags(CarPaintMeshConstantsFlags::skinned, skinned);
+	msh->deformRemaps = atts->remapTable;
+
+	CarPaintMeshConstants *cn = new CarPaintMeshConstants();
+	cn->flags(CarPaintMeshConstantsFlags::deformable, deformable);
+	cn->flags(CarPaintMeshConstantsFlags::skinned, skinned);
+	mesh.properties.item.vPtr = cn;
+	mesh.properties.objectHash = CarPaintMeshConstants::HASH;
 
 	if (deformable && skinned)
 	{
 		printwarning("[RBMCarPaint14]: Cannot have deformable and skinned flags at the same time, check me!")
 	}
 
-	uint numVertices;
-	rd->Read(numVertices);
+	rd->Read(mesh.numVertices);
 
 	uint currentStride = 12 + (deformable ? 12 : 0) + (skinned ? 4 : 0);
-	const uint currentStrideSecondary = deformable ? 32 : 24;
-	const uint uv3Stride = 8;
-	const uint vBufferSize = numVertices * currentStride + numVertices * currentStrideSecondary + 4 + (uv3 ? numVertices * uv3Stride + 4 : 0);
+	uint vBufferSize = mesh.numVertices * currentStride;
+	const char *vtBuffer = curBuffer;
 
-	rd->SavePos();
-	rd->Skip(vBufferSize);
-
-	if (skinned)
-		ReadRemaps(rd);
-
-	uint numFaces;
-	rd->Read(numFaces);
-	rd->RestorePos();
-
-	const uint bufferSize = 2 * numFaces + vBufferSize;
-
-	AmfBuffer *cBuffer;
-	AmfMesh &mesh = LoadDependencies(bufferSize, numVertices, currentStride, cBuffer, currentStrideSecondary);
-	mesh.meshProperties = props;
-
-	if (deformable)
-	{
-		mesh.boneIndexLookup.resize(256);
-
-		int currentDeformIndex = 0;
-
-		for (auto &b : mesh.boneIndexLookup)
-		{
-			b = deformTable[currentDeformIndex] - 1;
-			currentDeformIndex++;
-		}
-	}
-
-	if (uv3)
-	{
-		mesh.vertexStreamOffsets.push_back(mesh.vertexStreamOffsets.back() + numVertices * currentStrideSecondary + 4);
-		mesh.vertexStreamStrides.push_back(uv3Stride);
-		mesh.vertexBufferIndices.push_back(mesh.vertexBufferIndices.back());
-	}
-
-	rd->ReadBuffer(cBuffer->buffer, vBufferSize);
-
-	if (skinned)
-		ReadRemaps(rd, &mesh);
-
-	LoadFaces(rd, mesh, vBufferSize, cBuffer);
-
-	mesh.streamAttributes.resize(5 + (deformable ? 2 : 0) + (skinned ? 1 : 0) + (uv3 ? 1 : 0));
+	rd->ReadBuffer(curBuffer, vBufferSize);
+	curBuffer += vBufferSize;
+	mesh.descriptors.resize(5 + (deformable ? 2 : 0) + (skinned ? 1 : 0) + (uv3 ? 1 : 0));
 
 	int currentBufferOffset = 0;
 	int currentDesc = 0;
 
+	const uint currentStrideSecondary = deformable ? 32 : 24;
+	const uint uv3Stride = 8;
+
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Position, AmfFormat_R32G32B32_FLOAT, 0);
+		RBM_NEW_DESCRIPTOR(AmfUsage_Position, AmfFormat_R32G32B32_FLOAT);
 	}
 
 	if (deformable)
 	{
 		{
-			RBM_NEW_DESCRIPTOR(AmfUsage_DeformNormal_c, AmfFormat_R32_UNIT_VEC_AS_FLOAT, 0); 
+			RBM_NEW_DESCRIPTOR(AmfUsage_DeformNormal_c, AmfFormat_R32_UNIT_VEC_AS_FLOAT);
 		}
 
 		{
-			RBM_NEW_DESCRIPTOR(AmfUsage_DeformPoints_c, AmfFormat_R16G16B16A16_SNORM, 0);
+			RBM_NEW_DESCRIPTOR(AmfUsage_DeformPoints_c, AmfFormat_R16G16B16A16_SNORM);
 		}
 	}
 
 	if (skinned)
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_BoneIndex, AmfFormat_R32_UINT, 0);
+		RBM_NEW_DESCRIPTOR(AmfUsage_BoneIndex, AmfFormat_R32_UINT);
 	}
 
 	currentBufferOffset = 0;
-	currentStride = currentStrideSecondary;
+	currentStride = deformable ? 32 : 24;
+	rd->Read(mesh.numVertices);
+	vtBuffer = curBuffer;
+	vBufferSize = mesh.numVertices * currentStride;
+	rd->ReadBuffer(curBuffer, vBufferSize);
+	curBuffer += vBufferSize;
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R32G32_FLOAT, 1);
+		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R32G32_FLOAT);
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R32G32_FLOAT, 1);
+		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R32G32_FLOAT);
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Normal, AmfFormat_R32_UNIT_VEC_AS_FLOAT, 1);
+		RBM_NEW_DESCRIPTOR(AmfUsage_Normal, AmfFormat_R32_UNIT_VEC_AS_FLOAT);
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Tangent, AmfFormat_R32_UNIT_VEC_AS_FLOAT, 1);
+		RBM_NEW_DESCRIPTOR(AmfUsage_Tangent, AmfFormat_R32_UNIT_VEC_AS_FLOAT);
 	}
 
 	if (uv3)
 	{
 		currentBufferOffset = 0;
-		currentStride = uv3Stride;
+		currentStride = 8;
+		rd->Read(mesh.numVertices);
+		vtBuffer = curBuffer;
+		vBufferSize = mesh.numVertices * currentStride;
+		rd->ReadBuffer(curBuffer, vBufferSize);
+		curBuffer += vBufferSize;
 
 		{
-			RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R32G32_FLOAT, 2);
+			RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R32G32_FLOAT);
 		}
 	}
+
+	if (skinned)
+	{
+		rd->Read(msh->remapHdr);
+		msh->remaps = reinterpret_cast<ushort *>(curBuffer);
+		rd->ReadBuffer(curBuffer, msh->remapHdr.numRemaps);
+		curBuffer += msh->remapHdr.numRemaps;
+		ApplyPadding(curBuffer, 2);
+	}
+
+	rd->Read(mesh.numIndices);
+	mesh.indexBuffer = reinterpret_cast<ushort *>(curBuffer);
+	rd->ReadBuffer(curBuffer, mesh.numIndices * 2);
+	curBuffer += mesh.numIndices * 2;
+	ApplyPadding(curBuffer);
 }
 
-void RBMGeneral3::Load(BinReader * rd)
+void RBMGeneral3::ReadRBM(BinReader *rd, char *&curBuffer, RBMMesh &mesh)
 {
-	rd->Read(flt, getBlockSize(RBMGeneral3, flt, endunk));
-	ReadTextures(rd);
-	rd->Read(wireScale, getBlockSize(RBMGeneral3, wireScale, textureDensities));
+	RBMGeneral3Constants *atts = properties.GetItem<RBMGeneral3Constants>();
 
-	uint numVertices;
-	rd->Read(numVertices);
+	rd->Read(mesh.numVertices);
 
 	uint currentStride = 8;
-	const uint currentStrideSecondary = 20;
-	const uint vBufferSize = numVertices * currentStride + numVertices * currentStrideSecondary + 4;
+	uint vBufferSize = mesh.numVertices * currentStride;
+	const char *vtBuffer = curBuffer;
 
-	rd->SavePos();
-	rd->Skip(vBufferSize);
-
-	uint numFaces;
-	rd->Read(numFaces);
-	rd->RestorePos();
-
-	const uint bufferSize = 2 * numFaces + vBufferSize;
-
-	AmfBuffer *cBuffer;
-	AmfMesh &mesh = LoadDependencies(bufferSize, numVertices, currentStride, cBuffer, currentStrideSecondary);
-	rd->ReadBuffer(cBuffer->buffer, vBufferSize);
-	LoadFaces(rd, mesh, vBufferSize, cBuffer);
-
-	mesh.streamAttributes.resize(7);
+	rd->ReadBuffer(curBuffer, vBufferSize);
+	curBuffer += vBufferSize;
+	mesh.descriptors.resize(7);
 
 	int currentBufferOffset = 0;
 	int currentDesc = 0;
-
+	
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Position, AmfFormat_R16G16B16_SNORM, 0);
-		*reinterpret_cast<float*>(descr.Header.packingData) = vertexScale;
+		RBM_NEW_DESCRIPTOR(AmfUsage_Position, AmfFormat_R16G16B16_SNORM);
+		*reinterpret_cast<float*>(descr.packingData) = atts->vertexScale;
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Unspecified, AmfFormat_R16_SINT, 0);
+		RBM_NEW_DESCRIPTOR(AmfUsage_Unspecified, AmfFormat_R16_SINT);
 	}
 
 	currentBufferOffset = 0;
-	currentStride = currentStrideSecondary;
+	currentStride = 20;
+	rd->Read(mesh.numVertices);
+	vtBuffer = curBuffer;
+	vBufferSize = mesh.numVertices * currentStride;
+	rd->ReadBuffer(curBuffer, vBufferSize);
+	curBuffer += vBufferSize;
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM, 1);
-		*reinterpret_cast<Vector2*>(descr.Header.packingData) = UV1Scale;
+		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM);
+		*reinterpret_cast<Vector2*>(descr.packingData) = atts->UV1Scale;
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM, 1);
-		*reinterpret_cast<Vector2*>(descr.Header.packingData) = UV2Scale;
+		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM);
+		*reinterpret_cast<Vector2*>(descr.packingData) = atts->UV2Scale;
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Normal, AmfFormat_R32_UNIT_VEC_AS_FLOAT, 1);
+		RBM_NEW_DESCRIPTOR(AmfUsage_Normal, AmfFormat_R32_UNIT_VEC_AS_FLOAT);
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Tangent, AmfFormat_R32_UNIT_VEC_AS_FLOAT, 1);
+		RBM_NEW_DESCRIPTOR(AmfUsage_Tangent, AmfFormat_R32_UNIT_VEC_AS_FLOAT);
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Color, AmfFormat_R32_R8G8B8A8_UNORM_AS_FLOAT, 1);
+		RBM_NEW_DESCRIPTOR(AmfUsage_Color, AmfFormat_R32_R8G8B8A8_UNORM_AS_FLOAT);
 	}
+
+	rd->Read(mesh.numIndices);
+	mesh.indexBuffer = reinterpret_cast<ushort *>(curBuffer);
+	rd->ReadBuffer(curBuffer, mesh.numIndices * 2);
+	curBuffer += mesh.numIndices * 2;
+	ApplyPadding(curBuffer);
 }
 
-void RBMCharacter9::Load(BinReader * rd)
+void RBMCharacter9::ReadRBM(BinReader *rd, char *&curBuffer, RBMMesh &mesh)
 {
-	rd->Read(flags, getBlockSize(RBMCharacter9, flags, endflt));
-	ReadTextures(rd);
-	rd->Read(wireScale, getBlockSize(RBMCharacter9, wireScale, textureDensities));
+	RBMCharacter9Constants *atts = properties.GetItem<RBMCharacter9Constants>();
+	RBMCharacter9Mesh *msh = static_cast<RBMCharacter9Mesh*>(&mesh);
 
-	uint numVertices;
-	rd->Read(numVertices);
+	rd->Read(mesh.numVertices);
 
-	const uint currentStride = 24;
-	const uint vBufferSize = numVertices * currentStride;
+	uint currentStride = 24;
+	uint vBufferSize = mesh.numVertices * currentStride;
+	const char *vtBuffer = curBuffer;
 
-	rd->SavePos();
-	rd->Skip(vBufferSize);
-	ReadRemaps(rd);
+	rd->ReadBuffer(curBuffer, vBufferSize);
+	curBuffer += vBufferSize;
 
-	uint numFaces;
-	rd->Read(numFaces);
-	rd->RestorePos();
+	rd->Read(msh->remapHdr);
+	msh->remaps = reinterpret_cast<ushort *>(curBuffer);
+	rd->ReadBuffer(curBuffer, msh->remapHdr.numRemaps);
+	curBuffer += msh->remapHdr.numRemaps;
+	ApplyPadding(curBuffer, 2);
+	
+	rd->Read(mesh.numIndices);
+	mesh.indexBuffer = reinterpret_cast<ushort *>(curBuffer);
+	rd->ReadBuffer(curBuffer, mesh.numIndices * 2);
+	curBuffer += mesh.numIndices * 2;
+	ApplyPadding(curBuffer);
 
-	const uint bufferSize = 2 * numFaces + vBufferSize;
-
-	AmfBuffer *cBuffer;
-	AmfMesh &mesh = LoadDependencies(bufferSize, numVertices, currentStride, cBuffer);
-	rd->ReadBuffer(cBuffer->buffer, vBufferSize);
-	ReadRemaps(rd, &mesh);
-	LoadFaces(rd, mesh, vBufferSize, cBuffer);
-
-	mesh.streamAttributes.resize(6);
+	mesh.descriptors.resize(6);
 
 	int currentBufferOffset = 0;
 	int currentDesc = 0;
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Position, AmfFormat_R16G16B16_SNORM, 0);
-		*reinterpret_cast<float*>(descr.Header.packingData) = vertexScale;
+		RBM_NEW_DESCRIPTOR(AmfUsage_Position, AmfFormat_R16G16B16_SNORM);
+		*reinterpret_cast<float*>(descr.packingData) = atts->vertexScale;
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Unspecified, AmfFormat_R16_SINT, 0);
+		RBM_NEW_DESCRIPTOR(AmfUsage_Unspecified, AmfFormat_R16_SINT);
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_BoneWeight, AmfFormat_R8G8B8A8_UNORM, 0);
+		RBM_NEW_DESCRIPTOR(AmfUsage_BoneWeight, AmfFormat_R8G8B8A8_UNORM);
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_BoneIndex, AmfFormat_R8G8B8A8_UINT, 0);
+		RBM_NEW_DESCRIPTOR(AmfUsage_BoneIndex, AmfFormat_R8G8B8A8_UINT);
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM, 0);
-		*reinterpret_cast<Vector2*>(descr.Header.packingData) = UV1Scale;
+		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM);
+		*reinterpret_cast<Vector2*>(descr.packingData) = atts->UV1Scale;
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_TangentSpace, AmfFormat_R8G8B8A8_TANGENT_SPACE, 0);
+		RBM_NEW_DESCRIPTOR(AmfUsage_TangentSpace, AmfFormat_R8G8B8A8_TANGENT_SPACE);
 	}
 }
 
-void RBMCharacter6::Load(BinReader * rd)
+void RBMCharacter6::ReadRBM(BinReader *rd, char *&curBuffer, RBMMesh &mesh)
 {
-	rd->Read(flags, getBlockSize(RBMCharacter6, flags, endflt));
-	ReadTextures(rd);
-	rd->Read(wireScale, getBlockSize(RBMCharacter6, wireScale, textureDensities));
+	RBMCharacter6Constants *atts = properties.GetItem<RBMCharacter6Constants>();
+	RBMCharacter6Mesh *msh = static_cast<RBMCharacter6Mesh*>(&mesh);
 
-	uint numVertices;
-	rd->Read(numVertices);
+	bool uv2 = (atts->flags & 2) != 0;
 
-	bool uv2 = (flags & 2) != 0;
+	rd->Read(mesh.numVertices);
 
-	const uint currentStride = uv2 ? 28 : 24;
-	const uint vBufferSize = numVertices * currentStride;
+	uint currentStride = uv2 ? 28 : 24;
+	uint vBufferSize = mesh.numVertices * currentStride;
+	const char *vtBuffer = curBuffer;
 
-	rd->SavePos();
-	rd->Skip(vBufferSize);
-	ReadRemaps(rd);
+	rd->ReadBuffer(curBuffer, vBufferSize);
+	curBuffer += vBufferSize;
 
-	uint numFaces;
-	rd->Read(numFaces);
-	rd->RestorePos();
+	rd->Read(msh->remapHdr);
+	msh->remaps = reinterpret_cast<ushort *>(curBuffer);
+	rd->ReadBuffer(curBuffer, msh->remapHdr.numRemaps);
+	curBuffer += msh->remapHdr.numRemaps;
+	ApplyPadding(curBuffer, 2);
+	
+	rd->Read(mesh.numIndices);
+	mesh.indexBuffer = reinterpret_cast<ushort *>(curBuffer);
+	rd->ReadBuffer(curBuffer, mesh.numIndices * 2);
+	curBuffer += mesh.numIndices * 2;
+	ApplyPadding(curBuffer);
 
-	const uint bufferSize = 2 * numFaces + vBufferSize;
-
-	AmfBuffer *cBuffer;
-	AmfMesh &mesh = LoadDependencies(bufferSize, numVertices, currentStride, cBuffer);
-	rd->ReadBuffer(cBuffer->buffer, vBufferSize);
-	ReadRemaps(rd, &mesh);
-	LoadFaces(rd, mesh, vBufferSize, cBuffer);
-
-	mesh.streamAttributes.resize(uv2 ? 7 : 6);
+	mesh.descriptors.resize(uv2 ? 7 : 6);
 
 	int currentBufferOffset = 0;
 	int currentDesc = 0;
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Position, AmfFormat_R16G16B16_SNORM, 0);
-		*reinterpret_cast<float*>(descr.Header.packingData) = vertexScale;
+		RBM_NEW_DESCRIPTOR(AmfUsage_Position, AmfFormat_R16G16B16_SNORM);
+		*reinterpret_cast<float*>(descr.packingData) = atts->vertexScale;
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Unspecified, AmfFormat_R16_SINT, 0);
+		RBM_NEW_DESCRIPTOR(AmfUsage_Unspecified, AmfFormat_R16_SINT);
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_BoneWeight, AmfFormat_R8G8B8A8_UNORM, 0);
+		RBM_NEW_DESCRIPTOR(AmfUsage_BoneWeight, AmfFormat_R8G8B8A8_UNORM);
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_BoneIndex, AmfFormat_R8G8B8A8_UINT, 0);
+		RBM_NEW_DESCRIPTOR(AmfUsage_BoneIndex, AmfFormat_R8G8B8A8_UINT);
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM, 0);
-		*reinterpret_cast<Vector2*>(descr.Header.packingData) = UV1Scale;
+		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM);
+		*reinterpret_cast<Vector2*>(descr.packingData) = atts->UV1Scale;
 	}
 
 	if (uv2)
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM, 0);
-		*reinterpret_cast<Vector2*>(descr.Header.packingData) = UV2Scale;
+		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM);
+		*reinterpret_cast<Vector2*>(descr.packingData) = atts->UV2Scale;
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_TangentSpace, AmfFormat_R8G8B8A8_TANGENT_SPACE, 0);
+		RBM_NEW_DESCRIPTOR(AmfUsage_TangentSpace, AmfFormat_R8G8B8A8_TANGENT_SPACE);
 	}
 }
 
-void RBMRoad::Load(BinReader * rd)
+void RBMRoad::ReadRBM(BinReader *rd, char *&curBuffer, RBMMesh &mesh)
 {
-	rd->Read(unk00, getBlockSize(RBMRoad, unk00, endunk));
-	ReadTextures(rd);
-	rd->Read(wireScale, getBlockSize(RBMRoad, wireScale, textureDensities));
+	RBMRoadConstants *atts = properties.GetItem<RBMRoadConstants>();
+	bool skinned = (atts->flags & 0x20) != 0;
 
-	uint numVertices;
-	rd->Read(numVertices);
-
-	bool skinned = (flags & 0x20) != 0;
+	rd->Read(mesh.numVertices);
 
 	uint currentStride = skinned ? 16 : 8;
-	const uint currentStrideSecondary = 20;
-	const uint vBufferSize = numVertices * currentStride + numVertices * currentStrideSecondary + 4;
+	uint vBufferSize = mesh.numVertices * currentStride;
+	const char *vtBuffer = curBuffer;
+	rd->ReadBuffer(curBuffer, vBufferSize);
+	curBuffer += vBufferSize;
 
-	rd->SavePos();
-	rd->Skip(vBufferSize);
-
-	if (skinned)
-		ReadRemaps(rd);
-
-	uint numFaces;
-	rd->Read(numFaces);
-	rd->RestorePos();
-
-	const uint bufferSize = 2 * numFaces + vBufferSize;
-
-	AmfBuffer *cBuffer;
-	AmfMesh &mesh = LoadDependencies(bufferSize, numVertices, currentStride, cBuffer, currentStrideSecondary);
-	rd->ReadBuffer(cBuffer->buffer, vBufferSize);
-	
-	if (skinned)
-		ReadRemaps(rd, &mesh);
-	
-	LoadFaces(rd, mesh, vBufferSize, cBuffer);
-
-	mesh.streamAttributes.resize(skinned ? 9 : 7);
+	mesh.descriptors.resize(skinned ? 9 : 7);
 
 	int currentBufferOffset = 0;
 	int currentDesc = 0;
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Position, AmfFormat_R16G16B16_SNORM, 0);
-		*reinterpret_cast<float*>(descr.Header.packingData) = vertexScale;
+		RBM_NEW_DESCRIPTOR(AmfUsage_Position, AmfFormat_R16G16B16_SNORM);
+		*reinterpret_cast<float*>(descr.packingData) = atts->vertexScale;
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Unspecified, AmfFormat_R16_SINT, 0);
+		RBM_NEW_DESCRIPTOR(AmfUsage_Unspecified, AmfFormat_R16_SINT);
 	}
 
 	if (skinned)
 	{	
 		{
-			RBM_NEW_DESCRIPTOR(AmfUsage_BoneWeight, AmfFormat_R8G8B8A8_UNORM, 0);
+			RBM_NEW_DESCRIPTOR(AmfUsage_BoneWeight, AmfFormat_R8G8B8A8_UNORM);
 		}
 
 		{
-			RBM_NEW_DESCRIPTOR(AmfUsage_BoneIndex, AmfFormat_R8G8B8A8_UINT, 0);
+			RBM_NEW_DESCRIPTOR(AmfUsage_BoneIndex, AmfFormat_R8G8B8A8_UINT);
 		}
 	}
 
 	currentBufferOffset = 0;
-	currentStride = currentStrideSecondary;
+	currentStride = 20;
+	rd->Read(mesh.numVertices);
+	vtBuffer = curBuffer;
+	vBufferSize = mesh.numVertices * currentStride;
+	rd->ReadBuffer(curBuffer, vBufferSize);
+	curBuffer += vBufferSize;
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM, 1);
-		*reinterpret_cast<Vector2*>(descr.Header.packingData) = UV1Scale;
+		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM);
+		*reinterpret_cast<Vector2*>(descr.packingData) = atts->UV1Scale;
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM, 1);
-		*reinterpret_cast<Vector2*>(descr.Header.packingData) = UV2Scale;
+		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM);
+		*reinterpret_cast<Vector2*>(descr.packingData) = atts->UV2Scale;
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Normal, AmfFormat_R32_UNIT_VEC_AS_FLOAT, 1);
+		RBM_NEW_DESCRIPTOR(AmfUsage_Normal, AmfFormat_R32_UNIT_VEC_AS_FLOAT);
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Tangent, AmfFormat_R32_UNIT_VEC_AS_FLOAT, 1);
+		RBM_NEW_DESCRIPTOR(AmfUsage_Tangent, AmfFormat_R32_UNIT_VEC_AS_FLOAT);
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Color, AmfFormat_R32_R8G8B8A8_UNORM_AS_FLOAT, 1);
+		RBM_NEW_DESCRIPTOR(AmfUsage_Color, AmfFormat_R32_R8G8B8A8_UNORM_AS_FLOAT);
 	}
 	
+	if(skinned)
+	{
+		RBMRoadMesh *msh = static_cast<RBMRoadMesh*>(&mesh);
+		rd->Read(msh->remapHdr);
+		msh->remaps = reinterpret_cast<ushort *>(curBuffer);
+		rd->ReadBuffer(curBuffer, msh->remapHdr.numRemaps);
+		curBuffer += msh->remapHdr.numRemaps;
+		ApplyPadding(curBuffer, 2);
+	}
+	
+	rd->Read(mesh.numIndices);
+	mesh.indexBuffer = reinterpret_cast<ushort *>(curBuffer);
+	rd->ReadBuffer(curBuffer, mesh.numIndices * 2);
+	curBuffer += mesh.numIndices * 2;
+	ApplyPadding(curBuffer);
 }
 
-void RBMGeneralSimple3::Load(BinReader * rd)
+void RBMGeneralSimple3::ReadRBM(BinReader *rd, char *&curBuffer, RBMMesh &mesh)
 {
-	rd->Read(unk, getBlockSize(RBMGeneralSimple3, unk, bbox));
-	ReadTextures(rd);
-	rd->Read(wireScale, getBlockSize(RBMGeneralSimple3, wireScale, textureDensities));
+	RBMGeneralSimple3Constants *atts = properties.GetItem<RBMGeneralSimple3Constants>();
 
-	uint numVertices;
-	rd->Read(numVertices);
+	rd->Read(mesh.numVertices);
 
 	uint currentStride = 8;
-	const uint currentStrideSecondary = 20;
-	const uint vBufferSize = numVertices * currentStride + numVertices * currentStrideSecondary + 4;
+	uint vBufferSize = mesh.numVertices * currentStride;
+	const char *vtBuffer = curBuffer;
+	rd->ReadBuffer(curBuffer, vBufferSize);
+	curBuffer += vBufferSize;
 
-	rd->SavePos();
-	rd->Skip(vBufferSize);
-
-	uint numFaces;
-	rd->Read(numFaces);
-	rd->RestorePos();
-
-	const uint bufferSize = 2 * numFaces + vBufferSize;
-
-	AmfBuffer *cBuffer;
-	AmfMesh &mesh = LoadDependencies(bufferSize, numVertices, currentStride, cBuffer, currentStrideSecondary);
-	rd->ReadBuffer(cBuffer->buffer, vBufferSize);
-	LoadFaces(rd, mesh, vBufferSize, cBuffer);
-
-	mesh.streamAttributes.resize(7);
+	mesh.descriptors.resize(7);
 
 	int currentBufferOffset = 0;
 	int currentDesc = 0;
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Position, AmfFormat_R16G16B16_SNORM, 0);
-		*reinterpret_cast<float*>(descr.Header.packingData) = vertexScale;
+		RBM_NEW_DESCRIPTOR(AmfUsage_Position, AmfFormat_R16G16B16_SNORM);
+		*reinterpret_cast<float*>(descr.packingData) = atts->vertexScale;
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Unspecified, AmfFormat_R16_SINT, 0);
+		RBM_NEW_DESCRIPTOR(AmfUsage_Unspecified, AmfFormat_R16_SINT);
 	}
 
 	currentBufferOffset = 0;
-	currentStride = currentStrideSecondary;
+	currentStride = 20;
+	rd->Read(mesh.numVertices);
+	vtBuffer = curBuffer;
+	vBufferSize = mesh.numVertices * currentStride;
+	rd->ReadBuffer(curBuffer, vBufferSize);
+	curBuffer += vBufferSize;
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM, 1);
-		*reinterpret_cast<Vector2*>(descr.Header.packingData) = UV1Scale;
+		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM);
+		*reinterpret_cast<Vector2*>(descr.packingData) = atts->UV1Scale;
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM, 1);
-		*reinterpret_cast<Vector2*>(descr.Header.packingData) = UV2Scale;
+		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM);
+		*reinterpret_cast<Vector2*>(descr.packingData) = atts->UV2Scale;
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Normal, AmfFormat_R32_UNIT_VEC_AS_FLOAT, 1);
+		RBM_NEW_DESCRIPTOR(AmfUsage_Normal, AmfFormat_R32_UNIT_VEC_AS_FLOAT);
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Tangent, AmfFormat_R32_UNIT_VEC_AS_FLOAT, 1);
+		RBM_NEW_DESCRIPTOR(AmfUsage_Tangent, AmfFormat_R32_UNIT_VEC_AS_FLOAT);
 	}
 
 	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Color, AmfFormat_R32_R8G8B8A8_UNORM_AS_FLOAT, 1);
+		RBM_NEW_DESCRIPTOR(AmfUsage_Color, AmfFormat_R32_R8G8B8A8_UNORM_AS_FLOAT);
 	}
+
+	rd->Read(mesh.numIndices);
+	mesh.indexBuffer = reinterpret_cast<ushort *>(curBuffer);
+	rd->ReadBuffer(curBuffer, mesh.numIndices * 2);
+	curBuffer += mesh.numIndices * 2;
+	ApplyPadding(curBuffer);
 }

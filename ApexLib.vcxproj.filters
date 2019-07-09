@@ -98,27 +98,6 @@
     <ClCompile Include="src\lookup3.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\RBM.cpp">
-      <Filter>Source Files\RBM</Filter>
-    </ClCompile>
-    <ClCompile Include="src\RBMClassesHU.cpp">
-      <Filter>Source Files\RBM</Filter>
-    </ClCompile>
-    <ClCompile Include="src\RBMClassesJC2.cpp">
-      <Filter>Source Files\RBM</Filter>
-    </ClCompile>
-    <ClCompile Include="src\RBMClassesJC3.cpp">
-      <Filter>Source Files\RBM</Filter>
-    </ClCompile>
-    <ClCompile Include="src\RBMReg.cpp">
-      <Filter>Source Files\RBM</Filter>
-    </ClCompile>
-    <ClCompile Include="src\RBNClasses.cpp">
-      <Filter>Source Files\RBM</Filter>
-    </ClCompile>
-    <ClCompile Include="src\RBSClasses.cpp">
-      <Filter>Source Files\RBM</Filter>
-    </ClCompile>
     <ClCompile Include="src\ADF.cpp">
       <Filter>Source Files\ADF</Filter>
     </ClCompile>
@@ -139,15 +118,6 @@
     </ClCompile>
     <ClCompile Include="3rd_party\PreCore\datas\reflector.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\StuntAreas.cpp">
-      <Filter>Source Files\ADF</Filter>
-    </ClCompile>
-    <ClCompile Include="src\DeformPoints.cpp">
-      <Filter>Source Files\ADF</Filter>
-    </ClCompile>
-    <ClCompile Include="src\StreamPatch.cpp">
-      <Filter>Source Files\ADF</Filter>
     </ClCompile>
     <ClCompile Include="3rd_party\zstd\lib\common\debug.c">
       <Filter>Source Files\ZSTD\common</Filter>
@@ -217,6 +187,18 @@
     </ClCompile>
     <ClCompile Include="src\AVTX.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RBM.cpp">
+      <Filter>Source Files\RBM</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RBMReg.cpp">
+      <Filter>Source Files\RBM</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RBNClasses.cpp">
+      <Filter>Source Files\RBM</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RBMClassesJC2.cpp">
+      <Filter>Source Files\RBM</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

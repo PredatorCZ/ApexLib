@@ -31,7 +31,7 @@
 ADFInstance *ADF::FindInstance(ApexHash hash)
 {
 	for (auto &i : instances)
-		if (i->typeHash == hash)
+		if (i->typeHash == hash || i->instance->GetSuperClass() == hash)
 			return i->instance;
 
 	return nullptr;
@@ -101,6 +101,9 @@ ADF::Instance::~Instance()
 {
 	if (instance)
 		delete instance;
+
+	if (instanceBuffer)
+		free(instanceBuffer);
 }
 
 void StringHash::Generate()
@@ -226,12 +229,14 @@ int ADF::Load(BinReader *rd, bool supressErrors)
 		for (auto &i : instances)
 		{
 			const ApexHash typehash = i->typeHash;
-			i->instance = ConstructInstance(typehash);
 
-			if (i->instance)
+			if (InstanceContructoreExits(typehash))
 			{
-				rd->SetRelativeOrigin(i->offset);
-				i->instance->Load(rd, this);
+				rd->Seek(i->offset);
+				i->instanceBuffer = static_cast<char*>(malloc(i->size));
+				rd->ReadBuffer(i->instanceBuffer, i->size);
+				i->instance = ConstructInstance(typehash, i->instanceBuffer);
+				i->instance->Fixup(i->instanceBuffer);
 			}
 			else
 			{
@@ -250,8 +255,6 @@ int ADF::Load(BinReader *rd, bool supressErrors)
 				)
 			}
 		}
-
-		rd->ResetRelativeOrigin();
 	}
 
 	return 0;
@@ -314,12 +317,12 @@ IADF *CreateADF(const T *fileName)
 		if (!i->instance)
 			continue;
 
-		std::string *req = i->instance->RequestsFile();
+		const char *req = i->instance->RequestsFile();
 
 		if (!req)
 			continue;
 
-		_FileInfo_t<T> reqPath(static_cast<UniString<T>>(esString(*req)));
+		_FileInfo_t<T> reqPath(static_cast<UniString<T>>(esString(req)));
 		UniString<T> rPath = reqPath.CatchBranch(selfPath.GetPath());
 		ADF *exAdf = static_cast<ADF *>(CreateADF(rPath.c_str()));
 
@@ -336,6 +339,7 @@ IADF *CreateADF(const T *fileName)
 				else
 				{
 					it = adf->instances.insert(adf->instances.end(), exi);
+					exi->instance->ReplaceReferences(adf);
 					adf->names.insert(adf->names.end(), exi->name);
 					std::remove(exAdf->names.begin(), exAdf->names.end(), exi->name);
 
@@ -351,10 +355,6 @@ IADF *CreateADF(const T *fileName)
 
 		delete exAdf;
 	}
-
-	for (auto &i : adf->instances)
-		if (i->instance)
-			i->instance->Link(adf);
 
 	return adf;
 }

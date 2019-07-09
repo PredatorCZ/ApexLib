@@ -16,20 +16,133 @@
 */
 
 #pragma once
-#include <string>
-#include "datas/supercore.hpp"
+#include <vector>
+#include <memory>
+#include "AmfEnums.h"
+#include "datas/deleter_hybrid.hpp"
+
+#define REGISTER_ADF_INSTANCE(classname) static const ApexHash HASH = JenkinsHash(#classname, sizeof(#classname) - 1);
+
 class BinReader;
 class ADF;
 
 typedef unsigned int ApexHash;
+typedef std::unique_ptr<Reflector> ReflectorPtr;
 
 struct ADFInstance
 {
-	virtual int Load(BinReader *rd, ADF *linker) = 0;
-	virtual void Link(ADF *linker) = 0;
-	virtual std::string *RequestsFile() = 0;
-	virtual void Merge(ADFInstance *externalInstance) = 0;
-	virtual ~ADFInstance() {};
+	virtual void Fixup(char *) = 0;
+	virtual const char *RequestsFile() const = 0;
+	virtual void Merge(ADFInstance *externalInstance) {}
+	virtual void ReplaceReferences(ADF *newMain) {}
+	virtual ApexHash GetSuperClass() const = 0;
+	virtual ~ADFInstance() {}
+};
+
+struct AmfStreamAttribute
+{
+	AmfUsage usage;
+	AmfFormat format;
+	unsigned char streamIndex,
+		streamOffset,
+		streamStride;
+	float packingData[2];
+};
+
+class AmfVertexDescriptor : public AmfStreamAttribute
+{
+public:
+	typedef std::unique_ptr<AmfVertexDescriptor, std::deleter_hybrid> Ptr;
+
+	virtual void Evaluate(int at, void *data) const = 0;
+	virtual ~AmfVertexDescriptor() {}
+	static AmfVertexDescriptor *Create(AmfFormat format);
+	void operator =(AmfStreamAttribute &input) { static_cast<AmfStreamAttribute &>(*this) = input; }
+};
+
+enum AmfMeshRemapType
+{
+	REMAP_TYPE_CHAR,
+	REMAP_TYPE_SHORT,
+	REMAP_TYPE_INT,
+	REMAP_TYPE_SPRITE
+};
+
+class AmfMesh
+{
+public:
+	typedef std::unique_ptr<AmfMesh, std::deleter_hybrid> Ptr;
+	typedef std::vector<AmfVertexDescriptor::Ptr> DescriptorCollection;
+
+	virtual int GetNumSubMeshes() const = 0;
+	virtual int GetNumIndices(int subMeshIndex) const = 0;
+	virtual int GetNumIndices() const = 0;
+	virtual int GetNumVertices() const = 0;
+	virtual ushort *GetIndicesBuffer(int subMeshIndex) const = 0;
+	virtual DescriptorCollection GetDescriptors() const = 0;
+	virtual const char *GetMeshType() const = 0;
+	virtual const char *GetSubMeshName(int id) const = 0;
+	virtual ApexHash GetSubMeshNameHash(int id) const = 0;
+	virtual bool IsValid() const = 0;
+	virtual AmfMeshRemapType GetRemapType() const = 0;
+	virtual int GetNumRemaps() const = 0;
+	virtual int GetRemap(int id) const = 0;
+	virtual const void *GetRemaps() const = 0;
+
+	template<class C> ES_FORCEINLINE C *GetRemapsAs() const { return reinterpret_cast<C *>(GetRemaps()); }
+
+	virtual ~AmfMesh() {}
+};
+
+class AmfMeshHeader : public ADFInstance
+{
+public:
+	REGISTER_ADF_INSTANCE(AmfMeshHeader)
+
+	typedef std::unique_ptr<AmfMeshHeader> Ptr;
+
+	virtual int GetNumLODs() const = 0;
+	virtual int GetLodIndex(int id) const = 0;
+	virtual int GetNumLODMeshes(int LODIndex) const = 0;
+	virtual AmfMesh::Ptr GetLODMesh(int LODIndex, int meshIndex) const = 0;
+};
+
+enum AmfMaterialType
+{
+	MaterialType_Traditional,
+	MaterialType_PBR
+};
+
+class AmfMaterial
+{
+public:
+	typedef std::unique_ptr<AmfMaterial, std::deleter_hybrid> Ptr;
+
+	virtual AmfMaterialType GetMaterialType() const = 0;
+	virtual AmfMaterialType &MaterialType() = 0;
+	virtual const char *GetName() const = 0;
+	virtual const char *GetRenderBlockName() const = 0;
+	virtual ApexHash GetNameHash() const = 0;
+	virtual ApexHash GetRenderBlockNameHash() const = 0;
+	virtual ReflectorPtr GetReflectedAttributes() const = 0;
+	virtual void *GetRawAttributes() const = 0;
+	virtual ApexHash GetAttributesHash() const = 0;
+	virtual int GetNumTextures() const = 0;
+	virtual const char *GetTexture(int id) const = 0;
+
+	template<class C> ES_FORCEINLINE C *GetAttributes() const { return static_cast<C *>(GetRawAttributes()); }
+
+	virtual ~AmfMaterial() {}
+};
+
+class AmfModel : public ADFInstance
+{
+public:
+	REGISTER_ADF_INSTANCE(AmfModel)
+	typedef std::unique_ptr<AmfModel> Ptr;
+
+	virtual int GetNumMaterials() const = 0;
+	virtual AmfMaterial::Ptr GetMaterial(int id) const = 0;
 };
 
 class IADF
@@ -61,3 +174,5 @@ ES_INLINE C *IADF::AddUniqueInstance()
 
 	return foundInstance;
 }
+
+

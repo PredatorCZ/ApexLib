@@ -15,21 +15,32 @@
 	along with this program.If not, see <https://www.gnu.org/licenses/>.
 */
 
-#pragma once
-#include "RBM.h"
-#include "datas/flags.hpp"
-
-struct RBMUIOverlay : RBMMasterBlock
+struct GeneralR2Constants_HU
 {
-	RBMCONSTRUCTOR(RBMUIOverlay, 0xd7af3bee);
-
-	//VSH
-	uint type;
-
-	void Load(BinReader *rd);
+	static const ApexHash HASH = 0xB3C503A8;
 };
 
-struct RBMScope : RBMUIOverlay
+struct CharacterConstants_HU
 {
-	RBMCONSTRUCTOR(RBMScope, 0x7e407c92);
+	static const ApexHash HASH = 0xD5C4F848;
+};
+
+struct GeneralConstants_HU
+{
+	static const ApexHash HASH = 0xA59F1968;
+};
+
+struct PropConstants_HU
+{
+	static const ApexHash HASH = 0xCAF76915;
+};
+
+struct CarPaintMMConstants_HU
+{
+	static const ApexHash HASH = 0x99A777D9;
+};
+
+struct GeneralJC3Constants_HU
+{
+	static const ApexHash HASH = 0xD6ACDCC3;
 };

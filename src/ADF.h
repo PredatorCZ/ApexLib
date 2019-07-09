@@ -49,6 +49,8 @@ public:
 
 		StringHash *name;
 		ADFInstance *instance;
+		char *instanceBuffer;
+		Instance(): name(nullptr), instance(nullptr), instanceBuffer(nullptr) {}
 		~Instance();
 	};
 
@@ -146,5 +148,6 @@ public:
 	void AddInstance(ADFInstance *instance, ApexHash hash);
 	~ADF();
 	ADF();
-	static ADFInstance *ConstructInstance(ApexHash classHash);
+	ADFInstance *ConstructInstance(ApexHash classHash, void *data);
+	bool InstanceContructoreExits(ApexHash classHash);
 };

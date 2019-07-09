@@ -17,7 +17,6 @@
 
 #pragma once
 #include "AdfBaseObject.h"
-#include <vector>
 
 struct ADFMatrix4x4
 {
@@ -41,39 +40,38 @@ struct DeformPoint
 	ADFMatrix4x4 endTransform;
 	ushort vertexIndices[4];
 	float vertexWeights[4];
+
+	void Fixup(char *masterBuffer);
 };
 
 static_assert(sizeof(DeformPoint) == 224, "Check assumptions");
 
 struct DeformPoints
 {
-	struct 
-	{
-		AdfArray points,
-			constraintIndices,
-			lightIndices,
-			wheelIndices,
-			nonDeformablePartsIndices,
-			haulingHitchIndices,
-			trailingHitchIndices;
-	}Header;
-
-	std::vector<DeformPoint> points;
-	std::vector<ushort> constraintIndices,
+	AdfArray<DeformPoint> points;
+	AdfArray<ushort> constraintIndices,
 		lightIndices,
 		wheelIndices,
 		nonDeformablePartsIndices,
 		haulingHitchIndices,
 		trailingHitchIndices;
+
+	void Fixup(char *masterBuffer);
 };
 
-static_assert(sizeof(DeformPoints::Header) == 112, "Check assumptions");
+static_assert(sizeof(DeformPoints) == 112, "Check assumptions");
 
-struct ADFDeformPoints : ADFInstance, DeformPoints
+class DeformPoints_wrap : public ADFInstance
 {
-	int Load(BinReader *rd, ADF *linker);
-	void Link(ADF *) {};
-	std::string *RequestsFile() { return nullptr; };
-	void Merge(ADFInstance *externalInstance) {}
+	DeformPoints *data;
+
+	void Fixup(char *masterBuffer);
+	const char *RequestsFile() const { return nullptr; }
+public:
 	static const ApexHash HASH = 0xBA022EDF;
+
+	DeformPoints_wrap(void *_data, ADF *_main);
+	ES_FORCEINLINE DeformPoints *Data() { return data; }
+
+	ApexHash GetSuperClass() const { return -1; }
 };

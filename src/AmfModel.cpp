@@ -16,15 +16,17 @@
 */
 
 #include "AmfModel.h"
+#include "AmfModel_V1.h"
 #include "datas/binreader.hpp"
 #include "datas/masterprinter.hpp"
 #include "ADF.h"
 
 REFLECTOR_START_WNAMES(GeneralConstants, overlayColor, roughnessModulator, metallicModulator, dielectricReflectance, emissiveIntensity, 
-	emissiveScale, emissiveExposureAdapt, layeredHeightOffset, layeredContrast, layeredOpacity, layeredBottomHeightInfluence, layeredTopHeightInfluence, 
-	layeredMaskInfluence, overlayHeightOffset, overlayContrast, overlayOpacity, overlayBottomHeightInfluence, overlayTopHeightInfluence, overlayMaskInfluence, 
-	diffuseRoughness, specularAniso, transmission, clearCoat, detailNormalModulator, detailNormalTileU, detailNormalTileV, depthBias, hardwareDepthBias, hardwareSlopeBias, 
-	minTimeOfDayEmissive, startFadeOutDistanceEmissiveSq, gIEmissionModulator, HDRReferenceMultiplier, rippleAngle, rippleSpeed, rippleMagnitude, flags);
+	emissiveScale, emissiveExposureAdapt, layeredHeightOffset, layeredContrast, layeredOpacity, layeredBottomHeightInfluence, 
+	layeredTopHeightInfluence, layeredMaskInfluence, overlayHeightOffset, overlayContrast, overlayOpacity, overlayBottomHeightInfluence, 
+	overlayTopHeightInfluence, overlayMaskInfluence, diffuseRoughness, specularAniso, transmission, clearCoat, detailNormalModulator, 
+	detailNormalTileU, detailNormalTileV, depthBias, hardwareDepthBias, hardwareSlopeBias, minTimeOfDayEmissive, 
+	startFadeOutDistanceEmissiveSq, gIEmissionModulator, HDRReferenceMultiplier, rippleAngle, rippleSpeed, rippleMagnitude, flags);
 
 REFLECTOR_START_WNAMES(CarLightConstants, diffuseModulator, detailTiling, roughnessModulator, dielectricReflectance, 
 	emissiveHead, emissiveBlinker, emissiveBrake, emissiveReverse, doubleSided);
@@ -39,13 +41,15 @@ REFLECTOR_START_WNAMES(CarPaintStaticConstants, dirtParams, dirtBlend, dirtColor
 
 REFLECTOR_START_WNAMES(CarPaintDynamicConstants, tintColorR, tintColorG, tintColorB, tecalIndex);
 
-REFLECTOR_START_WNAMES(CarPaintConstants, staticAttributes.dirtParams, staticAttributes.dirtBlend, staticAttributes.dirtColor, staticAttributes.decalCount, 
-	staticAttributes.decalWidth, staticAttributes.decal1Color, staticAttributes.decal2Color, staticAttributes.decal3Color, staticAttributes.decal4Color, 
-	staticAttributes.decalBlend, staticAttributes.damage, staticAttributes.damageBlend, staticAttributes.damageColor, staticAttributes.roughnessModulator, 
-	staticAttributes.metallicModulator, staticAttributes.dielectricReflectance, staticAttributes.emissiveIntensity, staticAttributes.diffuseRoughness, 
-	staticAttributes.specularAniso, staticAttributes.transmission, staticAttributes.supportDecals, staticAttributes.supportDmgBlend, staticAttributes.supportRotating, 
-	staticAttributes.supportScrolling, staticAttributes.supportDirt, staticAttributes.supportSoftTint, staticAttributes.useLayeredBaseColor, dynamicAttributes.tintColorR, 
-	dynamicAttributes.tintColorG, dynamicAttributes.tintColorB, dynamicAttributes.tecalIndex, gIEmissionModulator, flags0, flags1, flags2);
+REFLECTOR_START_WNAMES(CarPaintConstants, staticAttributes.dirtParams, staticAttributes.dirtBlend, staticAttributes.dirtColor, 
+	staticAttributes.decalCount, staticAttributes.decalWidth, staticAttributes.decal1Color, staticAttributes.decal2Color, 
+	staticAttributes.decal3Color, staticAttributes.decal4Color, staticAttributes.decalBlend, staticAttributes.damage, 
+	staticAttributes.damageBlend, staticAttributes.damageColor, staticAttributes.roughnessModulator, staticAttributes.metallicModulator, 
+	staticAttributes.dielectricReflectance, staticAttributes.emissiveIntensity, staticAttributes.diffuseRoughness, 
+	staticAttributes.specularAniso, staticAttributes.transmission, staticAttributes.supportDecals, staticAttributes.supportDmgBlend, 
+	staticAttributes.supportRotating, staticAttributes.supportScrolling, staticAttributes.supportDirt, staticAttributes.supportSoftTint, 
+	staticAttributes.useLayeredBaseColor, dynamicAttributes.tintColorR, dynamicAttributes.tintColorG, dynamicAttributes.tintColorB, 
+	dynamicAttributes.tecalIndex, gIEmissionModulator, flags0, flags1, flags2);
 
 REFLECTOR_START_WNAMES(CharacterSkinConstants, detailTilingFactorUV, roughnessModulator, transmissionModulator, 
 	diffuseRoughness, transmission, dirtFactor, furLength, furThickness, furRoughness, furGravity, furSize, flags);
@@ -56,11 +60,12 @@ REFLECTOR_START_WNAMES(CharacterConstants, detailTilingFactorUV, decalBlendFacto
 REFLECTOR_START_WNAMES(EyeGlossConstants, eyeGlossiness, eyeSpecularIntensity, eyeReflectIntensity, eyeReflectThreshold, 
 	eyeGlossShadowIntensity, flags);
 
-REFLECTOR_START_WNAMES(HairConstants, roughnessModulator, specularMultiplier, scatteringMultiplier, shiftFactor, dielectricReflectance, flags);
+REFLECTOR_START_WNAMES(HairConstants, roughnessModulator, specularMultiplier, scatteringMultiplier, shiftFactor, dielectricReflectance, 
+	flags);
 
-REFLECTOR_START_WNAMES(BarkConstants, roughnessModulator, dielectricReflectance, diffuseRoughness, normalStrength, detailNormalModulator,
-	detailNormalTileU, detailNormalTileV, isGrass, maxWindRotation, distanceAtRotationStart, distanceAtMaxRotation, windSpeedForMaxRotation,
-	leafStiffness, windProperty7, windProperty8, flags);
+REFLECTOR_START_WNAMES(BarkConstants, roughnessModulator, dielectricReflectance, diffuseRoughness, normalStrength, 
+	detailNormalModulator, detailNormalTileU, detailNormalTileV, isGrass, maxWindRotation, distanceAtRotationStart, 
+	distanceAtMaxRotation, windSpeedForMaxRotation, leafStiffness, windProperty7, windProperty8, flags);
 
 REFLECTOR_START_WNAMES(FoliageConstants, diffuseModulator, roughnessModulator, transmissionModulator, dielectricReflectance,
 	sphereNormalStrength, transmission, oneOverSubpixelDetailFadeRange, ssGrass, maxWindRotation, distanceAtRotationStart,
@@ -80,16 +85,18 @@ REFLECTOR_START_WNAMES(EmissiveUIConstants, primaryColor, secondaryColor, bias, 
 REFLECTOR_START_WNAMES(GeneralR2Constants, depthBias, detailRepeatU, detailRepeatV, terrainColorFactor,
 	terrainTopProjection, blendMaskContrast1, blendMaskContrast2, flags);
 
-REFLECTOR_START_WNAMES(GeneralMkIIIConstants, normalStrength, reflectivity_1, roughness_1, diffuseWrap_1, emissive_1, transmission_1, clearCoat_1,
-	roughness_2, diffuseWrap_2, emissive_2, transmission_2, reflectivity_2, clearCoat_2, roughness_3, diffuseWrap_3, emissive_3, transmission_3,
-	reflectivity_3, clearCoat_3, roughness_4, diffuseWrap_4, emissive_4, transmission_4, reflectivity_4, clearCoat_4, layeredHeightMapUVScale,
-	layeredUVScale, layeredHeight1Influence, layeredHeight2Influence, layeredHeightMapInfluence, layeredMaskInfluence, layeredShift,
-	layeredRoughness, layeredDiffuseWrap, layeredEmissive, layeredTransmission, layeredReflectivity, layeredClearCoat, decalBlend, decalBlendNormal,
-	decalReflectivity, decalRoughness, decalDiffuseWrap, decalEmissive, decalTransmission, decalClearCoat, overlayHeightInfluence, overlayHeightMapInfluence,
-	overlayMaskInfluence, overlayShift, overlayColorR, overlayColorG, overlayColorB, overlayBrightness, overlayGloss, overlayMetallic, overlayReflectivity,
-	overlayRoughness, overlayDiffuseWrap, overlayEmissive, overlayTransmission, overlayClearCoat, damageReflectivity, damageRoughness, damageDiffuseWrap,
-	damageEmissive, damageTransmission, damageHeightInfluence, damageMaskInfluence, damageClearCoat, depthBias, hardwareDepthBias, hardwareSlopeBias,
-	minTimeOfDayEmissive, startFadeOutDistanceEmissiveSq, gIEmissionModulator, rippleAngle, rippleSpeed, rippleMagnitude, flags);
+REFLECTOR_START_WNAMES(GeneralMkIIIConstants, normalStrength, reflectivity_1, roughness_1, diffuseWrap_1, emissive_1, transmission_1, 
+	clearCoat_1, roughness_2, diffuseWrap_2, emissive_2, transmission_2, reflectivity_2, clearCoat_2, roughness_3, diffuseWrap_3, 
+	emissive_3, transmission_3, reflectivity_3, clearCoat_3, roughness_4, diffuseWrap_4, emissive_4, transmission_4, reflectivity_4, 
+	clearCoat_4, layeredHeightMapUVScale, layeredUVScale, layeredHeight1Influence, layeredHeight2Influence, layeredHeightMapInfluence, 
+	layeredMaskInfluence, layeredShift, layeredRoughness, layeredDiffuseWrap, layeredEmissive, layeredTransmission, layeredReflectivity, 
+	layeredClearCoat, decalBlend, decalBlendNormal, decalReflectivity, decalRoughness, decalDiffuseWrap, decalEmissive, 
+	decalTransmission, decalClearCoat, overlayHeightInfluence, overlayHeightMapInfluence, overlayMaskInfluence, overlayShift, 
+	overlayColorR, overlayColorG, overlayColorB, overlayBrightness, overlayGloss, overlayMetallic, overlayReflectivity, 
+	overlayRoughness, overlayDiffuseWrap, overlayEmissive, overlayTransmission, overlayClearCoat, damageReflectivity, damageRoughness, 
+	damageDiffuseWrap, damageEmissive, damageTransmission, damageHeightInfluence, damageMaskInfluence, damageClearCoat, depthBias, 
+	hardwareDepthBias, hardwareSlopeBias, minTimeOfDayEmissive, startFadeOutDistanceEmissiveSq, gIEmissionModulator, rippleAngle, 
+	rippleSpeed, rippleMagnitude, flags);
 
 REFLECTOR_START_WNAMES(CharacterConstants_GZ, detailTilingFactorUV, specularGloss, transmissionIntensity, diffuseRoughness,
 	emissiveIntensity, nightVisibility, rimFrontStrength, cameraStrength, cameraSpecular, rimStrength, dirtFactor, flags);
@@ -105,10 +112,10 @@ REFLECTOR_START_WNAMES(WindowConstants_GZ, specGloss, specFresnel, diffuseRoughn
 
 REFLECTOR_START_WNAMES(BarkConstants_GZ, glossiness, normalStrength, diffuseWrap, fresnel, diffuseModulator, layeredHeightMapUVScale,
 	layeredUVScale, layeredHeight1Influence, layeredHeight2Influence, layeredHeightMapInfluence, layeredMaskInfluence, layeredShift,
-	layeredRoughness, layeredDiffuseWrap, layeredEmissive, layeredTransmission, layeredReflectivity, layeredClearCoat, layeredUpInfluence,
-	overlayHeightInfluence, overlayHeightMapInfluence, overlayMaskInfluence, overlayShift, overlayColor, overlayBrightness, overlayGloss,
-	overlayMetallic, overlayReflectivity, overlayRoughness, overlayDiffuseWrap, overlayEmissive, overlayTransmission, overlayClearCoat,
-	overlayUpInfluence, flags);
+	layeredRoughness, layeredDiffuseWrap, layeredEmissive, layeredTransmission, layeredReflectivity, layeredClearCoat, 
+	layeredUpInfluence, overlayHeightInfluence, overlayHeightMapInfluence, overlayMaskInfluence, overlayShift, overlayColor, 
+	overlayBrightness, overlayGloss, overlayMetallic, overlayReflectivity, overlayRoughness, overlayDiffuseWrap, overlayEmissive, 
+	overlayTransmission, overlayClearCoat, overlayUpInfluence, flags);
 
 REFLECTOR_START_WNAMES(FoliageConstants_GZ, diffuseModulator, specularGloss, emissionIntensity, transmissionIntensity, diffuseWrap,
 	reflectivity, specularFresnel, sphereNormalStrength, oneOverSubpixelDetailFadeRange, flags);
@@ -117,87 +124,36 @@ REFLECTOR_START_WNAMES(CarLightConstants_GZ, diffuseModulator, detailTiling, spe
 	emissiveBlinker, emissiveBrake, emissiveReverse, specularFresnel, doubleSided);
 
 
-AmfMaterial * AmfModel::FindMaterial(StringHash * str)
+class AmfMaterial_V1_wrap : public AmfMaterial
 {
-	for (auto &m : materials)
-		if (m->name == str)
-			return m;
+	AmfMaterial_V1 *data;
+	ADF *main;
+public:
+	AmfMaterial_V1_wrap(AmfMaterial_V1 *_data, ADF *_main) :
+		data(_data), main(_main) {}
 
-	return nullptr;
-}
+	AmfMaterialType GetMaterialType() const { return data->MaterialType(); }
+	AmfMaterialType &MaterialType() { return data->MaterialType(); }
+	const char *GetName() const { return main->FindString(data->name)->c_str(); }
+	const char *GetRenderBlockName() const { return main->FindString(data->renderBlockID)->c_str(); }
+	ApexHash GetNameHash() const { return data->name; }
+	ApexHash GetRenderBlockNameHash() const { return data->renderBlockID; }
+	ReflectorPtr GetReflectedAttributes() const { return ReflectorPtr(data->Attributes().GetReflected()); }
+	void *GetRawAttributes() const { return data->Attributes().item.vPtr; }
+	ApexHash GetAttributesHash() const { return data->Attributes().objectHash; }
+	int GetNumTextures() const { return data->textures.count; }
+	const char *GetTexture(int id) const { return data->textures[id]; }
+};
 
-int AmfModel::Load(BinReader * rd, ADF * linker)
-{
-	rd->Read(Header);
-	meshPath = linker->FindStringHash(Header.meshPath);
+void AmfModel_V1_wrap::Fixup(char *masterBuffer) { data->Fixup(masterBuffer); }
 
-	rd->Seek(Header.lodSlots.offset);
-	
-	rd->ReadContainer(lodSlots, static_cast<size_t>(Header.lodSlots.count));
+const char *AmfModel_V1_wrap::RequestsFile() const
+{ return main->FindString(data->meshPath)->c_str(); }
 
-	rd->Seek(Header.materials.offset);
-	materials.resize(static_cast<size_t>(Header.materials.count));
+int AmfModel_V1_wrap::GetNumMaterials() const { return data->materials.count; }
 
-	for (auto &l : materials)
-	{
-		l = new AmfMaterial();
-		l->Load(rd, linker);
-	}
+AmfMaterial::Ptr AmfModel_V1_wrap::GetMaterial(int id) const
+{ return AmfMaterial::Ptr(new AmfMaterial_V1_wrap(&data->materials[id], main)); }
 
-	return 0;
-}
-
-void AmfModel::Link(ADF * linker)
-{
-	for (auto &m : materials)
-		if (m->attributes)
-			m->attributes->Link(linker);
-}
-
-AmfModel::~AmfModel()
-{
-	for (auto &m : materials)
-		delete m;
-}
-
-int AmfMaterial::Load(BinReader * rd, ADF * linker)
-{
-	rd->Read(Header);
-	rd->SavePos();
-	name = linker->FindStringHash(Header.name);
-	renderBlockID = linker->FindStringHash(Header.renderBlockID);
-
-	rd->Seek(Header.attributes.offset);
-
-
-	const ApexHash propsHash = static_cast<ApexHash>(Header.attributes.objectHash);
-	attributes = AdfProperties::ConstructProperty(propsHash);
-
-	if (attributes)
-		attributes->Load(rd);
-	else if (propsHash)
-	{
-		std::string *fName = linker->FindString(Header.renderBlockID);
-		printwarning("[ADF] Couldn't find AmfMaterial property: ", << (fName ? fName->c_str() : 0) << '[' << std::hex  << std::uppercase << propsHash << ']');
-	}
-
-	rd->Seek(Header.textures.offset);
-	textures.resize(static_cast<size_t>(Header.textures.count));
-
-	for (auto &l : textures)
-	{
-		ApexHash hash;
-		rd->Read(hash);
-		l = linker->FindStringHash(hash);
-	}
-
-	rd->RestorePos();
-
-	return 0;
-}
-
-AmfMaterial::~AmfMaterial()
-{
-	if (attributes)
-		delete attributes;
-}
+AmfModel_V1_wrap::AmfModel_V1_wrap(void *_data, ADF *_main)
+: data(static_cast<AmfModel_V1*>(_data)), main(_main) {}

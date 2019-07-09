@@ -15,9 +15,9 @@
 	along with this program.If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "AmfMesh.h"
-#include "datas/binreader.hpp"
 #include "ADF.h"
+#include "AmfMesh_V2.h"
+#include "datas/binreader.hpp"
 #include "datas/masterprinter.hpp"
 #include "datas/esstring.h"
 
@@ -25,229 +25,111 @@ REFLECTOR_START_WNAMES(GeneralMeshConstants, pristineIndexCount, flags);
 REFLECTOR_START_WNAMES(FoliageMeshConstants, boundingBoxDimensions.Min, boundingBoxDimensions.Max);
 REFLECTOR_START_WNAMES(CarPaintMeshConstants, flags);
 
-int AmfMeshHeader::Load(BinReader * rd, ADF *linker)
+class AmfMesh_V1_wrap : public AmfMesh
 {
-	rd->Read(Header);
-	highLODPath = linker->FindStringHash(Header.HighLodPath);
-	rd->Seek(Header.LodGroups.offset);
-	lodGroups.resize(static_cast<size_t>(Header.LodGroups.count));
+	AmfMesh_V1 *data;
+	AmfMeshBuffers_V1 *buffers;
+	char *indexBuffer;
+	ADF *main;
 
-	for (auto &l : lodGroups)
-		l.Load(rd, linker);
-
-	return 0;
-}
-
-void AmfMeshHeader::Link(ADF * linker)
-{
-	for (auto &l : lodGroups)
-		for (auto &m : l.meshes)
-			m.Link(linker);
-}
-
-int AmfLodGroup::Load(BinReader * rd, ADF *linker)
-{
-	rd->Read(Header);
-	rd->SavePos();
-	rd->Seek(Header.Meshes.offset);
-	meshes.resize(static_cast<size_t>(Header.Meshes.count));
-
-	for (auto &l : meshes)
-		l.Load(rd, linker);
-
-	rd->RestorePos();
-
-	return 0;
-}
-
-int AmfMesh::Load(BinReader * rd, ADF *linker)
-{
-	rd->Read(Header);
-	meshType = linker->FindStringHash(Header.MeshTypeId);
-
-	size_t savepos = rd->Tell();
-
-	rd->Seek(Header.vertexBufferIndices.offset);
-	rd->ReadContainer(vertexBufferIndices, static_cast<size_t>(Header.vertexBufferIndices.count));
-
-	rd->Seek(Header.vertexStreamStrides.offset);
-	rd->ReadContainer(vertexStreamStrides, static_cast<size_t>(Header.vertexStreamStrides.count));
-
-	rd->Seek(Header.vertexStreamOffsets.offset);
-	rd->ReadContainer(vertexStreamOffsets, static_cast<size_t>(Header.vertexStreamOffsets.count));
-
-	rd->Seek(Header.boneIndexLookup.offset);
-	rd->ReadContainer(boneIndexLookup, static_cast<size_t>(Header.boneIndexLookup.count));
-
-	rd->Seek(Header.subMeshes.offset);
-	subMeshes.resize(static_cast<size_t>(Header.subMeshes.count));
-
-	for (auto &l : subMeshes)
-		l.Load(rd, linker);
-
-	rd->Seek(Header.streamAttributes.offset);
-	streamAttributes.resize(static_cast<size_t>(Header.streamAttributes.count));
-
-	for (auto &l : streamAttributes)
-		l.Load(rd, linker);
-
-	rd->Seek(Header.meshProperties.offset);
-
-	const ApexHash propsHash = static_cast<ApexHash>(Header.meshProperties.objectHash);
-	meshProperties = AdfProperties::ConstructProperty(propsHash);
-
-	if (meshProperties)
-		meshProperties->Load(rd);
-	else if (propsHash)
+public:
+	AmfMesh_V1_wrap(AmfMesh_V1 *imesh, ADF *base, AmfMeshBuffers_V1 *_buffers)
+	: data(imesh), main(base), buffers(_buffers)
 	{
-		std::string *fName = linker->FindString(Header.MeshTypeId);
-		printwarning("[ADF] Couldn't find AmfMesh property: ", << (fName ? fName->c_str() : 0) << '[' << std::hex << std::uppercase << propsHash << ']');
+		if (buffers)
+			indexBuffer = buffers->indexBuffers[data->indexBufferIndex].buffer.items.cPtr +
+				data->indexBufferOffset;
 	}
 
-	if (propsHash == CarPaintMeshConstants::HASH)
+	int GetNumSubMeshes() const { return data->subMeshes.count; }
+	int GetNumIndices() const { return data->indexCount; }
+	int GetNumVertices() const { return data->vertexCount; }
+	int GetNumIndices(int subMeshIndex) const { return data->subMeshes[subMeshIndex].indexCount; }
+	ushort *GetIndicesBuffer(int subMeshIndex) const
+	{ return reinterpret_cast<ushort *>(indexBuffer + data->subMeshes[subMeshIndex].indexStreamOffset); }
+
+	DescriptorCollection GetDescriptors() const
 	{
-		CarPaintMeshConstants &props = *static_cast<CarPaintMeshConstants*>(meshProperties->GetProperties());
+		DescriptorCollection ncollection;
 
-		if (props.flags[CarPaintMeshConstantsFlags::deformable])
+		for (auto &a : data->streamAttributes)
 		{
-			if (streamAttributes[1].Header.usage == AmfUsage_Unspecified && streamAttributes[1].Header.format == AmfFormat_R32_UNIT_VEC_AS_FLOAT)
-				streamAttributes[1].Header.usage = AmfUsage_DeformNormal_c;
-			if (streamAttributes[2].Header.usage == AmfUsage_Unspecified && streamAttributes[2].Header.format == AmfFormat_R16G16B16A16_SINT)
-			{
-				streamAttributes[2].Header.usage = AmfUsage_DeformPoints_c;
-				streamAttributes[2].Header.format = AmfFormat_R16G16B16A16_SNORM;
-				streamAttributes[2].AssignEvaluator(AmfFormat_R16G16B16A16_SNORM);
-			}
-		}
-	}
+			AmfVertexDescriptor *newDescRaw = AmfVertexDescriptor::Create(a.format);
+			AmfVertexDescriptor_internal *newDesc = static_cast<AmfVertexDescriptor_internal *>(newDescRaw);
 
-	rd->Seek(savepos);
-	return 0;
-}
-
-void AmfMesh::Link(ADF * linker)
-{
-	AmfMeshBuffers *buff = static_cast<IADF*>(linker)->FindInstance<AmfMeshBuffers>();
-
-	if (!buff)
-		buff = static_cast<IADF *>(linker)->FindInstance<AmfMeshBuffers_TheHunter>();
-
-	bool linkError = false;
-
-	if (buff)
-	{
-		for (auto &l : streamAttributes)
-		{
-			const int bufferIndex = vertexBufferIndices[l.Header.streamIndex];
-
-			if (bufferIndex < static_cast<int>(buff->vertexBuffers.size()))
-				l.buffer = buff->vertexBuffers[bufferIndex]->buffer + vertexStreamOffsets[l.Header.streamIndex] + l.Header.streamOffset;
-			else if (!linkError)
-				linkError = true;		
-		}
-
-		for (auto &l : subMeshes)
-		{
-			if (l.buffer)
+			if (!newDesc)
 				continue;
 
-			if (Header.indexBufferIndex < buff->indexBuffers.size())
-				l.buffer = buff->indexBuffers[Header.indexBufferIndex]->buffer + Header.indexBufferOffset + l.Header.indexStreamOffset;
-			else if (!linkError)
-				linkError = true;
+			*newDescRaw = a;
+
+			newDesc->buffer = buffers->vertexBuffers[data->vertexBufferIndices[a.streamIndex]].buffer.items.cPtr +
+				data->vertexStreamOffsets[a.streamIndex] + a.streamOffset;
+
+			ncollection.push_back(DescriptorCollection::value_type(newDesc));
 		}
 
-		if (linkError)
-			printerror("[ADF] Buffer links for \"", << esString(subMeshes[0].meshName->string) << _T(" \" are missing."))
+		return ncollection;
 	}
-	else
+
+	const char *GetMeshType() const { return main->FindString(data->MeshTypeId)->c_str(); }
+	const char *GetSubMeshName(int id) const { return main->FindString(data->subMeshes[id].subMeshID)->c_str(); }
+	ApexHash GetSubMeshNameHash(int id) const { return data->subMeshes[id].subMeshID; }
+	const void *GetRemaps() const { return data->boneIndexLookup.items.vPtr; }
+	int GetNumRemaps() const { return data->boneIndexLookup.count; }
+	AmfMeshRemapType GetRemapType() const { return REMAP_TYPE_SHORT; }
+	int GetRemap(int id) const { return data->boneIndexLookup[id]; }
+
+	bool IsValid() const
 	{
-		printerror("[ADF] Could't find buffer instance.")
+		if (!buffers || data->indexBufferIndex >= buffers->indexBuffers.count)
+			return false;
+
+		for (auto &a : data->streamAttributes)
+			if (data->vertexBufferIndices[a.streamIndex] >= buffers->vertexBuffers.count)
+				return false;
+
+		return true;
 	}
-	properlyLinked = !linkError;
-}
+};
 
-AmfMesh::~AmfMesh()
+AmfMeshHeader_V1_wrap::AmfMeshHeader_V1_wrap(void *_data, ADF *_main)
+: data(static_cast<AmfMeshHeader_V1*>(_data)), main(_main) {}
+
+int AmfMeshHeader_V1_wrap::GetNumLODs() const { return data->lodGroups.count; }
+int AmfMeshHeader_V1_wrap::GetLodIndex(int id) const { return data->lodGroups.items[id].index; }
+int AmfMeshHeader_V1_wrap::GetNumLODMeshes(int LODIndex) const { return data->lodGroups.items[LODIndex].meshes.count; }
+AmfMesh::Ptr AmfMeshHeader_V1_wrap::GetLODMesh(int LODIndex, int meshIndex) const
 {
-	if (meshProperties)
-		delete meshProperties;
-}
-
-int AmfMeshBuffers::Load(BinReader * rd, ADF *linker)
-{
-	rd->Read(Header);
-	size_t savepos = rd->Tell();
-
-	rd->Seek(Header.indexBuffers.offset);
-	indexBuffers.resize(static_cast<size_t>(Header.indexBuffers.count));
-
-	for (auto &l : indexBuffers)
+	if (!buffers)
 	{
-		AmfBuffer *nBuf = new AmfBuffer;
-		nBuf->Load(rd);
-		l = nBuf;
+		AmfMeshBuffers_V1_wrap *bufWrap = main->FindInstance<AmfMeshBuffers_V1_wrap>();
+
+		if (bufWrap)
+			buffers = bufWrap->Data();
 	}
 
-	rd->Seek(Header.vertexBuffers.offset);
-	vertexBuffers.resize(static_cast<size_t>(Header.vertexBuffers.count));
-
-	for (auto &l : vertexBuffers)
-	{
-		AmfBuffer *nBuf = new AmfBuffer;
-		nBuf->Load(rd);
-		l = nBuf;
-	}
-
-	rd->Seek(savepos);
-
-	return 0;
+	return AmfMesh::Ptr(new AmfMesh_V1_wrap(&data->lodGroups.items[LODIndex].meshes.items[meshIndex], main, buffers)); 
 }
 
-void AmfMeshBuffers::Merge(ADFInstance * externalInstance)
+void AmfMeshHeader_V1_wrap::Fixup(char *masterBuffer) { data->Fixup(masterBuffer); }
+const char *AmfMeshHeader_V1_wrap::RequestsFile() const { return main->FindString(data->highLod)->c_str(); }
+
+AmfMeshBuffers_V1_wrap::AmfMeshBuffers_V1_wrap(void *_data, ADF *_main): data(static_cast<AmfMeshBuffers_V1*>(_data)) {}
+void AmfMeshBuffers_V1_wrap::Fixup(char *masterBuffer) { data->Fixup(masterBuffer); }
+
+void AmfMeshBuffers_V1_wrap::Merge(ADFInstance *externalInstance)
 {
-	AmfMeshBuffers *externalInstanceCasted = static_cast<AmfMeshBuffers*>(externalInstance);
-	indexBuffers.insert(indexBuffers.end(), externalInstanceCasted->indexBuffers.begin(), externalInstanceCasted->indexBuffers.end());
-	vertexBuffers.insert(vertexBuffers.end(), externalInstanceCasted->vertexBuffers.begin(), externalInstanceCasted->vertexBuffers.end());
+	AmfMeshBuffers_V1_wrap *inst = static_cast<AmfMeshBuffers_V1_wrap *>(externalInstance);
+	AmfMeshBuffers_V1 *thisData = Data();
+
+	thisData->indexBuffers.Merge(inst->Data()->indexBuffers);
+	thisData->vertexBuffers.Merge(inst->Data()->vertexBuffers);
 }
 
-AmfMeshBuffers::~AmfMeshBuffers()
+AmfMeshBuffers_V2_wrap::AmfMeshBuffers_V2_wrap(void *_data, ADF *_main): data(static_cast<AmfMeshBuffers_V2*>(_data)) {}
+void AmfMeshBuffers_V2_wrap::Fixup(char *masterBuffer) { data->Fixup(masterBuffer); }
+
+void AmfMeshHeader_V1_wrap::ReplaceReferences(ADF *newMain)
 {
-	for (auto &l : indexBuffers)
-		delete l;
-	for (auto &l : vertexBuffers)
-		delete l;
-}
-
-int AmfBuffer::Load(BinReader * rd)
-{
-	rd->Read(Header);
-	size_t savepos = rd->Tell();
-
-	rd->Seek(Header.info.offset);
-	buffer = static_cast<char*>(malloc(static_cast<size_t>(Header.info.count)));
-	rd->ReadBuffer(buffer, static_cast<size_t>(Header.info.count));
-
-	rd->Seek(savepos);
-
-	return 0;
-}
-
-AmfBuffer::~AmfBuffer()
-{
-	if (buffer)
-		free(buffer);
-}
-
-int AmfSubMesh::Load(BinReader * rd, ADF * linker)
-{
-	rd->Read(Header);
-	meshName = linker->FindStringHash(Header.subMeshID);
-	return 0;
-}
-
-int AmfStreamAttribute::Load(BinReader * rd, ADF * linker)
-{
-	rd->Read(Header);
-	AssignEvaluator();
-	return 0;
+	main = newMain;
 }
