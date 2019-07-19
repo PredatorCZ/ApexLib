@@ -190,6 +190,36 @@ struct RBMFacade0Constants : RBMFacadeConstants
 	RBMREFLECTOR_FROM_PARENT(RBMFacadeConstants);
 };
 
+struct RBMBillboardFoliageConstants
+{
+	DEFINE_PROPERTY(RBMBillboardFoliageConstants);
+};
+
+struct RBMHaloConstants
+{
+	DEFINE_PROPERTY(RBMHaloConstants);
+};
+
+struct RBMDeformWindowConstants
+{
+	DEFINE_PROPERTY(RBMDeformWindowConstants);
+};
+
+struct RBMMergedConstants
+{
+	DEFINE_PROPERTY(RBMMergedConstants);
+};
+
+struct RBMUIOverlayConstants
+{
+	DEFINE_PROPERTY(RBMUIOverlayConstants);
+};
+
+struct RBMScopeConstants
+{
+	DEFINE_PROPERTY(RBMScopeConstants);
+};
+
 //VSH
 struct RBMApex2MeshConstants
 {

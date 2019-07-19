@@ -28,11 +28,19 @@
 
 #define ADFFOURCC 0x41444620
 
-ADFInstance *ADF::FindInstance(ApexHash hash)
+ADFInstance *ADF::FindInstance(ApexHash hash, int numSkips)
 {
+	int currentSkip = 0;
+
 	for (auto &i : instances)
-		if (i->typeHash == hash || i->instance->GetSuperClass() == hash)
-			return i->instance;
+		if (i->typeHash == hash || (i->instance && i->instance->GetSuperClass() == hash))
+		{
+			if (currentSkip == numSkips)
+				return i->instance;
+			else
+				currentSkip++;
+		}
+
 
 	return nullptr;
 }
@@ -202,6 +210,7 @@ int ADF::Load(BinReader *rd, bool supressErrors)
 
 		for (auto &i : descriptors)
 		{
+			i.main = this;
 			int result = i.Load(rd, this);
 
 			if (result)
@@ -269,7 +278,7 @@ int ADF::Descriptor::Load(BinReader *rd, ADF *base)
 
 	if (type == ADFDescriptorType::Structure)
 		descriptorData = new DescriptorStructure();
-	else if (type == ADFDescriptorType::ExplicitEnumeration)
+	else if (type == ADFDescriptorType::Enumeration)
 		descriptorData = new DescriptorExplicitEnum();
 	else
 		descriptorData = new DescriptorBase();
@@ -339,7 +348,10 @@ IADF *CreateADF(const T *fileName)
 				else
 				{
 					it = adf->instances.insert(adf->instances.end(), exi);
-					exi->instance->ReplaceReferences(adf);
+
+					if (exi->instance)
+						exi->instance->ReplaceReferences(adf);
+
 					adf->names.insert(adf->names.end(), exi->name);
 					std::remove(exAdf->names.begin(), exAdf->names.end(), exi->name);
 
@@ -522,4 +534,320 @@ void ADF::Descriptor::XMLDump(pugi::xml_node *master) const
 
 	node.append_attribute("elementType").set_value(typeName);
 	descriptorData->XMLDump(&node);
+}
+
+/************************************************************************/
+/******************************* CPP ************************************/
+/************************************************************************/
+
+static const std::map<ApexHash, const char *> cpptypes = 
+{
+	{ 0x8955583E, "AdfString" },
+	{ 0xDEFE88ED, "AdfDeferred" },
+};
+
+int ADF::ExportDefinitionsToCPP(std::ostream &str) const
+{
+	CPPRegistry classes;
+
+	for (auto &d : descriptors)
+		d.CPPDump(classes);
+
+	bool useBitFields = false;
+
+	for (auto &d : descriptors)
+		if (d.type == ADFDescriptorType::BitField)
+		{
+			useBitFields = true;
+			break;
+		}
+
+	str << "/*ApexLib ADF generated header file.*/\n\n#pragma once\n#include \"AdfBaseObject.h\"\n";
+
+	if (useBitFields)
+		str << "#include \"datas/flags.hpp\"\n\n";
+
+	for (CPPRegistry::reverse_iterator it = classes.rbegin(); it != classes.rend(); it++)
+		str << **it;
+
+	return 0;
+}
+
+int ADF::ExportDefinitionsToCPP(const char *fileName) const
+{
+	std::ofstream str(fileName);
+	ExportDefinitionsToCPP(str);
+	return 0;
+}
+
+int ADF::ExportDefinitionsToCPP(const wchar_t *fileName) const
+{
+	std::ofstream str(
+#if UNICODE
+		fileName
+#else
+	esStringConvert<char>(fileName)
+#endif
+		);
+	ExportDefinitionsToCPP(str);
+	return 0;
+}
+
+void ADF::Descriptor::CPPDump(CPPRegistry &classes) const
+{
+	descriptorData->CPPDump(this, classes);
+}
+
+enum __testEnum {};
+
+void ADF::DescriptorExplicitEnum::CPPDump(const Descriptor *main, CPPRegistry &classes) const
+{
+	std::stringstream str;
+
+	str << "enum " << main->name->string;
+
+	if (sizeof(__testEnum) != main->size)
+	{
+		switch (main->size)
+		{
+		case 1:
+			str << " : char";
+			break;
+		case 2:
+			str << " : short";
+			break;
+		case 4:
+			str << " : int";
+			break;
+		case 8:
+			str << " : int64";
+			break;
+		}
+	}
+	
+	str << "\n{\n";
+
+	short cNumber = -1, sNumber = 0;
+
+	for (auto &m : members)
+	{
+		if (cNumber < 0)
+		{
+			cNumber = m.value;
+			sNumber = cNumber;
+		}
+		else if (m.value == cNumber + 1)
+			cNumber++;
+		else
+		{
+			cNumber = -1;
+			break;
+		}
+	}
+
+	cNumber = ~cNumber; //isLinear
+
+	for (auto &m : members)
+	{
+		str << '\t' << m.name->string;
+
+		if (!cNumber || sNumber)
+		{
+			str << " = " << m.value;
+
+			if (sNumber)
+				sNumber = 0;
+		}
+
+		str << ",\n";
+	}
+
+	str << "};\n";
+
+	classes.push_back(new std::string(str.str()));
+}
+
+void ADF::DescriptorBase::CPPDump(const Descriptor *main, CPPRegistry &classes) const
+{
+}
+
+bool GetTypeName(const ApexHash hash, const ADF::Descriptor *main, std::ostream &str, const char *varName = nullptr)
+{
+	for (auto &c : cpptypes)
+		if (c.first == hash)
+		{
+			str << c.second;
+			return false;
+		}
+
+	for (auto &t : types)
+		if (t.first == hash)
+		{
+			str << t.second;
+			return false;
+		}
+
+	for (auto &d : main->main->descriptors)
+		if (d.nameHash == hash)
+		{
+			switch (d.type)
+			{
+			case ADFDescriptorType::Array:
+				str << "AdfArray<";
+				GetTypeName(d.elementTypeHash, main, str);
+				str << '>';
+				return false;
+			case ADFDescriptorType::StringHash:
+				str << "ApexHash";
+				return false;
+			case ADFDescriptorType::String:
+				str << "AdfString";
+				return false;
+			case ADFDescriptorType::Structure:
+			{
+				for (auto &_d : main->main->descriptors)
+					if (_d.nameHash == hash)
+					{
+						str << _d.name->string;
+						return false;
+					}
+
+					break;
+			}
+			case ADFDescriptorType::InlineArray:
+			{
+				if (d.elementTypeHash == 0x7515A207 && d.elementSize > 1 && d.elementSize < 5) //float
+				{
+					str << "Vector";
+
+					if(d.elementSize != 3)
+						str << d.elementSize;
+
+					if (varName)
+						str << ' ' << varName;
+					
+					str << ";\n";
+				}
+				else
+				{
+					GetTypeName(d.elementTypeHash, main, str);
+
+					if (varName)
+						str << ' ' << varName;
+
+					str << '[' << d.elementSize << "];\n";
+				}
+			
+				return varName != nullptr;
+			}
+			}
+		}
+	return false;
+}
+
+void ADF::DescriptorStructure::CPPDump(const Descriptor *main, CPPRegistry &classes) const
+{
+	std::stringstream str;
+
+	str << "struct " << main->name->string << "\n{\n";
+
+	ApexHash lastType = 0;
+	std::map<ADF::Descriptor *, std::vector<const Member *>> bitFields;
+
+	for (auto &m : members)
+	{
+		str << '\t';
+		
+		ADF::Descriptor *subDesc = nullptr;
+
+		for (auto &d : main->main->descriptors)
+			if (d.nameHash == m.typeHash)
+			{
+				subDesc = &d;
+				break;
+			}
+
+		if (m.typeHash == lastType)
+		{
+			
+			if (subDesc && subDesc->type == ADFDescriptorType::BitField)
+			{
+				if (bitFields.count(subDesc))
+					bitFields.at(subDesc).push_back(&m);
+
+				lastType = m.typeHash;
+				continue;
+			}
+
+			str.seekp(-3, std::ios_base::cur);
+			str << ",\n\t\t" << m.name->string;
+			
+			if (subDesc && subDesc->type == ADFDescriptorType::InlineArray &&
+			(subDesc->elementTypeHash != 0x7515A207 || subDesc->elementSize < 2 || subDesc->elementSize > 4))
+			{
+				str << '[' << subDesc->elementSize << ']';
+				break;
+			}
+			
+			str << ";\n";
+		}
+		else
+		{
+			if (subDesc && subDesc->type == ADFDescriptorType::BitField)
+			{
+				bitFields[subDesc].push_back(&m);
+				str << "esFlags<";
+
+				switch (subDesc->size)
+				{
+				case 1:
+					str << "char";
+					break;
+				case 2:
+					str << "short";
+					break;
+				case 4:
+					str << "int";
+					break;
+				case 8:
+					str << "int64";
+					break;
+				}
+
+				str << ", " << main->name->string << "_flags" << bitFields.size() - 1 << 
+					"> flags" << bitFields.size() - 1 << ";\n";
+				lastType = m.typeHash;
+				continue;
+			}
+
+			bool alreadyWritten = GetTypeName(m.typeHash, main, str, m.name->string.c_str());
+
+			if(!alreadyWritten)
+				str << ' ' << m.name->string << ";\n";
+		}
+		
+		lastType = m.typeHash;
+	}
+
+	str << "\n\tstatic const ApexHash HASH = 0x" << std::hex << std::uppercase << 
+	main->nameHash << std::dec << ";\n};\n\nstatic_assert(sizeof(" << 
+	main->name->string << ") == " << main->size << ", \"Check assumptions\");\n\n";
+
+	classes.push_back(new std::string(str.str()));
+
+	int currentBitField = 0;
+	
+
+	for (auto &f : bitFields)
+	{
+		str = std::stringstream();
+		str << "enum " << main->name->string << "_flags" << currentBitField << "\n{\n";
+
+		for (auto &b : f.second)
+			str << '\t' << b->name->string << ",\n";
+
+		str << "};\n\n";
+		currentBitField++;
+		classes.push_back(new std::string(str.str()));
+	}	
 }

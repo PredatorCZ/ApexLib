@@ -126,3 +126,23 @@ struct AmfMeshBuffers_V1
 			v.Fixup(masterBuffer);
 	}
 };
+
+struct AmfMeshBuffers_V1_5
+{
+	int memoryTag;
+	AdfArray<AdfArray<char>> indexBuffers;
+	AdfArray<AdfArray<char>> vertexBuffers;
+
+	ES_FORCEINLINE void Fixup(char *masterBuffer)
+	{
+		indexBuffers.items.Fixup(masterBuffer);
+		vertexBuffers.items.Fixup(masterBuffer);
+
+		for (auto &i : indexBuffers)
+			i.items.Fixup(masterBuffer);
+
+		for (auto &v : vertexBuffers)
+			v.items.Fixup(masterBuffer);
+	}
+};
+

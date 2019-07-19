@@ -139,6 +139,8 @@ int LoadRBMDL(ADF *master, BinReader *rd)
 			cMat->name.string = "Object000";
 			cMat->name.string.replace(9 - noName.size(), noName.size(), noName);
 			cMat->name.Generate();
+
+			cMesh->meshName = cMat->name;
 		}
 		else
 		{
@@ -247,18 +249,6 @@ RBMModel::~RBMModel()
 	
 	for (auto &m : materials)
 		delete m;
-}
-
-RBMMaterial::~RBMMaterial()
-{
-	if(properties.item.vPtr)
-		delete properties.item.cPtr;
-}
-
-RBMMesh::~RBMMesh()
-{
-	if(properties.item.vPtr)
-		delete properties.item.cPtr;
 }
 
 int ADF::LoadAsRenderBlockModel(BinReader *rd, bool supressErrors)

@@ -103,8 +103,6 @@ public:
 	virtual int GetPropertiesSize() const = 0;
 
 	static RBMMesh *ConstructClass(uint64 classHash);
-
-	~RBMMesh();
 };
 
 class RBSMesh : public RBMMesh
@@ -186,7 +184,6 @@ public:
 
 	static RBMMaterial *ConstructClass(uint64 classHash);
 	RBMMaterial();
-	~RBMMaterial();
 };
 
 class RBMModel : public AmfModel

@@ -142,7 +142,7 @@ public:
 	void *GetRawAttributes() const { return data->Attributes().item.vPtr; }
 	ApexHash GetAttributesHash() const { return data->Attributes().objectHash; }
 	int GetNumTextures() const { return data->textures.count; }
-	const char *GetTexture(int id) const { return data->textures[id]; }
+	const char *GetTexture(int id) const { return main->FindString(data->textures[id])->c_str(); }
 };
 
 void AmfModel_V1_wrap::Fixup(char *masterBuffer) { data->Fixup(masterBuffer); }

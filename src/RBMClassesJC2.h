@@ -26,24 +26,12 @@ int GetPropertiesSize() const { return sizeof(classname##Constants); }\
 void ReadRBM(BinReader *rd, char *&curBuffer, RBMMesh &mesh);\
 int GetNumTexturesToRead() const { return 8; }
 
-#define RBMCONSTRUCTOR_NO_PROPS(classname, shash) static const ApexHash HASH = JenkinsHash(#classname, sizeof(#classname) - 1); static const uint64 RBMHASH = shash;\
-const char *GetRenderBlockName() const { return #classname; } \
-classname() { properties.objectHash = 0; renderBlockHash = JenkinsLookup3(#classname); }\
-void ReadRBM(BinReader *rd, char *&curBuffer, RBMMesh &mesh);\
-int GetPropertiesSize() const { return 0; }\
-int GetNumTexturesToRead() const { return 8; }
-
 #define RBMCONSTRUCTOR_WPARENT(classname, shash) static const ApexHash HASH = JenkinsHash(#classname, sizeof(#classname) - 1); static const uint64 RBMHASH = shash;\
 const char *GetRenderBlockName() const { return #classname; } \
 classname() { properties.objectHash = 0; renderBlockHash = JenkinsLookup3(#classname); }\
 int GetPropertiesSize() const { return 0; }\
 int GetNumTexturesToRead() const { return 8; }
 
-#define RBMCONSTRUCTOR_NO_PROPS_WPARENT(classname, shash) static const ApexHash HASH = JenkinsHash(#classname, sizeof(#classname) - 1); static const uint64 RBMHASH = shash;\
-const char *GetRenderBlockName() const { return #classname; } \
-classname() { properties.objectHash = 0; renderBlockHash = JenkinsLookup3(#classname); }\
-int GetPropertiesSize() const { return 0; }\
-int GetNumTexturesToRead() const { return 8; }
 
 struct RBMCarPaintSimple : RBMMaterial
 {
@@ -62,12 +50,12 @@ struct RBMVegetationFoliage : RBMMaterial
 
 struct RBMBillboardFoliage : RBMMaterial
 {
-	RBMCONSTRUCTOR_NO_PROPS(RBMBillboardFoliage, 0xad529e70);
+	RBMCONSTRUCTOR(RBMBillboardFoliage, 0xad529e70);
 };
 
 struct RBMHalo : RBMMaterial
 {
-	RBMCONSTRUCTOR_NO_PROPS(RBMHalo, 0x65d9b5b2);
+	RBMCONSTRUCTOR(RBMHalo, 0x65d9b5b2);
 };
 
 struct RBMLambert : RBMMaterial
@@ -97,12 +85,12 @@ struct RBMCarPaint : RBMCarPaintSimple
 
 struct RBMDeformWindow : RBMMaterial
 {
-	RBMCONSTRUCTOR_NO_PROPS(RBMDeformWindow, 0x106B1F602);
+	RBMCONSTRUCTOR(RBMDeformWindow, 0x106B1F602);
 };
 
 struct RBMMerged : RBMMaterial
 {
-	RBMCONSTRUCTOR_NO_PROPS(RBMMerged, 0x9185A4C3);
+	RBMCONSTRUCTOR(RBMMerged, 0x9185A4C3);
 };
 
 struct RBMSkinnedGeneral : RBMMaterial
@@ -132,12 +120,12 @@ struct RBMFacade0 : RBMFacade
 
 struct RBMUIOverlay : RBMMaterial
 {
-	RBMCONSTRUCTOR_NO_PROPS(RBMUIOverlay, 0xd7af3bee);
+	RBMCONSTRUCTOR(RBMUIOverlay, 0xd7af3bee);
 };
 
 struct RBMScope : RBMUIOverlay
 {
-	RBMCONSTRUCTOR_NO_PROPS_WPARENT(RBMScope, 0x7e407c92);
+	RBMCONSTRUCTOR_WPARENT(RBMScope, 0x7e407c92);
 };
 
 //VSH

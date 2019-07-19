@@ -205,13 +205,14 @@ static const std::map<ApexHash, ADFInstance *(*)(void *, ADF *)> ADFClassStorage
 	AmfMeshHeader_V1_wrap,
 	AmfMeshBuffers_V1_wrap,
 	AmfModel_V1_wrap,
-	AmfMeshBuffers_TheHunter_wrap,
+	AmfMeshBuffers_V1_5_wrap,
 	AmfMeshBuffers_V2_wrap,
 	StuntAreas_wrap,
 	DeformPoints_wrap,
 	StreamPatchFileHeader_wrap,
 	StreamPatchBlockHeader_wrap,
-	TerrainPatch_wrap
+	TerrainPatch_wrap,
+	AmfMeshHeader_V2_wrap
 	)
 };
 

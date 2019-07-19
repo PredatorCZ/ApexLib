@@ -19,24 +19,33 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\ADF.h" />
     <ClInclude Include="include\AdfBaseObject.h" />
     <ClInclude Include="include\AmfEnums.h" />
-    <ClInclude Include="include\AmfFormatEvaluators.h" />
-    <ClInclude Include="include\AmfMesh.h" />
-    <ClInclude Include="include\AmfModel.h" />
+    <ClInclude Include="include\AmfProperties.h" />
     <ClInclude Include="include\ApexApi.h" />
     <ClInclude Include="include\AVTX.h" />
     <ClInclude Include="include\DeformPoints.h" />
-    <ClInclude Include="include\RBM.h" />
-    <ClInclude Include="include\RBMClassesHU.h" />
-    <ClInclude Include="include\RBMClassesJC2.h" />
-    <ClInclude Include="include\RBMClassesJC3.h" />
-    <ClInclude Include="include\RBNClasses.h" />
-    <ClInclude Include="include\RBSClasses.h" />
+    <ClInclude Include="include\property_classes\AmfGZMaterial.h" />
+    <ClInclude Include="include\property_classes\AmfHUMaterial.h" />
+    <ClInclude Include="include\property_classes\AmfJC4Material.h" />
+    <ClInclude Include="include\property_classes\AmfMeshProperties.h" />
+    <ClInclude Include="include\property_classes\RbmJC2Material.h" />
+    <ClInclude Include="include\property_classes\RbmJC3Material.h" />
+    <ClInclude Include="include\property_classes\RbnMaterial.h" />
     <ClInclude Include="include\StreamPatch.h" />
     <ClInclude Include="include\StuntAreas.h" />
-    <ClInclude Include="include\Units.h" />
+    <ClInclude Include="src\ADF.h" />
+    <ClInclude Include="src\AmfFormatEvaluators.h" />
+    <ClInclude Include="src\AmfMesh.h" />
+    <ClInclude Include="src\AmfMesh_V1.h" />
+    <ClInclude Include="src\AmfMesh_V2.h" />
+    <ClInclude Include="src\AmfModel.h" />
+    <ClInclude Include="src\AmfModel_V1.h" />
+    <ClInclude Include="src\RBM.h" />
+    <ClInclude Include="src\RBMClassesJC2.h" />
+    <ClInclude Include="src\RBMClassesJC3.h" />
+    <ClInclude Include="src\RBNClasses.h" />
+    <ClInclude Include="src\Units.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="3rd_party\PreCore\datas\MasterPrinter.cpp" />
@@ -69,11 +78,15 @@
     <ClCompile Include="src\AmfMesh.cpp" />
     <ClCompile Include="src\AmfModel.cpp" />
     <ClCompile Include="src\AVTX.cpp" />
+    <ClCompile Include="src\DeformPoints.cpp" />
     <ClCompile Include="src\lookup3.c" />
     <ClCompile Include="src\RBM.cpp" />
     <ClCompile Include="src\RBMClassesJC2.cpp" />
+    <ClCompile Include="src\RBMClassesJC3.cpp" />
     <ClCompile Include="src\RBMReg.cpp" />
     <ClCompile Include="src\RBNClasses.cpp" />
+    <ClCompile Include="src\StreamPatch.cpp" />
+    <ClCompile Include="src\StuntAreas.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{FF2D4844-A0C8-4906-BB79-4C8D11E2E5EC}</ProjectGuid>

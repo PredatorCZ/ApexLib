@@ -36,11 +36,15 @@ private:
 		}materialType;
 	}attributes;
 public:
-	AdfArray<char*> textures;
+	AdfArray<ApexHash> textures;
 
 	ES_FORCEINLINE AdfDeferred &Attributes() { return attributes.attributes; }
 	ES_FORCEINLINE AmfMaterialType &MaterialType() { return attributes.materialType.materialType; }
-	ES_FORCEINLINE void Fixup(char *masterBuffer) { Attributes().item.Fixup(masterBuffer); }
+	ES_FORCEINLINE void Fixup(char *masterBuffer) 
+	{
+		Attributes().item.Fixup(masterBuffer);
+		textures.items.Fixup(masterBuffer);
+	}
 };
 
 struct AmfModel_V1

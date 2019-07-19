@@ -46,7 +46,7 @@ struct AmfStreamAttribute
 	unsigned char streamIndex,
 		streamOffset,
 		streamStride;
-	float packingData[2];
+	char packingData[8];
 };
 
 class AmfVertexDescriptor : public AmfStreamAttribute
@@ -152,9 +152,11 @@ public:
 	virtual int LoadAsRenderBlockModel(BinReader *rd, bool supressErrors = false) = 0;
 	virtual int DumpDefinitions(const char *fileName) const = 0;
 	virtual int DumpDefinitions(const wchar_t *fileName) const = 0;
-	virtual ADFInstance *FindInstance(ApexHash hash) = 0;
+	virtual int ExportDefinitionsToCPP(const char *fileName) const = 0;
+	virtual int ExportDefinitionsToCPP(const wchar_t *fileName) const = 0;
+	virtual ADFInstance *FindInstance(ApexHash hash, int numSkips = 0) = 0;
 	virtual ~IADF() {};
-	template<class C> ES_FORCEINLINE C *FindInstance() { return static_cast<C*>(FindInstance(C::HASH)); }
+	template<class C> ES_FORCEINLINE C *FindInstance(int numSkips = 0) { return static_cast<C*>(FindInstance(C::HASH, numSkips)); }
 	template<class C> ES_FORCEINLINE C *AddUniqueInstance();
 	virtual void AddInstance(ADFInstance *instance, ApexHash hash) = 0;
 	static IADF *Create(const char *fileName);

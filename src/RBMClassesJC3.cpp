@@ -501,8 +501,8 @@ void RBMGeneralMK3::ReadRBM(BinReader *rd, char *&curBuffer, RBMMesh &mesh)
 		RBMGeneralMK3Mesh *cMesh = static_cast<RBMGeneralMK3Mesh *>(&mesh);
 		rd->Read(cMesh->remapHdr);
 		cMesh->remaps = reinterpret_cast<ushort *>(curBuffer);
-		rd->ReadBuffer(curBuffer, cMesh->remapHdr.numRemaps);
-		curBuffer += cMesh->remapHdr.numRemaps;
+		rd->ReadBuffer(curBuffer, cMesh->remapHdr.numRemaps * 2);
+		curBuffer += cMesh->remapHdr.numRemaps * 2;
 		ApplyPadding(curBuffer, 2);
 	}
 
@@ -732,8 +732,8 @@ void RBMCarPaint14::ReadRBM(BinReader *rd, char *&curBuffer, RBMMesh &mesh)
 	{
 		rd->Read(msh->remapHdr);
 		msh->remaps = reinterpret_cast<ushort *>(curBuffer);
-		rd->ReadBuffer(curBuffer, msh->remapHdr.numRemaps);
-		curBuffer += msh->remapHdr.numRemaps;
+		rd->ReadBuffer(curBuffer, msh->remapHdr.numRemaps * 2);
+		curBuffer += msh->remapHdr.numRemaps * 2;
 		ApplyPadding(curBuffer, 2);
 	}
 
@@ -823,8 +823,8 @@ void RBMCharacter9::ReadRBM(BinReader *rd, char *&curBuffer, RBMMesh &mesh)
 
 	rd->Read(msh->remapHdr);
 	msh->remaps = reinterpret_cast<ushort *>(curBuffer);
-	rd->ReadBuffer(curBuffer, msh->remapHdr.numRemaps);
-	curBuffer += msh->remapHdr.numRemaps;
+	rd->ReadBuffer(curBuffer, msh->remapHdr.numRemaps * 2);
+	curBuffer += msh->remapHdr.numRemaps * 2;
 	ApplyPadding(curBuffer, 2);
 	
 	rd->Read(mesh.numIndices);
@@ -883,8 +883,8 @@ void RBMCharacter6::ReadRBM(BinReader *rd, char *&curBuffer, RBMMesh &mesh)
 
 	rd->Read(msh->remapHdr);
 	msh->remaps = reinterpret_cast<ushort *>(curBuffer);
-	rd->ReadBuffer(curBuffer, msh->remapHdr.numRemaps);
-	curBuffer += msh->remapHdr.numRemaps;
+	rd->ReadBuffer(curBuffer, msh->remapHdr.numRemaps * 2);
+	curBuffer += msh->remapHdr.numRemaps * 2;
 	ApplyPadding(curBuffer, 2);
 	
 	rd->Read(mesh.numIndices);
@@ -1004,8 +1004,8 @@ void RBMRoad::ReadRBM(BinReader *rd, char *&curBuffer, RBMMesh &mesh)
 		RBMRoadMesh *msh = static_cast<RBMRoadMesh*>(&mesh);
 		rd->Read(msh->remapHdr);
 		msh->remaps = reinterpret_cast<ushort *>(curBuffer);
-		rd->ReadBuffer(curBuffer, msh->remapHdr.numRemaps);
-		curBuffer += msh->remapHdr.numRemaps;
+		rd->ReadBuffer(curBuffer, msh->remapHdr.numRemaps * 2);
+		curBuffer += msh->remapHdr.numRemaps * 2;
 		ApplyPadding(curBuffer, 2);
 	}
 	

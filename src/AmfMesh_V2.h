@@ -18,6 +18,69 @@
 #pragma once
 #include "AmfMesh_V1.h"
 
+struct AmfSubMesh_V2
+{
+	ApexHash subMeshID;
+	int indexCount;
+	AdfBBOX boundingBox;
+};
+
+struct AmfMesh_V2
+{
+	ApexHash meshTypeId;
+	uchar indexBufferStride,
+		mergedBufferIndex;
+	int	indexCount,
+		vertexCount;
+	AdfArray<uchar> vertexStreamStrides;
+	AdfArray<int> vertexStreamOffsets;
+	Vector textureDensities;
+	AdfDeferred meshProperties;
+	AdfArray<short> boneIndexLookup;
+	AdfArray<AmfSubMesh_V2> subMeshes;
+	AdfArray<AmfStreamAttribute> streamAttributes;
+
+	ES_FORCEINLINE void Fixup(char *masterBuffer)
+	{
+		vertexStreamStrides.items.Fixup(masterBuffer);
+		vertexStreamOffsets.items.Fixup(masterBuffer);
+		boneIndexLookup.items.Fixup(masterBuffer);
+		subMeshes.items.Fixup(masterBuffer);
+		streamAttributes.items.Fixup(masterBuffer);
+		meshProperties.item.Fixup(masterBuffer);
+	}
+};
+
+struct AmfLodGroup_V2
+{
+	int index;
+	AdfArray<AmfMesh_V2> meshes;
+
+	ES_FORCEINLINE void Fixup(char *masterBuffer)
+	{
+		meshes.items.Fixup(masterBuffer);
+
+		for (auto &m : meshes)
+			m.Fixup(masterBuffer);
+	}
+};
+
+struct AmfMeshHeader_V2
+{
+	AdfBBOX boundingBox;
+	unsigned int memoryTag;
+	AdfArray<AmfLodGroup_V2> lodGroups;
+	ApexHash highLod;
+
+	ES_FORCEINLINE void Fixup(char *masterBuffer)
+	{
+		lodGroups.items.Fixup(masterBuffer);
+
+		for (auto &l : lodGroups)
+			l.Fixup(masterBuffer);
+	}
+};
+
 struct AmfMeshBuffers_V2
 {
 	int memoryTag;

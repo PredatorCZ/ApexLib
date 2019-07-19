@@ -52,6 +52,31 @@ template<class C> union AdfPointer
 	C *operator->() { return ptr; }
 };
 
+template<class C> union _AdfArrayPointer
+{
+	C *ptr;
+	char *cPtr;
+	void *vPtr;
+	int ptrVal;
+	int64 fullPtr;
+	struct
+	{
+		C data[100];
+	} *debug;
+
+	void Fixup(char *masterBuffer)
+	{
+		if (!ptrVal)
+			return;
+
+		cPtr = masterBuffer + ptrVal;
+	}
+
+	C &operator *() { return *ptr; }
+	C &operator [](const size_t index) { return ptr[index]; }
+	C *operator->() { return ptr; }
+};
+
 template<class C> struct AdfArray_Iterator
 {
 	C *iterPos;
@@ -76,7 +101,7 @@ private:
 public:
 	typedef AdfArray_Iterator<C> iterator;
 
-	AdfPointer<C> items;
+	_AdfArrayPointer<C> items;
 	int count;
 	short capacity;
 	esFlags<short, Flags_e> flags;
@@ -179,7 +204,6 @@ struct StringHash
 
 union alignas(8) AdfString
 {
-	uint offset;
 	AdfPointer<char> string;
 };
 
