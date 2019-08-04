@@ -60,9 +60,9 @@ src/StreamPatch.cpp
 src/StuntAreas.cpp
 )
 
-project(testing)
-add_executable(testing testing.cpp)
-target_link_libraries(testing ApexLib)
+#project(testing)
+#add_executable(testing testing.cpp)
+#target_link_libraries(testing ApexLib)
 
 include_directories(src/)
 include_directories(include/)
