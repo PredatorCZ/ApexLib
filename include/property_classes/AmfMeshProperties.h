@@ -15,19 +15,24 @@
 	along with this program.If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "StuntAreas.h"
-
-void StuntArea::Fixup(char *masterBuffer)
+struct GeneralMeshConstants
 {
-	name.string.Fixup(masterBuffer);
-	partName.string.Fixup(masterBuffer);
-}
+	DECLARE_REFLECTOR;
+	int pristineIndexCount;
+	esFlags<char, GeneralMeshConstantsFlags> flags;
+	static const ApexHash HASH = 0x15EEC9DE;
+};
 
-ES_INLINE void StuntAreas::Fixup(char *masterBuffer)
+struct FoliageMeshConstants
 {
-	for (auto &s : stuntAreas)
-		s.Fixup(masterBuffer);
-}
+	DECLARE_REFLECTOR;
+	AdfBBOX boundingBoxDimensions;
+	static const ApexHash HASH = 0xA7CACE80;
+};
 
-StuntAreas_wrap::StuntAreas_wrap(void *_data, ADF *_main): data(static_cast<StuntAreas*>(_data)) {}
-void StuntAreas_wrap::Fixup(char *masterBuffer) { data->Fixup(masterBuffer); }
+struct CarPaintMeshConstants
+{
+	DECLARE_REFLECTOR;
+	esFlags<char, CarPaintMeshConstantsFlags> flags;
+	static const ApexHash HASH = 0x1C363162;
+};

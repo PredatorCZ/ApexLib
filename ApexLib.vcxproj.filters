@@ -37,10 +37,52 @@
     <Filter Include="Source Files\ZSTD\decompress">
       <UniqueIdentifier>{1d3bdc15-af63-42c2-be38-c2dcf99ceecc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\ADF_internal">
+      <UniqueIdentifier>{2fcf97d2-488b-4085-ac65-a63b853789a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\property_classes">
+      <UniqueIdentifier>{c9f064d2-4b63-407b-9719-14f9226daa19}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\ADF.h">
-      <Filter>Header Files\ADF</Filter>
+    <ClInclude Include="include\ApexApi.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\AVTX.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RBM.h">
+      <Filter>Header Files\RBM</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RBMClassesJC2.h">
+      <Filter>Header Files\RBM</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RBMClassesJC3.h">
+      <Filter>Header Files\RBM</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RBNClasses.h">
+      <Filter>Header Files\RBM</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ADF.h">
+      <Filter>Header Files\ADF_internal</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AmfFormatEvaluators.h">
+      <Filter>Header Files\ADF_internal</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AmfMesh.h">
+      <Filter>Header Files\ADF_internal</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AmfMesh_V1.h">
+      <Filter>Header Files\ADF_internal</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AmfMesh_V2.h">
+      <Filter>Header Files\ADF_internal</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AmfModel.h">
+      <Filter>Header Files\ADF_internal</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AmfModel_V1.h">
+      <Filter>Header Files\ADF_internal</Filter>
     </ClInclude>
     <ClInclude Include="include\AdfBaseObject.h">
       <Filter>Header Files\ADF</Filter>
@@ -48,40 +90,7 @@
     <ClInclude Include="include\AmfEnums.h">
       <Filter>Header Files\ADF</Filter>
     </ClInclude>
-    <ClInclude Include="include\AmfFormatEvaluators.h">
-      <Filter>Header Files\ADF</Filter>
-    </ClInclude>
-    <ClInclude Include="include\AmfMesh.h">
-      <Filter>Header Files\ADF</Filter>
-    </ClInclude>
-    <ClInclude Include="include\AmfModel.h">
-      <Filter>Header Files\ADF</Filter>
-    </ClInclude>
-    <ClInclude Include="include\RBM.h">
-      <Filter>Header Files\RBM</Filter>
-    </ClInclude>
-    <ClInclude Include="include\RBMClassesHU.h">
-      <Filter>Header Files\RBM</Filter>
-    </ClInclude>
-    <ClInclude Include="include\RBMClassesJC2.h">
-      <Filter>Header Files\RBM</Filter>
-    </ClInclude>
-    <ClInclude Include="include\RBMClassesJC3.h">
-      <Filter>Header Files\RBM</Filter>
-    </ClInclude>
-    <ClInclude Include="include\RBNClasses.h">
-      <Filter>Header Files\RBM</Filter>
-    </ClInclude>
-    <ClInclude Include="include\RBSClasses.h">
-      <Filter>Header Files\RBM</Filter>
-    </ClInclude>
-    <ClInclude Include="include\ApexApi.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Units.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\StuntAreas.h">
+    <ClInclude Include="include\AmfProperties.h">
       <Filter>Header Files\ADF</Filter>
     </ClInclude>
     <ClInclude Include="include\DeformPoints.h">
@@ -90,46 +99,40 @@
     <ClInclude Include="include\StreamPatch.h">
       <Filter>Header Files\ADF</Filter>
     </ClInclude>
-    <ClInclude Include="include\AVTX.h">
+    <ClInclude Include="include\StuntAreas.h">
+      <Filter>Header Files\ADF</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Units.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\property_classes\AmfGZMaterial.h">
+      <Filter>Header Files\property_classes</Filter>
+    </ClInclude>
+    <ClInclude Include="include\property_classes\AmfHUMaterial.h">
+      <Filter>Header Files\property_classes</Filter>
+    </ClInclude>
+    <ClInclude Include="include\property_classes\AmfJC4Material.h">
+      <Filter>Header Files\property_classes</Filter>
+    </ClInclude>
+    <ClInclude Include="include\property_classes\AmfMeshProperties.h">
+      <Filter>Header Files\property_classes</Filter>
+    </ClInclude>
+    <ClInclude Include="include\property_classes\RbmJC2Material.h">
+      <Filter>Header Files\property_classes</Filter>
+    </ClInclude>
+    <ClInclude Include="include\property_classes\RbmJC3Material.h">
+      <Filter>Header Files\property_classes</Filter>
+    </ClInclude>
+    <ClInclude Include="include\property_classes\RbnMaterial.h">
+      <Filter>Header Files\property_classes</Filter>
+    </ClInclude>
+    <ClInclude Include="include\property_classes\AmfR2Material.h">
+      <Filter>Header Files\property_classes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\lookup3.c">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\RBM.cpp">
-      <Filter>Source Files\RBM</Filter>
-    </ClCompile>
-    <ClCompile Include="src\RBMClassesHU.cpp">
-      <Filter>Source Files\RBM</Filter>
-    </ClCompile>
-    <ClCompile Include="src\RBMClassesJC2.cpp">
-      <Filter>Source Files\RBM</Filter>
-    </ClCompile>
-    <ClCompile Include="src\RBMClassesJC3.cpp">
-      <Filter>Source Files\RBM</Filter>
-    </ClCompile>
-    <ClCompile Include="src\RBMReg.cpp">
-      <Filter>Source Files\RBM</Filter>
-    </ClCompile>
-    <ClCompile Include="src\RBNClasses.cpp">
-      <Filter>Source Files\RBM</Filter>
-    </ClCompile>
-    <ClCompile Include="src\RBSClasses.cpp">
-      <Filter>Source Files\RBM</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ADF.cpp">
-      <Filter>Source Files\ADF</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ADFReg.cpp">
-      <Filter>Source Files\ADF</Filter>
-    </ClCompile>
-    <ClCompile Include="src\AmfMesh.cpp">
-      <Filter>Source Files\ADF</Filter>
-    </ClCompile>
-    <ClCompile Include="src\AmfModel.cpp">
-      <Filter>Source Files\ADF</Filter>
     </ClCompile>
     <ClCompile Include="3rd_party\pugixml\src\pugixml.cpp">
       <Filter>Source Files</Filter>
@@ -139,15 +142,6 @@
     </ClCompile>
     <ClCompile Include="3rd_party\PreCore\datas\reflector.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\StuntAreas.cpp">
-      <Filter>Source Files\ADF</Filter>
-    </ClCompile>
-    <ClCompile Include="src\DeformPoints.cpp">
-      <Filter>Source Files\ADF</Filter>
-    </ClCompile>
-    <ClCompile Include="src\StreamPatch.cpp">
-      <Filter>Source Files\ADF</Filter>
     </ClCompile>
     <ClCompile Include="3rd_party\zstd\lib\common\debug.c">
       <Filter>Source Files\ZSTD\common</Filter>
@@ -217,6 +211,42 @@
     </ClCompile>
     <ClCompile Include="src\AVTX.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ADF.cpp">
+      <Filter>Source Files\ADF</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ADFReg.cpp">
+      <Filter>Source Files\ADF</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AmfMesh.cpp">
+      <Filter>Source Files\ADF</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AmfModel.cpp">
+      <Filter>Source Files\ADF</Filter>
+    </ClCompile>
+    <ClCompile Include="src\DeformPoints.cpp">
+      <Filter>Source Files\ADF</Filter>
+    </ClCompile>
+    <ClCompile Include="src\StreamPatch.cpp">
+      <Filter>Source Files\ADF</Filter>
+    </ClCompile>
+    <ClCompile Include="src\StuntAreas.cpp">
+      <Filter>Source Files\ADF</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RBM.cpp">
+      <Filter>Source Files\RBM</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RBMClassesJC2.cpp">
+      <Filter>Source Files\RBM</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RBMClassesJC3.cpp">
+      <Filter>Source Files\RBM</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RBMReg.cpp">
+      <Filter>Source Files\RBM</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RBNClasses.cpp">
+      <Filter>Source Files\RBM</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

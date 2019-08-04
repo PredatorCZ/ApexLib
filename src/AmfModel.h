@@ -14,32 +14,29 @@
 	You should have received a copy of the GNU General Public License
 	along with this program.If not, see <https://www.gnu.org/licenses/>.
 */
+
 #pragma once
-#include "RBM.h"
+#include "AmfProperties.h"
 
-struct RBSGeneral : RBMMasterBlock
+struct AmfModel_V1;
+struct AmfMaterial_V1;
+class ADF;
+
+class AmfModel_V1_wrap : public AmfModel
 {
-	RBMCONSTRUCTOR(RBSGeneral, 0x70826f6ee);
-	void Load(BinReader *rd);
-};
+	AmfModel_V1 *data;
+	ADF *main;
 
+	void Fixup(char *masterBuffer);
+	const char *RequestsFile() const;
+	void Merge(ADFInstance *externalInstance) {}
+public:
+	static const ApexHash HASH = 0xF7C20A69;
 
-struct RBSCharacter : RBSGeneral
-{
-	RBMCONSTRUCTOR(RBSCharacter, 0xd9d6e332a);
-};
+	AmfModel_V1_wrap(void *_data, ADF *_main);
 
-struct RBSCarPaint : RBSGeneral
-{
-	RBMCONSTRUCTOR(RBSCarPaint, 0x4483304d6);
-};
+	int GetNumMaterials() const;
+	AmfMaterial::Ptr GetMaterial(int id) const;
 
-struct RBSWindow : RBSGeneral
-{
-	RBMCONSTRUCTOR(RBSWindow, 0x55b2003f6);
-};
-
-struct RBSXXXX : RBSGeneral
-{
-	RBMCONSTRUCTOR(RBSXXXX, 0x4ed8b5331);
+	ApexHash GetSuperClass() const { return AmfModel::HASH; }
 };

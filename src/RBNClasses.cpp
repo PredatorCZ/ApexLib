@@ -19,67 +19,40 @@
 #include "datas/binreader.hpp"
 #include "datas/masterprinter.hpp"
 #include "ADF.h"
-#include "AmfModel.h"
 
-void RBNGeneral::Load(BinReader * rd)
+void RBNGeneral_Link(ADF *base, RBSMesh &cMesh, RBMMaterial *cMat)
 {
-	rd->Read(unk[0], getBlockSize(RBNGeneral, unk[0], fltend));
+	RBNGeneralConstants *atts = cMat->GetAttributes<RBNGeneralConstants>();
 
-	ReadTextures(rd);
-
-	rd->Read(rbshash);
-	rd->Read(meshID);
-}
-
-void RBNGeneral::Link(ADF *base)
-{
-	RBMMasterBlock::Link(base);
-	AmfMeshHeader *mHeader = base->FindInstance<AmfMeshHeader>();
-	AmfMeshBuffers *mBuffers = base->FindInstance<AmfMeshBuffers>();
-
-	if (!mHeader)
-	{
-		printerror("[ADF ", << _T(__FUNCTION__) << _T("]: Cannot find MeshHeader instance."));
-		return;
-	}
-
-	if (!mBuffers)
-	{
-		printerror("[ADF ", << _T(__FUNCTION__) << _T("]: Cannot find MeshBuffers instance."));
-		return;
-	}
-	
-	AmfMesh &mesh = mHeader->lodGroups[0].meshes[meshID];
-
-	mesh.streamAttributes.resize(6 + additionalUVSets);
+	cMesh.descriptors.resize(6 + atts->additionalUVSets);
 
 	int currentBufferOffset = 0;
 	int currentDesc = 0;
-	int currentStride = 8;
+	int currentStride = cMesh.vtBuffersStrides[0];
 
-	AmfStreamAttribute *descr = RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_Position, AmfFormat_R16G16B16_SNORM);
-	*reinterpret_cast<float*>(descr->Header.packingData) = vertexScale;
+	AmfStreamAttribute *descr = RBMNewDescriptor(cMesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_Position, AmfFormat_R16G16B16_SNORM, cMesh.vtBuffers[0]);
+	*reinterpret_cast<float*>(descr->packingData) = atts->vertexScale;
 	
 	
-	RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_Unspecified, AmfFormat_R16_SINT);
+	RBMNewDescriptor(cMesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_Unspecified, AmfFormat_R16_SINT, cMesh.vtBuffers[0]);
 
-	currentStride = (4 * (additionalUVSets + 1)) + 12;
+	currentStride = cMesh.vtBuffersStrides[1];
 	currentBufferOffset = 0;
 
-	for (uint u = 0; u <= additionalUVSets; u++)
+	for (uint u = 0; u <= atts->additionalUVSets; u++)
 	{
 		Vector2 *uvScale = nullptr;
 
 		switch (u)
 		{
 		case 0:
-			uvScale = &UV1Scale;
+			uvScale = &atts->UV1Scale;
 			break;
 		case 1:
-			uvScale = &UV2Scale;
+			uvScale = &atts->UV2Scale;
 			break;
 		case 2:
-			uvScale = &UV3Scale;
+			uvScale = &atts->UV3Scale;
 			break;
 		default:
 		{
@@ -88,69 +61,43 @@ void RBNGeneral::Link(ADF *base)
 		}
 		}
 
-		descr = RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM, 1);
+		descr = RBMNewDescriptor(cMesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM, cMesh.vtBuffers[1]);
 
 		if (uvScale)
-			*reinterpret_cast<Vector2*>(descr->Header.packingData) = *uvScale;
+			*reinterpret_cast<Vector2*>(descr->packingData) = *uvScale;
 
 	}
 
-	RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_Normal, AmfFormat_R32_UNIT_VEC_AS_FLOAT, 1);	
-	RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_Tangent, AmfFormat_R32_UNIT_VEC_AS_FLOAT, 1);	
-	RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_Color, AmfFormat_R32_R8G8B8A8_UNORM_AS_FLOAT, 1);
+	RBMNewDescriptor(cMesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_Normal, AmfFormat_R32_UNIT_VEC_AS_FLOAT, cMesh.vtBuffers[1]);
+	RBMNewDescriptor(cMesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_Tangent, AmfFormat_R32_UNIT_VEC_AS_FLOAT, cMesh.vtBuffers[1]);
+	RBMNewDescriptor(cMesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_Color, AmfFormat_R32_R8G8B8A8_UNORM_AS_FLOAT, cMesh.vtBuffers[1]);
 }
 
-void RBNCharacter::Load(BinReader * rd)
+void RBNCharacter_Link(ADF * base, RBSMesh &mesh, RBMMaterial *cMat)
 {
-	rd->Read(flags, getBlockSize(RBNCharacter, flags, fltend));
+	RBNCharacterConstants *atts = cMat->GetAttributes<RBNCharacterConstants>();
 
-	ReadTextures(rd);
+	mesh.descriptors.resize(6 + atts->additionalUVSets);
 
-	rd->Read(rbshash);
-	rd->Read(meshID);
-}
-
-void RBNCharacter::Link(ADF * base)
-{
-	RBMMasterBlock::Link(base);
-	AmfMeshHeader *mHeader = base->FindInstance<AmfMeshHeader>();
-	AmfMeshBuffers *mBuffers = base->FindInstance<AmfMeshBuffers>();
-
-	if (!mHeader)
-	{
-		printerror("[ADF ", << _T(__FUNCTION__) << _T("]: Cannot find MeshHeader instance."));
-		return;
-	}
-
-	if (!mBuffers)
-	{
-		printerror("[ADF ", << _T(__FUNCTION__) << _T("]: Cannot find MeshBuffers instance."));
-		return;
-	}
-
-	AmfMesh &mesh = mHeader->lodGroups[0].meshes[meshID];
-
-	mesh.streamAttributes.resize(6 + additionalUVSets);
-
-	bool trimmedWeights = (flags & 0x10000) != 0;
+	bool trimmedWeights = (atts->flags & 0x10000) != 0;
 	int currentBufferOffset = 0;
 	int currentDesc = 0;
-	const int currentStride = 8 + (trimmedWeights ? 4 : 8) + (4 * (additionalUVSets + 1)) + 4;
+	const int currentStride = mesh.vtBuffersStrides[0];
 
-	AmfStreamAttribute *descr = RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_Position, AmfFormat_R16G16B16_SNORM);
-	*reinterpret_cast<float*>(descr->Header.packingData) = vertexScale;
+	AmfStreamAttribute *descr = RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_Position, AmfFormat_R16G16B16_SNORM, mesh.vtBuffers[0]);
+	*reinterpret_cast<float*>(descr->packingData) = atts->vertexScale;
 	
-	RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_Unspecified, AmfFormat_R16_SINT);
+	RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_Unspecified, AmfFormat_R16_SINT, mesh.vtBuffers[0]);
 
 	if (trimmedWeights)
 	{
-		RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_BoneWeight, AmfFormat_R8G8_UNORM);
-		descr = RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_BoneIndex, AmfFormat_R8G8_UINT);
+		RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_BoneWeight, AmfFormat_R8G8_UNORM, mesh.vtBuffers[0]);
+		descr = RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_BoneIndex, AmfFormat_R8G8_UINT, mesh.vtBuffers[0]);
 	}
 	else
 	{
-		RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_BoneWeight, AmfFormat_R8G8B8A8_UNORM);
-		descr = RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_BoneIndex, AmfFormat_R8G8B8A8_UINT);
+		RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_BoneWeight, AmfFormat_R8G8B8A8_UNORM, mesh.vtBuffers[0]);
+		descr = RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_BoneIndex, AmfFormat_R8G8B8A8_UINT, mesh.vtBuffers[0]);
 	}
 
 	{
@@ -158,9 +105,9 @@ void RBNCharacter::Link(ADF * base)
 		const int numItems = trimmedWeights ? 2 : 4;
 		int numRemaps = 0;
 
-		for (int t = 0; t < mesh.Header.vertexCount; t++)
+		for (int t = 0; t < mesh.numVertices; t++)
 		{
-			uchar *boneIndicies = reinterpret_cast<uchar *>(mBuffers->vertexBuffers[mesh.vertexBufferIndices[descr->Header.streamIndex]]->buffer + (t * currentStride) + descr->Header.streamOffset);
+			const uchar *boneIndicies = reinterpret_cast<const uchar *>(mesh.vtBuffers[0] + (t * currentStride) + descr->streamOffset);
 
 			for (int i = 0; i < numItems; i++)
 			{
@@ -184,9 +131,9 @@ void RBNCharacter::Link(ADF * base)
 				invertedLookups[t] = static_cast<uchar>(mesh.boneIndexLookup.size() - 1);
 			}
 
-		for (int t = 0; t < mesh.Header.vertexCount; t++)
+		for (int t = 0; t < mesh.numVertices; t++)
 		{
-			uchar *boneIndicies = reinterpret_cast<uchar *>(mBuffers->vertexBuffers[mesh.vertexBufferIndices[descr->Header.streamIndex]]->buffer + (t * currentStride) + descr->Header.streamOffset);
+			uchar *boneIndicies = reinterpret_cast<uchar *>(mesh.vtBuffers[0] + (t * currentStride) + descr->streamOffset);
 
 			for (int i = 0; i < numItems; i++)
 			{
@@ -195,196 +142,110 @@ void RBNCharacter::Link(ADF * base)
 				cIndex = invertedLookups[cIndex];
 			}
 		}
-
 	}
 
-	for (uint u = 0; u <= additionalUVSets; u++)
+	for (uint u = 0; u <= atts->additionalUVSets; u++)
 	{
-		RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM);
+		RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM, mesh.vtBuffers[0]);
 	}
 
-	RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_TangentSpace, AmfFormat_R8G8B8A8_TANGENT_SPACE);
+	RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_TangentSpace, AmfFormat_R8G8B8A8_TANGENT_SPACE, mesh.vtBuffers[0]);
 }
 
-void RBNCarPaint::Load(BinReader * rd)
+void RBNCarPaint_Link(ADF * base, RBSMesh &mesh, RBMMaterial *cMat)
 {
-	rd->Read(unk, getBlockSize(RBNCarPaint, unk, fltend));
+	RBNCarPaintConstants *atts = cMat->GetAttributes<RBNCarPaintConstants>();
+	bool deformable = (atts->flags & 0x8) != 0;
 
-	ReadTextures(rd);
-
-	rd->Read(rbshash);
-	rd->Read(meshID);
-}
-
-void RBNCarPaint::Link(ADF * base)
-{
-	RBMMasterBlock::Link(base);
-	AmfMeshHeader *mHeader = base->FindInstance<AmfMeshHeader>();
-	AmfMeshBuffers *mBuffers = base->FindInstance<AmfMeshBuffers>();
-
-	if (!mHeader)
-	{
-		printerror("[ADF ", << _T(__FUNCTION__) << _T("]: Cannot find MeshHeader instance."));
-		return;
-	}
-
-	if (!mBuffers)
-	{
-		printerror("[ADF ", << _T(__FUNCTION__) << _T("]: Cannot find MeshBuffers instance."));
-		return;
-	}
-
-	AmfMesh &mesh = mHeader->lodGroups[0].meshes[meshID];
-	bool deformable = (flags & 0x8) != 0;
-
-	mesh.streamAttributes.resize(5 + (deformable ? 3 : 0));
+	mesh.descriptors.resize(5 + (deformable ? 3 : 0));
 
 	int currentBufferOffset = 0;
 	int currentDesc = 0;
-	int currentStride = 12 + (deformable ? 4 : 0);
+	int currentStride = mesh.vtBuffersStrides[0];
 
-	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Position, AmfFormat_R32G32B32_FLOAT, 0);
-	}
+	RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_Position, AmfFormat_R32G32B32_FLOAT, mesh.vtBuffers[0]);
 
 	if (deformable)
-	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_DeformNormal_c, AmfFormat_R32_UNIT_VEC_AS_FLOAT, 0);
-	}
+		RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_DeformNormal_c, AmfFormat_R32_UNIT_VEC_AS_FLOAT, mesh.vtBuffers[0]);
 
-	currentStride = 24 + (deformable ? 8 : 0);
+	currentStride = mesh.vtBuffersStrides[1];
 	currentBufferOffset = 0;
 
 	for (uint u = 0; u < 2; u++)
-	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R32G32_FLOAT, 1);
-	}
+		RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_TextureCoordinate, AmfFormat_R32G32_FLOAT, mesh.vtBuffers[1]);
 
-	{
-		RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_Normal, AmfFormat_R32_UNIT_VEC_AS_FLOAT, 1);
-	}
-
-	{
-		RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_Tangent, AmfFormat_R32_UNIT_VEC_AS_FLOAT, 1);
-	}
+	RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_Normal, AmfFormat_R32_UNIT_VEC_AS_FLOAT, mesh.vtBuffers[1]);
+	RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_Tangent, AmfFormat_R32_UNIT_VEC_AS_FLOAT, mesh.vtBuffers[1]);
 }
 
-void RBNWindow::Load(BinReader * rd)
+void RBNWindow_Link(ADF * base, RBSMesh &mesh, RBMMaterial *cMat)
 {
-	rd->Read(flt1, 16);
-
-	ReadTextures(rd);
-
-	rd->Read(rbshash);
-	rd->Read(meshID);
-}
-
-void RBNWindow::Link(ADF * base)
-{
-	RBMMasterBlock::Link(base);
-	AmfMeshHeader *mHeader = base->FindInstance<AmfMeshHeader>();
-	AmfMeshBuffers *mBuffers = base->FindInstance<AmfMeshBuffers>();
-
-	if (!mHeader)
-	{
-		printerror("[ADF ", << _T(__FUNCTION__) << _T("]: Cannot find MeshHeader instance."));
-		return;
-	}
-
-	if (!mBuffers)
-	{
-		printerror("[ADF ", << _T(__FUNCTION__) << _T("]: Cannot find MeshBuffers instance."));
-		return;
-	}
-
-	AmfMesh &mesh = mHeader->lodGroups[0].meshes[meshID];
-
-	mesh.streamAttributes.resize(6);
+	mesh.descriptors.resize(6);
 
 	int currentBufferOffset = 0;
 	int currentDesc = 0;
-	const int currentStride = 40;
+	const int currentStride = mesh.vtBuffersStrides[0];
 
-	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Position, AmfFormat_R32G32B32_FLOAT, 0);
-	}
+	RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_Position, AmfFormat_R32G32B32_FLOAT, mesh.vtBuffers[0]);
 
 	for (uint u = 0; u < 2; u++)
-	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_TextureCoordinate, AmfFormat_R32G32_FLOAT, 0);
-	}
-
-	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Normal, AmfFormat_R32_UNIT_VEC_AS_FLOAT, 0);
-	}
-
-	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Tangent, AmfFormat_R32_UNIT_VEC_AS_FLOAT, 0);
-	}
-
-	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Color, AmfFormat_R32_R8G8B8A8_UNORM_AS_FLOAT, 0);
-	}
+		RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_TextureCoordinate, AmfFormat_R32G32_FLOAT, mesh.vtBuffers[0]);
+	
+	RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_Normal, AmfFormat_R32_UNIT_VEC_AS_FLOAT, mesh.vtBuffers[0]);
+	RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_Tangent, AmfFormat_R32_UNIT_VEC_AS_FLOAT, mesh.vtBuffers[0]);
+	RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_Color, AmfFormat_R32_R8G8B8A8_UNORM_AS_FLOAT, mesh.vtBuffers[0]);
 }
 
-void RBNXXXX::Load(BinReader * rd)
+void RBNXXXX_Link(ADF * base, RBSMesh &mesh, RBMMaterial *cMat)
 {
-	rd->Read(unk, getBlockSize(RBNXXXX, unk, fltend));
-
-	ReadTextures(rd);
-
-	rd->Read(rbshash);
-	rd->Read(meshID);
-}
-
-void RBNXXXX::Link(ADF * base)
-{
-	RBMMasterBlock::Link(base);
-	AmfMeshHeader *mHeader = base->FindInstance<AmfMeshHeader>();
-	AmfMeshBuffers *mBuffers = base->FindInstance<AmfMeshBuffers>();
-
-	if (!mHeader)
-	{
-		printerror("[ADF ", << _T(__FUNCTION__) << _T("]: Cannot find MeshHeader instance."));
-		return;
-	}
-
-	if (!mBuffers)
-	{
-		printerror("[ADF ", << _T(__FUNCTION__) << _T("]: Cannot find MeshBuffers instance."));
-		return;
-	}
-
-	AmfMesh &mesh = mHeader->lodGroups[0].meshes[meshID];
-
-	mesh.streamAttributes.resize(5);
+	RBNXXXXConstants *atts = cMat->GetAttributes<RBNXXXXConstants>();
+	mesh.descriptors.resize(5);
 
 	int currentBufferOffset = 0;
 	int currentDesc = 0;
-	int currentStride = 8;
+	int currentStride = mesh.vtBuffersStrides[0];
 
-	{
-		AmfStreamAttribute *descr = RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_Position, AmfFormat_R16G16B16_SNORM);
-		*reinterpret_cast<float*>(descr->Header.packingData) = vertexScale;
-	}
+	AmfStreamAttribute *descr = RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_Position, AmfFormat_R16G16B16_SNORM, mesh.vtBuffers[0]);
+	*reinterpret_cast<float*>(descr->packingData) = atts->vertexScale;
 
-	{
-		RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_Unspecified, AmfFormat_R16_SINT);
-	}
+	RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_Unspecified, AmfFormat_R16_SINT, mesh.vtBuffers[0]);
 
-	currentStride = 12;
+	currentStride = mesh.vtBuffersStrides[1];
 	currentBufferOffset = 0;
 
+	descr = RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM, mesh.vtBuffers[1]);
+	*reinterpret_cast<Vector2*>(descr->packingData) = atts->UV1Scale;
+
+	RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_Normal, AmfFormat_R32_UNIT_VEC_AS_FLOAT, mesh.vtBuffers[1]);
+
+	RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_Tangent, AmfFormat_R32_UNIT_VEC_AS_FLOAT, mesh.vtBuffers[1]);
+}
+
+#define RBSLikerEval(x) {x::RBMHASH, x##_Link},
+
+static const std::map<uint64, void (*)(ADF *, RBSMesh &, RBMMaterial *)> RBSLinkers =
+{
+	StaticFor(RBSLikerEval, RBNGeneral, RBNCharacter, RBNCarPaint, RBNWindow, RBNXXXX)
+};
+
+void RBMMeshHeader::ReplaceReferences(ADF *newMain)
+{
+	RBNModel *cModel = newMain->FindInstance<RBNModel>();
+
+	if (!cModel)
 	{
-		AmfStreamAttribute *descr = RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_TextureCoordinate, AmfFormat_R16G16_SNORM, 1);
-		*reinterpret_cast<Vector2*>(descr->Header.packingData) = UV1Scale;
+		printerror("[ADF ", << _T(__FUNCTION__) << _T("]: Cannot find RBNModel instance."));
+		return;
 	}
 
-	{
-		RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_Normal, AmfFormat_R32_UNIT_VEC_AS_FLOAT, 1);
-	}
+	int curMesh = 0;
 
+	for (auto &m : meshes)
 	{
-		RBMNewDescriptor(mesh, currentDesc, currentBufferOffset, currentStride, AmfUsage_Tangent, AmfFormat_R32_UNIT_VEC_AS_FLOAT, 1);
+		RBMMaterial *cMat = cModel->materials[curMesh++];
+		RBSMesh *cMesh = static_cast<RBSMesh *>(m);
+		RBSLinkers.at(static_cast<RBSMesh *>(m)->blockHash.data)(newMain, *cMesh, cMat);
+		cMesh->meshName = cMat->name;
+		cMesh->meshType = cMat->GetRenderBlockName();
 	}
 }

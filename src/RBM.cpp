@@ -20,10 +20,9 @@
 #include "ADF.h"
 #include "datas/binreader.hpp"
 #include "datas/masterprinter.hpp"
-#include "AmfModel.h"
-#include "AmfMesh.h"
 
 static const char *IDS[] = { "RBMDL", "RBSDL", "RBNDL" };
+
 #define RBSENDHASH 0x456bcdef
 
 int LoadRBSDL(ADF *master, BinReader *rd)
@@ -32,37 +31,47 @@ int LoadRBSDL(ADF *master, BinReader *rd)
 	rd->Read(hdr);
 
 	const uint numBlocks = hdr.numblocks;
+	const size_t fileSize = rd->GetSize() - rd->Tell();
+	RBSMeshHeader *meshHeader = master->AddUniqueInstance<RBSMeshHeader>();
 
-	AmfMeshHeader *meshHeader = master->AddUniqueInstance<AmfMeshHeader>();
-	meshHeader->lodGroups.resize(1);
-	meshHeader->lodGroups[0].meshes.reserve(numBlocks);
+	meshHeader->data.voidBuffer = malloc(fileSize);
+	char *curBuffer = meshHeader->data.masterBuffer;
 
 	for (uint b = 0; b < numBlocks; b++)
 	{
-		RBMHash hash = {};
-		rd->Read(hash.innerData.hash);
-		rd->Read(hash.innerData.version);
+		int numVBuffers;
+		RBSMesh *nMesh = new RBSMesh();
 
-		RBMMasterBlock *block = RBMMasterBlock::ConstructClass(hash.data);
+		rd->Read(nMesh->blockHash.innerData.hash);
+		rd->Read(nMesh->blockHash.innerData.version);
+		rd->Read(numVBuffers);
+		meshHeader->meshes.push_back(nMesh);
 
-		if (block)
+		for (int b = 0; b < numVBuffers; b++)
 		{
-			block->material = nullptr;
-			block->master = master;
-			block->Load(rd);
+			rd->Read(nMesh->vtBuffersStrides[b]);
+			rd->Read(nMesh->numVertices);
+			ApplyPadding(curBuffer);
+			nMesh->vtBuffers[b] = curBuffer;
+			const int vtBufSize = nMesh->vtBuffersStrides[b] * nMesh->numVertices;
+			rd->ReadBuffer(curBuffer, vtBufSize);	
+			curBuffer += vtBufSize;
 		}
-		else
-		{
-			printerror("[RBS] Unhandled model hash: 0x", << std::hex << hash.innerData.hash << std::dec << " or version: " << hash.innerData.version << " at: " << rd->Tell(false) - 4);
-			return 1;
-		}
+
+		rd->Read(numVBuffers);
+		rd->Read(nMesh->numIndices);
+		ApplyPadding(curBuffer);
+		nMesh->indexBuffer = reinterpret_cast<ushort *>(curBuffer);
+		rd->ReadBuffer(curBuffer, nMesh->numIndices * 2);
+		curBuffer += nMesh->numIndices * 2;
 
 		ApexHash endHash;
 		rd->Read(endHash);
 
 		if (endHash != RBSENDHASH)
 		{
-			printerror("[RBS] Unexpected end of block: 0x", << std::hex << hash.innerData.hash << std::dec << " version: " << hash.innerData.version << " at: " << rd->Tell(false) - 4);
+			printerror("[RBS] Unexpected end of block: 0x", << std::hex << nMesh->blockHash.innerData.hash << 
+				std::dec << " version: " << nMesh->blockHash.innerData.version << " at: " << rd->Tell(false) - 4);
 			return 2;
 		}
 	}
@@ -84,12 +93,12 @@ int LoadRBMDL(ADF *master, BinReader *rd)
 	}
 
 	const uint numBlocks = hdr.numblocks;
+	const size_t fileSize = rd->GetSize() - rd->Tell();
+	RBMMeshHeader *meshHeader = master->AddUniqueInstance<RBMMeshHeader>();
+	RBMModel *cModel = master->AddUniqueInstance<RBMModel>();
 
-	AmfModel *cModel = master->AddUniqueInstance<AmfModel>();
-
-	AmfMeshHeader *meshHeader = master->AddUniqueInstance<AmfMeshHeader>();
-	meshHeader->lodGroups.resize(1);
-	meshHeader->lodGroups[0].meshes.reserve(numBlocks);
+	cModel->data.voidBuffer = malloc(fileSize);
+	char *curBuffer = cModel->data.masterBuffer;	
 
 	for (uint b = 0; b < numBlocks; b++)
 	{
@@ -97,27 +106,41 @@ int LoadRBMDL(ADF *master, BinReader *rd)
 		rd->Read(hash.innerData.hash);
 		rd->Read(hash.innerData.version);
 
-		AmfMaterial *cMat = new AmfMaterial();
-		cModel->materials.push_back(cMat);
+		RBMMaterial *cMat = RBMMaterial::ConstructClass(hash.data);
+		RBMMesh *cMesh = RBMMesh::ConstructClass(hash.data);
 
-		if (hdr.versionminor < 14)
-			cMat->materialType = AmfMaterial::MaterialType_Traditional;
-
-		RBMMasterBlock *block = RBMMasterBlock::ConstructClass(hash.data);
-
-		if (block)
+		if (cMat && cMesh)
 		{
-			block->material = cMat;
-			block->master = master;
-			block->Load(rd);
-			cMat->attributes = block;
-			cMat->renderBlockID = master->AddStringHash(block->GetClassname());
+			cModel->materials.push_back(cMat);
+			meshHeader->meshes.push_back(cMesh);
+			cMat->materialType = hdr.versionminor < 14 ? MaterialType_Traditional : MaterialType_PBR;
+
+			const int attributtesSize = cMat->GetPropertiesSize();
+			const int numTextures = cMat->GetNumTexturesToRead();
+			const int meshAttributtesSize = cMesh->GetPropertiesSize();
+
+			cMat->properties.item.vPtr = curBuffer;
+			rd->ReadBuffer(curBuffer, attributtesSize);
+			curBuffer += attributtesSize;
+
+			if (numTextures >= 0)
+				cMat->ReadTextures(rd, curBuffer, numTextures);
+
+			cMesh->properties.item.vPtr = curBuffer;
+			rd->ReadBuffer(curBuffer, meshAttributtesSize);
+			curBuffer += meshAttributtesSize;
+			ApplyPadding(curBuffer);
+
+			cMat->ReadRBM(rd, curBuffer, *cMesh);
+
+			cMesh->meshType = cMat->GetRenderBlockName();
 
 			std::string noName = std::to_string(b);
-			std::string uniqueName = "Object000";
-			uniqueName.replace(9 - noName.size(), noName.size(), noName);
-			cMat->name = master->AddStringHash(uniqueName);
+			cMat->name.string = "Object000";
+			cMat->name.string.replace(9 - noName.size(), noName.size(), noName);
+			cMat->name.Generate();
 
+			cMesh->meshName = cMat->name;
 		}
 		else
 		{
@@ -144,44 +167,52 @@ int LoadRBNDL(ADF *master, BinReader *rd)
 	RBNHeader hdr;
 	rd->Read(hdr);
 
-	StringHash *rbsPath = new StringHash();
-	rbsPath->hash = hdr.rbshash;
-	rd->ReadContainer(rbsPath->string);
-	master->hashes.push_back(rbsPath);
-
-	AmfModel *cModel = master->AddUniqueInstance<AmfModel>();
-	cModel->meshPath = rbsPath;
-	
 	const uint numBlocks = hdr.numblocks;
+	const size_t fileSize = rd->GetSize() - rd->Tell();
+	RBNModel *cModel = master->AddUniqueInstance<RBNModel>();
+
+	cModel->data.voidBuffer = malloc(fileSize);
+	char *curBuffer = cModel->data.masterBuffer;
+
+	int textSize;
+	rd->Read(textSize);
+	rd->ReadBuffer(curBuffer, textSize);
+	curBuffer += textSize;
+	*curBuffer = 0;
+	curBuffer++;
+	ApplyPadding(curBuffer);
 
 	for (uint b = 0; b < numBlocks; b++)
 	{
 		RBMHash hash = {};
 		rd->Read(hash.innerData.hash);
 		rd->Read(hash.innerData.version);
-		hash.innerData.shaderType = 1;
 
-		AmfMaterial *cMat = new AmfMaterial();
-		cModel->materials.push_back(cMat);
+		RBMMaterial *cMat = RBMMaterial::ConstructClass(hash.data);
 
-		RBMMasterBlock *block = RBMMasterBlock::ConstructClass(hash.data);
-
-		if (block)
+		if (cMat)
 		{
-			block->material = cMat;
-			block->master = master;
-			block->Load(rd);
-			cMat->attributes = block;
-			cMat->renderBlockID = master->AddStringHash(block->GetClassname());
+			const int attributtesSize = cMat->GetPropertiesSize();
+
+			cModel->materials.push_back(cMat);
+			cMat->properties.item.vPtr = curBuffer;
+			rd->ReadBuffer(curBuffer, attributtesSize);
+			curBuffer += attributtesSize;
 			
+			cMat->ReadTextures(rd, curBuffer);
+			rd->Read(textSize); //rbsHash
+			rd->Read(textSize); //meshIndex
+
 			std::string noName = std::to_string(b);
-			std::string uniqueName = "Object000";
-			uniqueName.replace(9 - noName.size(), noName.size(), noName);
-			cMat->name = master->AddStringHash(uniqueName);
+			cMat->name.string = "Object000";
+			cMat->name.string.replace(9 - noName.size(), noName.size(), noName);
+			cMat->name.Generate();
+			cMat->materialType = MaterialType_PBR;
 		}
 		else
 		{
-			printerror("[RBN] Unhandled model hash: 0x", << std::hex << hash.innerData.hash << std::dec << " or version: " << hash.innerData.version << " at: " << rd->Tell(false) - 4);
+			printerror("[RBN] Unhandled model hash: 0x", << std::hex << hash.innerData.hash << 
+				std::dec << " or version: " << hash.innerData.version << " at: " << rd->Tell(false) - 4);
 			return 1;
 		}
 
@@ -190,12 +221,34 @@ int LoadRBNDL(ADF *master, BinReader *rd)
 
 		if (endHash != RBNENDHASH)
 		{
-			printerror("[RBN] Unexpected end of block: 0x", << std::hex << hash.innerData.hash << std::dec << " version: " << hash.innerData.version << " at: " << rd->Tell(false) - 4);
+			printerror("[RBN] Unexpected end of block: 0x", << std::hex << hash.innerData.hash << 
+				std::dec << " version: " << hash.innerData.version << " at: " << rd->Tell(false) - 4);
 			return 2;
 		}
 	}
 
 	return 0;
+}
+
+RBMMeshHeader::~RBMMeshHeader()
+{
+	for (auto &m : meshes)
+		delete m;
+}
+
+RBSMeshHeader::~RBSMeshHeader()
+{
+	if (data.voidBuffer)
+		free(data.voidBuffer);
+}
+
+RBMModel::~RBMModel()
+{
+	if (data.voidBuffer)
+		free(data.voidBuffer);
+	
+	for (auto &m : materials)
+		delete m;
 }
 
 int ADF::LoadAsRenderBlockModel(BinReader *rd, bool supressErrors)
@@ -249,102 +302,21 @@ int ADF::LoadAsRenderBlockModel(BinReader *rd, bool supressErrors)
 	return 0;
 }
 
-void RBMMasterBlock::ReadTextures(BinReader *rd, uint numTextures)
+void RBMMaterial::ReadTextures(BinReader *rd, char *&innerBuffer, uint numTextures)
 {
 	if (!numTextures)
 		rd->Read(numTextures);
 
 	for (uint t = 0; t < numTextures; t++)
 	{
-		StringHash *tex = new StringHash();
-		rd->ReadContainer(tex->string);
-		tex->Generate();
-		StringHash* fnd = master->FindStringHash(tex->hash);
-
-		if (fnd)
-		{
-			delete tex;
-			tex = fnd;
-		}
-		else
-		{
-			master->hashes.push_back(tex);
-		}
-
-		material->textures.push_back(tex);
-	}
-}
-
-void RBMMasterBlock::Link(ADF *base)
-{
-	AmfMeshHeader *mHeader = base->FindInstance<AmfMeshHeader>();
-
-	if (!mHeader || meshID < 0)
-		return;
-
-	AmfMesh &mesh = mHeader->lodGroups[0].meshes[meshID];
-
-	mesh.subMeshes[0].meshName = material->name;
-	mesh.meshType = material->renderBlockID;
-}
-
-AmfMesh &RBMMasterBlock::LoadDependencies(const uint bufferSize, const uint numVertices, const uint currentStride, AmfBuffer *&cBuffer, const uint currentStrideSecondary)
-{
-	AmfMeshBuffers *buffers = master->AddUniqueInstance<AmfMeshBuffers>();
-	cBuffer = new AmfBuffer();
-	cBuffer->buffer = static_cast<char*>(malloc(bufferSize));
-	buffers->vertexBuffers.push_back(cBuffer);
-
-	AmfMeshHeader *hdr = master->FindInstance<AmfMeshHeader>();
-	hdr->lodGroups[0].meshes.resize(hdr->lodGroups[0].meshes.size() + 1);
-
-	AmfMesh &mesh = hdr->lodGroups[0].meshes.back();
-	meshID = static_cast<uint>(hdr->lodGroups[0].meshes.size() - 1);
-
-	mesh.Header.vertexCount = numVertices;
-	mesh.vertexStreamOffsets.push_back(0);
-	mesh.vertexStreamStrides.push_back(currentStride);
-	mesh.vertexBufferIndices.push_back(static_cast<uchar>(buffers->vertexBuffers.size() - 1));
-
-	if (currentStrideSecondary)
-	{
-		mesh.vertexStreamOffsets.push_back((numVertices * currentStride) + 4);
-		mesh.vertexStreamStrides.push_back(currentStrideSecondary);
-		mesh.vertexBufferIndices.push_back(static_cast<uchar>(buffers->vertexBuffers.size() - 1));
+		int textSize;
+		rd->Read(textSize);
+		textures.push_back(innerBuffer);
+		rd->ReadBuffer(innerBuffer, textSize);
+		innerBuffer += textSize;
+		*innerBuffer = 0;
+		innerBuffer++;
 	}
 	
-	return mesh;
-}
-
-struct _RemapHeader
-{
-	int numTables,
-		numFaces,
-		null;
-};
-
-void RBMMasterBlock::ReadRemaps(BinReader *rd, AmfMesh *mesh)
-{
-	_RemapHeader rhdr = {};
-	rd->Read(rhdr);
-
-	if (mesh)
-		rd->ReadContainer(mesh->boneIndexLookup);	
-	else
-	{
-		rd->Read(rhdr.null);
-		rd->Skip(rhdr.null * 2);
-	}
-}
-
-void RBMMasterBlock::LoadFaces(BinReader *rd, AmfMesh &mesh, uint vBufferSize, AmfBuffer *cBuffer)
-{
-	uint numFaces;
-	mesh.subMeshes.resize(1);
-	rd->Read(numFaces);
-	mesh.subMeshes[0].Header.indexCount = numFaces;
-	mesh.Header.indexCount = numFaces;
-	numFaces *= 2;
-	rd->ReadBuffer(cBuffer->buffer + vBufferSize, numFaces);
-	mesh.subMeshes[0].buffer = cBuffer->buffer + vBufferSize;
+	ApplyPadding(innerBuffer);
 }

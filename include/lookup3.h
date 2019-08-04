@@ -94,7 +94,7 @@ extern "C" {
 #if defined(__cplusplus) || defined(c_plusplus)
 }
 #include <string.h>
-ES_FORCEINLINE uint32_t JenkinsLookup3(const char *input)
+ES_INLINE uint32_t JenkinsLookup3(const char *input)
 {
 	return hashlittle(input, strlen(input), 0);
 }

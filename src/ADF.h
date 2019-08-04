@@ -32,13 +32,17 @@ REFLECTOR_ENUM(ADFDescriptorType,
 	Array,
 	InlineArray,
 	String,
+	UnknownType,
 	BitField,
 	Enumeration,
-	ExplicitEnumeration)
+	StringHash)
 
 class ADF : public IADF
 {
 public:
+	typedef std::vector<std::string *> CPPRegistry;
+	struct Descriptor;
+
 	struct Instance
 	{
 		ApexHash nameHash;
@@ -49,6 +53,8 @@ public:
 
 		StringHash *name;
 		ADFInstance *instance;
+		char *instanceBuffer;
+		Instance(): name(nullptr), instance(nullptr), instanceBuffer(nullptr) {}
 		~Instance();
 	};
 
@@ -57,6 +63,7 @@ public:
 		int numMembers;
 		virtual int Load(BinReader *rd, ADF *base);
 		virtual void XMLDump(pugi::xml_node *master) const;
+		virtual void CPPDump(const Descriptor *main, CPPRegistry &classes) const;
 		virtual ~DescriptorBase() {}
 	};
 
@@ -77,6 +84,7 @@ public:
 		std::vector<Member> members;
 		int Load(BinReader *rd, ADF *base);
 		void XMLDump(pugi::xml_node *master) const;
+		void CPPDump(const Descriptor *main, CPPRegistry &classes) const;
 	};
 
 	struct DescriptorExplicitEnum : DescriptorBase
@@ -90,6 +98,7 @@ public:
 		std::vector<Member> members;
 		int Load(BinReader *rd, ADF *base);
 		void XMLDump(pugi::xml_node *master) const;
+		void CPPDump(const Descriptor *main, CPPRegistry &classes) const;
 	};
 
 
@@ -106,9 +115,11 @@ public:
 
 		StringHash *name;
 		DescriptorBase *descriptorData;
+		ADF *main;
 
 		int Load(BinReader *rd, ADF *base);
 		void XMLDump(pugi::xml_node *node) const;
+		void CPPDump(CPPRegistry &classes) const;
 		~Descriptor();
 	};
 
@@ -137,7 +148,13 @@ public:
 	int DumpDefinitions(const char *fileName) const;
 	int DumpDefinitions(const wchar_t *fileName) const;
 	int DumpDefinitions(pugi::xml_node &node) const;
-	ADFInstance *FindInstance(ApexHash hash);
+	int ExportDefinitionsToCPP(const char *fileName) const;
+	int ExportDefinitionsToCPP(const wchar_t *fileName) const;
+	int ExportDefinitionsToCPP(std::ostream &str) const;
+
+
+	ADFInstance *FindInstance(ApexHash hash, int numSkips = 0);
+	Instance *FindRawInstance(ApexHash hash, int numSkips = 0);
 	using IADF::FindInstance;
 	StringHash *AddStringHash(const char* input);
 	ES_FORCEINLINE StringHash *AddStringHash(const std::string input) { return AddStringHash(input.c_str()); }
@@ -146,5 +163,6 @@ public:
 	void AddInstance(ADFInstance *instance, ApexHash hash);
 	~ADF();
 	ADF();
-	static ADFInstance *ConstructInstance(ApexHash classHash);
+	ADFInstance *ConstructInstance(ApexHash classHash, void *data);
+	bool InstanceContructoreExits(ApexHash classHash);
 };

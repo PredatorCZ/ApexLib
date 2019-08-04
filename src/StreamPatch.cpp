@@ -16,21 +16,49 @@
 */
 
 #include "StreamPatch.h"
-#include "datas/binreader.hpp"
-#include "ADF.h"
 #include "zstd.h"
+#include "datas/masterprinter.hpp"
 
-int StreamPatchFileHeader::Load(BinReader * rd, ADF * linker)
+ES_INLINE void TerrainTexture::Fixup(char *masterBuffer)
 {
-	rd->Read(Header);
-	return 0;
+	data.Fixup(masterBuffer);
 }
 
-int StreamPatchBlockHeader::Load(BinReader *rd, ADF *linker)
+ES_INLINE void CompressedData::Fixup(char *masterBuffer)
 {
-	rd->Read(Header);
-	return 0;
+	data.items.Fixup(masterBuffer);
 }
+
+ES_INLINE void TerrainMesh::Fixup(char *masterBuffer)
+{
+	indices.Fixup(masterBuffer);
+	vertices.Fixup(masterBuffer);
+	vertices2.Fixup(masterBuffer);
+	quadInfos.Fixup(masterBuffer);
+	triangleIndices.Fixup(masterBuffer);
+	groupTriIndices.Fixup(masterBuffer);
+}
+
+ES_INLINE void TerrainPatch::Fixup(char *masterBuffer)
+{
+	terrainMesh.Fixup(masterBuffer);
+	terrainPrimitives.items.Fixup(masterBuffer);
+	terrainDisplacementTexture.Fixup(masterBuffer);
+	terrainNormalTexture.Fixup(masterBuffer);
+	terrainTriangleMapTexture.Fixup(masterBuffer);
+	terrainMaterialDuplexTexture.Fixup(masterBuffer);
+	terrainColorTexture.Fixup(masterBuffer);
+	terrainQualityTexture.Fixup(masterBuffer);
+	terrainIndirectionTexture.Fixup(masterBuffer);
+	terrainSSDFAtlas.Fixup(masterBuffer);
+}
+
+TerrainPatch_wrap::TerrainPatch_wrap(void *_data, ADF *_main): data(static_cast<TerrainPatch*>(_data)) {}
+void TerrainPatch_wrap::Fixup(char *masterBuffer) { data->Fixup(masterBuffer); }
+
+StreamPatchFileHeader_wrap::StreamPatchFileHeader_wrap(void *_data, ADF *_main): data(static_cast<StreamPatchFileHeader*>(_data)) {}
+
+StreamPatchBlockHeader_wrap::StreamPatchBlockHeader_wrap(void *_data, ADF *_main): data(static_cast<StreamPatchBlockHeader*>(_data)) {}
 
 struct COMP
 {
@@ -40,90 +68,27 @@ struct COMP
 	uint64 uncompressedSize;
 };
 
-int CompressedData::Load(BinReader *rd, ADF *linker)
+char *CompressedData::Decompress() const
 {
-	int result = 0;
+	char *cData = data.items.cPtr;
+	COMP *header = reinterpret_cast<COMP*>(cData);
 
-	rd->Read(Header);
-	rd->SavePos();
-	rd->Seek(Header.data.offset);
-
-	const size_t dataCount = static_cast<size_t>(Header.data.count);
-	char *compressedData = static_cast<char*>(malloc(dataCount));
-	data = static_cast<char *>(malloc(Header.uncompressedSize));
-	
-	rd->ReadBuffer(compressedData, dataCount);
-
-	COMP *comp = reinterpret_cast<COMP *>(compressedData);
-
-	if (comp->id == COMP::ID && comp->vars[0] == 1)
+	if (header->id != COMP::ID || header->vars[0] != 1)
 	{
-		size_t ZSTD_result = ZSTD_decompress(data, Header.uncompressedSize, compressedData + sizeof(COMP), dataCount);
-
-		result = ZSTD_isError(ZSTD_result);
+		printerror("[COMP] Invalid compressed chunk.");
+		return nullptr;
 	}
-	else
+
+	char *decompBuffer = static_cast<char *>(malloc(uncompressedSize));
+	size_t ZSTD_result = ZSTD_decompress(decompBuffer, uncompressedSize, cData + sizeof(COMP), data.count);
+	int result = ZSTD_isError(ZSTD_result);
+
+	if (result)
 	{
-		result = 2;
+		printerror("[COMP] Decompression error: ", << result);
+		free(decompBuffer);
+		return nullptr;
 	}
-	
-	free(compressedData);
-	rd->RestorePos();
 
-	return result;
+	return decompBuffer;
 }
-
-CompressedData::~CompressedData()
-{
-	if (data)
-		free(data);
-}
-
-int TerrainMesh::Load(BinReader *rd, ADF *linker)
-{
-	rd->Read(boundingBox);
-	indices.Load(rd, linker);
-	rd->Read(indexTypeSize);
-	rd->Skip(4);
-	vertices.Load(rd, linker);
-	vertices2.Load(rd, linker);
-	quadInfos.Load(rd, linker);
-	triangleIndices.Load(rd, linker);
-	groupTriIndices.Load(rd, linker);
-
-	return 0;
-}
-
-int TerrainTexture::Load(BinReader *rd, ADF *linker)
-{
-	rd->Read(static_cast<TerrainTexture_base &>(*this));
-	data.Load(rd, linker);
-	return 0;
-}
-
-
-int TerrainPatch::Load(BinReader *rd, ADF *linker)
-{
-	terrainMesh.Load(rd, linker);
-	AdfArray terrainPrimitive;
-	rd->Read(terrainPrimitive);
-
-	terrainDisplacementTexture.Load(rd, linker);
-	terrainNormalTexture.Load(rd, linker);
-	terrainTriangleMapTexture.Load(rd, linker);
-	terrainMaterialDuplexTexture.Load(rd, linker);
-	terrainColorTexture.Load(rd, linker);
-	terrainQualityTexture.Load(rd, linker);
-	terrainIndirectionTexture.Load(rd, linker);
-	terrainSSDFAtlas.Load(rd, linker);
-	rd->Read(flags);
-
-	rd->Seek(terrainPrimitive.offset);
-	terrainPrimitives.resize(terrainPrimitive.count);
-
-	for (auto &t : terrainPrimitives)
-		rd->Read(t);
-
-	return 0;
-}
-

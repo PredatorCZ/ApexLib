@@ -16,18 +16,16 @@
 */
 
 #include "RBNClasses.h"
-#include "RBSClasses.h"
 #include "RBMClassesJC2.h"
 #include "RBMClassesJC3.h"
-#include "RBMClassesHU.h"
 #include "datas/reflectorRegistry.hpp"
 #include "datas/macroLoop.hpp"
 
-#define ADFRegisterClass(classname) {classname::HASH, &RBMCreateClass<classname>},
+#define ADFRegisterClass(classname) {classname::RBMHASH, &RBMCreateClass<classname>},
 
-template<class C> RBMMasterBlock *RBMCreateClass() { return new C{}; }
+template<class C> RBMMaterial *RBMCreateClass() { return new C{}; }
 
-static const std::map<uint64, RBMMasterBlock *(*)()> RBMClassStorage =
+static const std::map<uint64, RBMMaterial *(*)()> RBMClassStorage =
 {
 	StaticFor(ADFRegisterClass, 
 	RBNGeneral,
@@ -35,12 +33,6 @@ static const std::map<uint64, RBMMasterBlock *(*)()> RBMClassStorage =
 	RBNCharacter,
 	RBNWindow,
 	RBNXXXX,
-
-	RBSGeneral,
-	RBSCarPaint,
-	RBSCharacter,
-	RBSWindow,
-	RBSXXXX,
 
 	RBMCarPaintSimple,
 	RBMFoliageBark,
@@ -84,14 +76,68 @@ static const std::map<uint64, RBMMasterBlock *(*)()> RBMClassStorage =
 	)
 };
 
+#define ADFRegisterMeshClass(classname) {classname::RBMHASH, &RBMCreateMeshClass<classname>},
+
+template<class C> RBMMesh *RBMCreateMeshClass() { return new C{}; }
+
+static const std::map<uint64, RBMMesh *(*)()> RBMMeshClassStorage =
+{
+	StaticFor(ADFRegisterMeshClass,
+	RBMCarPaintSimpleMesh,
+	RBMFoliageBarkMesh,
+	RBMVegetationFoliageMesh,
+	RBMBillboardFoliageMesh,
+	RBMHaloMesh,
+	RBMLambertMesh,
+	RBMGeneralMesh,
+	RBMFacadeMesh,
+	RBMCarPaintMesh,
+	RBMWindowMesh,
+	RBMDeformWindowMesh,
+	RBMMergedMesh,
+	RBMSkinnedGeneralMesh,
+
+	RBMFoliageBark2Mesh,
+	RBMVegetationFoliage3Mesh,
+	RBMGeneralSimpleMesh,
+	RBMWaterHullMesh,
+	RBMSimpleGeometryMesh,
+	RBMBavariumShiledMesh,
+	RBMLayeredMesh,
+	RBMWindow1Mesh,
+	RBMLandmarkMesh,
+	RBMGeneralMK3Mesh,
+	RBMGeneral6Mesh,
+	RBMCarLightMesh,
+	RBMCarPaint14Mesh,
+	RBMGeneral3Mesh,
+	RBMCharacter6Mesh,
+	RBMCharacter9Mesh,
+	RBMRoadMesh,
+	RBMGeneralSimple3Mesh,
+
+	RBMSkinnedGeneral0Mesh,
+	RBMGeneral0Mesh,
+	RBMUIOverlayMesh,
+	RBMScopeMesh,
+	RBMSkinnedGeneralDecalMesh,
+	RBMFacade0Mesh
+	)
+};
+
 static int RegisteredEnums = 0;
 
-RBMMasterBlock *RBMMasterBlock::ConstructClass(uint64 classHash)
+RBMMaterial *RBMMaterial::ConstructClass(uint64 classHash)
 {
 	return RBMClassStorage.count(classHash) ? RBMClassStorage.at(classHash)() : nullptr;
 }
 
-RBMMasterBlock::RBMMasterBlock()
+RBMMesh *RBMMesh::ConstructClass(uint64 classHash)
+{
+	return RBMMeshClassStorage.count(classHash) ? RBMMeshClassStorage.at(classHash)() : nullptr;
+}
+
+RBMMaterial::RBMMaterial() : properties()
 {
 	if (RegisteredEnums)
 		return;

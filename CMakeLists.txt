@@ -52,16 +52,19 @@ src/AVTX.cpp
 src/DeformPoints.cpp
 src/lookup3.c
 src/RBM.cpp
-src/RBMClassesHU.cpp
 src/RBMClassesJC2.cpp
 src/RBMClassesJC3.cpp
 src/RBMReg.cpp
 src/RBNClasses.cpp
-src/RBSClasses.cpp
 src/StreamPatch.cpp
 src/StuntAreas.cpp
 )
 
+project(testing)
+add_executable(testing testing.cpp)
+target_link_libraries(testing ApexLib)
+
+include_directories(src/)
 include_directories(include/)
 include_directories(3rd_party/PreCore/)
 include_directories(3rd_party/pugixml/src/)

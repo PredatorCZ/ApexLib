@@ -16,47 +16,27 @@
 */
 #include <map>
 #include "ADF.h"
-#include "ApexApi.h"
 #include "AdfBaseObject.h"
-#include "AmfEnums.h"
-#include "AmfMesh.h"
 #include "AmfModel.h"
+#include "AmfMesh.h"
 #include "AmfFormatEvaluators.h"
-#include "StuntAreas.h"
 #include "DeformPoints.h"
+#include "StuntAreas.h"
 #include "StreamPatch.h"
-
+#include "datas/macroLoop.hpp"
 #include "datas/binreader.hpp"
 #include "datas/reflectorRegistry.hpp"
 #include "datas/disabler.hpp"
 
-template<class C> ADFInstance *ADFCreateDerivedClass() { return new C{}; }
-template<class C> AdfProperties *ADFCreatePropClass() { return new C{}; }
+/**************************************************/
+/*******************AdfDeferred********************/
+/**************************************************/
 
-template<class _Ty> struct AdfProperties_t : Reflector, AdfProperties
-{
-	typedef _Ty value_type;
-	_Ty properties;
-private:
-	ADD_DISABLERS(value_type, _rfRetreive);
+template<class C> Reflector *ADFCreatePropClass(void *data) { return new ReflectorWrap<C>(static_cast<C*>(data)); }
 
-	enabledFunction(_rfRetreive, const reflectorInstanceConst) __rfRetreiveC() const { return { &__null_statical, nullptr }; }
-	enabledFunction(_rfRetreive, const reflectorInstance) __rfRetreive() const { return { &__null_statical, nullptr }; }
+#define ADFRegisterProps(classname) {classname::HASH, &ADFCreatePropClass<classname>},
 
-	disabledFunction(_rfRetreive, const reflectorInstanceConst) __rfRetreiveC() const { return properties._rfRetreive(); }
-	disabledFunction(_rfRetreive, const reflectorInstance) __rfRetreive() const { return properties._rfRetreive(); }
-
-	const reflectorInstanceConst _rfRetreive() const { return __rfRetreiveC(); }
-	const reflectorInstance _rfRetreive() { return __rfRetreive(); }
-public:
-	AdfProperties_t() { typeHash = _Ty::HASH; }
-	void Load(BinReader *rd) { rd->Read(properties); }
-	void *GetProperties() { return &properties; }
-};
-
-#define ADFRegisterProps(classname) {AdfProperties_t<classname>::value_type::HASH, &ADFCreatePropClass<AdfProperties_t<classname>>},
-
-static const std::map<ApexHash, AdfProperties *(*)()> ADFPropsStorage =
+static const std::map<ApexHash, Reflector *(*)(void *)> ADFPropsStorage =
 {
 	StaticFor(ADFRegisterProps, 
 	GeneralMeshConstants,
@@ -86,18 +66,66 @@ static const std::map<ApexHash, AdfProperties *(*)()> ADFPropsStorage =
 	BarkConstants_GZ,
 	FoliageConstants_GZ,
 	CarLightConstants_GZ,
-	GeneralR2Constants_HU,
+
+	RBMCarPaintSimpleConstants,
+	RBMVegetationFoliageConstants,
+	RBMGeneralConstants,
+	RBMFacadeConstants,
+	RBMWindowConstants,
+	RBMSkinnedGeneralConstants,
+	RBMCarPaintConstants,
+	
+	RBMSkinnedGeneral0Constants,
+	RBMSkinnedGeneralDecalConstants,
+	RBMGeneral0Constants,
+	RBMFacade0Constants,
+
+	CharacterSkinConstants_R2,
+	GeneralR2Constants_R2,
+	HairConstants_R2,
+	WindowConstants_R2,
+	BarkConstants_R2,
+	HologramConstants_R2,
+	FoliageConstants_R2
+
+	/*GeneralR2Constants_HU,
 	CharacterConstants_HU,
 	GeneralConstants_HU,
 	PropConstants_HU,
 	CarPaintMMConstants_HU,
-	GeneralJC3Constants_HU
+	GeneralJC3Constants_HU*/
 	)
 };
 
-#define ADFRegisterFormat(unused, format, outType) {static_cast<AmfFormat>(format), AmfFormatEval<static_cast<AmfFormat>(format), outType>},
 
-static const std::map<AmfFormat, void(*)(AmfStreamAttribute *, int, void *)> AmfFormatStorage =
+
+Reflector *AdfDeferred::GetReflected() const
+{
+	return ADFPropsStorage.count(objectHash) ? ADFPropsStorage.at(objectHash)(item.vPtr) : nullptr;
+}
+
+Reflector *AdfDeferred::GetReflected()
+{
+	return ADFPropsStorage.count(objectHash) ? ADFPropsStorage.at(objectHash)(item.vPtr) : nullptr;
+}
+
+/**************************************************/
+/*********************AmfFormat********************/
+/**************************************************/
+
+template<AmfFormat t_format, class OutType> AmfVertexDescriptor *AmfFormatEvalDummy()
+{
+	return new tVertexDescriptor<t_format, OutType>();
+}
+
+#define ADFRegisterFormat(unused, format, outType) \
+{static_cast<AmfFormat>(format), AmfFormatEvalDummy<static_cast<AmfFormat>(format), outType>},
+
+static const std::map
+<
+	AmfFormat,
+	AmfVertexDescriptor *(*)()
+> AmfFormatStorage =
 {
 	StaticForArgID(ADFRegisterFormat,
 		unused,
@@ -170,43 +198,45 @@ static const std::map<AmfFormat, void(*)(AmfStreamAttribute *, int, void *)> Amf
 	)
 };
 
+AmfVertexDescriptor *AmfVertexDescriptor::Create(AmfFormat format)
+{
+	return AmfFormatStorage.count(format) ? AmfFormatStorage.at(format)() : nullptr;
+}
+
+/**************************************************/
+/*******************ADF Instance*******************/
+/**************************************************/
+
+template<class C> ADFInstance *ADFCreateDerivedClass(void *_data, ADF *_main) { return new C(_data, _main); }
 #define ADFRegisterClass(classname) {classname::HASH, &ADFCreateDerivedClass<classname>},
 
-static const std::map<ApexHash, ADFInstance *(*)()> ADFClassStorage =
+static const std::map<ApexHash, ADFInstance *(*)(void *, ADF *)> ADFClassStorage =
 {
 	StaticFor(ADFRegisterClass,
-	AmfMeshHeader,
-	AmfMeshBuffers,
-	AmfModel,
-	AmfMeshBuffers_TheHunter,
-	ADFStuntAreas,
-	ADFDeformPoints,
-	StreamPatchFileHeader,
-	StreamPatchBlockHeader,
-	TerrainPatch
+	AmfMeshHeader_V1_wrap,
+	AmfMeshBuffers_V1_wrap,
+	AmfModel_V1_wrap,
+	AmfMeshBuffers_V1_5_wrap,
+	AmfMeshBuffers_V2_wrap,
+	StuntAreas_wrap,
+	DeformPoints_wrap,
+	StreamPatchFileHeader_wrap,
+	StreamPatchBlockHeader_wrap,
+	TerrainPatch_wrap,
+	AmfMeshHeader_V2_wrap
 	)
 };
 
 static int EnumBuilded = 0;
 
-AdfProperties *AdfProperties::ConstructProperty(ApexHash propHash)
+bool ADF::InstanceContructoreExits(ApexHash classHash)
 {
-	return ADFPropsStorage.count(propHash) ? ADFPropsStorage.at(propHash)() : nullptr;
+	return ADFClassStorage.count(classHash) != 0;
 }
 
-void AmfStreamAttribute::AssignEvaluator(AmfFormat format)
+ADFInstance *ADF::ConstructInstance(ApexHash classHash, void *data)
 {
-	Evaluate = RetreiveAmfStreamAttributeEvaluator(format);
-}
-
-AmfStreamAttributeEvaluator RetreiveAmfStreamAttributeEvaluator(AmfFormat format)
-{
-	return AmfFormatStorage.count(format) ? AmfFormatStorage.at(format) : nullptr;
-}
-
-ADFInstance *ADF::ConstructInstance(ApexHash classHash)
-{
-	return ADFClassStorage.count(classHash) ? ADFClassStorage.at(classHash)() : nullptr;
+	return ADFClassStorage.count(classHash) ? ADFClassStorage.at(classHash)(data, this) : nullptr;
 }
 
 ADF::ADF()
@@ -232,5 +262,13 @@ ADF::ADF()
 	REGISTER_ENUM(CharacterSkinConstantsFlags_GZ);
 	REGISTER_ENUM(WindowConstantsFlags_GZ);
 	REGISTER_ENUM(BarkConstantsFlags_GZ);
+	REGISTER_ENUM(CharacterSkinConstantsFlags_R2);
+	REGISTER_ENUM(GeneralR2Constants_R2_flags0);
+	REGISTER_ENUM(GeneralR2Constants_R2_flags1);
+	REGISTER_ENUM(GeneralR2Constants_R2_flags2);
+	REGISTER_ENUM(WindowConstantsFlags_R2);
+	REGISTER_ENUM(BarkConstantsFlags0_R2);
+	REGISTER_ENUM(BarkConstantsFlags1_R2);
+	REGISTER_ENUM(FoliageConstantsFlags_R2);
 	EnumBuilded = 0xff;
 }

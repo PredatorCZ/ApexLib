@@ -16,31 +16,34 @@
 */
 
 #pragma once
-#include "AmfEnums.h"
 #include "AdfBaseObject.h"
-#include "ApexApi.h"
-#include <vector>
 #include "datas/flags.hpp"
 
-struct StreamPatchFileHeader : ADFInstance
+struct StreamPatchFileHeader
 {
-	struct
-	{
-		uint version,
-			size,
-			dynamicMemoryRequirements;
-		IVector2 patchPosition;
-		int patchLod;
-	}Header;
-
-	int Load(BinReader *rd, ADF *linker);
-	void Link(ADF *linker) {};
-	std::string *RequestsFile() { return  nullptr; }
-	void Merge(ADFInstance *) {};
-	static const ApexHash HASH = 0x852D0D20;
+	uint version,
+		size,
+		dynamicMemoryRequirements;
+	IVector2 patchPosition;
+	int patchLod;
 };
 
-static_assert(sizeof(StreamPatchFileHeader::Header) == 24, "Check assumptions");
+static_assert(sizeof(StreamPatchFileHeader) == 24, "Check assumptions");
+
+class StreamPatchFileHeader_wrap : public ADFInstance
+{
+	StreamPatchFileHeader *data;
+
+	void Fixup(char *masterBuffer) {}
+	const char *RequestsFile() const { return nullptr; }
+public:
+	static const ApexHash HASH = 0x852D0D20;
+
+	StreamPatchFileHeader_wrap(void *_data, ADF *_main);
+	ES_FORCEINLINE StreamPatchFileHeader *Data() { return data; }
+
+	ApexHash GetSuperClass() const { return -1; }
+};
 
 enum StreamPatchMemoryType
 {
@@ -49,25 +52,32 @@ enum StreamPatchMemoryType
 	STREAM_PATCH_USER
 };
 
-struct StreamPatchBlockHeader : ADFInstance
+struct StreamPatchBlockHeader
 {
-	struct
-	{
-		uint version;
-		StreamPatchMemoryType memoryType;
-		int memorySize;
-		IVector2 patchPosition;
-		int patchLod;
-	}Header;
-
-	int Load(BinReader *rd, ADF *linker);
-	void Link(ADF *linker) {};
-	std::string *RequestsFile() { return  nullptr; }
-	void Merge(ADFInstance *) {};
-	static const ApexHash HASH = 0x78CB76FD;
+	uint version;
+	StreamPatchMemoryType memoryType;
+	int memorySize;
+	IVector2 patchPosition;
+	int patchLod;
 };
 
-static_assert(sizeof(StreamPatchBlockHeader::Header) == 24, "Check assumptions");
+static_assert(sizeof(StreamPatchBlockHeader) == 24, "Check assumptions");
+
+
+class StreamPatchBlockHeader_wrap : public ADFInstance
+{
+	StreamPatchBlockHeader *data;
+
+	void Fixup(char *masterBuffer) {}
+	const char *RequestsFile() const { return nullptr; }
+public:
+	static const ApexHash HASH = 0x78CB76FD;
+
+	StreamPatchBlockHeader_wrap(void *_data, ADF *_main);
+	ES_FORCEINLINE StreamPatchBlockHeader *Data() { return data; }
+
+	ApexHash GetSuperClass() const { return -1; }
+};
 
 enum MemAllocator
 {
@@ -78,20 +88,15 @@ enum MemAllocator
 
 struct CompressedData
 {
-	struct
-	{
-		uint uncompressedSize;
-		AdfArray data;
-		MemAllocator uncompressAllocator;
-	}Header;
+	uint uncompressedSize;
+	AdfArray<char> data;
+	MemAllocator uncompressAllocator;
 
-	char *data;
-	int Load(BinReader *rd, ADF *linker);
-	CompressedData() :data(nullptr) {}
-	~CompressedData();
+	void Fixup(char *masterBuffer);
+	char *Decompress() const;
 };
 
-static_assert(sizeof(CompressedData::Header) == 32, "Check assumptions");
+static_assert(sizeof(CompressedData) == 32, "Check assumptions");
 
 struct TerrainMesh
 {
@@ -104,7 +109,7 @@ struct TerrainMesh
 		triangleIndices,
 		groupTriIndices;
 
-	int Load(BinReader *rd, ADF *linker);
+	void Fixup(char *masterBuffer);
 };
 
 enum BlockCompressionType
@@ -119,19 +124,15 @@ enum TerrainTexture_flags
 	TerrainTexture_Tiled,
 	TerrainTexture_SRGB
 };
-struct TerrainTexture_base
+struct TerrainTexture
 {
 	uint width,
 		height;
 	BlockCompressionType blockCompressionType;
 	esFlags<uint, TerrainTexture_flags> flags;
-};
-
-struct TerrainTexture : TerrainTexture_base
-{
 	CompressedData data;
 
-	int Load(BinReader *rd, ADF *linker);
+	void Fixup(char *masterBuffer);
 };
 
 enum TerrainPatch_flags
@@ -145,10 +146,10 @@ struct TerrainPrimitive
 	Vector2 W;
 };
 
-struct TerrainPatch : ADFInstance
+struct TerrainPatch
 {
 	TerrainMesh terrainMesh;
-	std::vector<TerrainPrimitive> terrainPrimitives;
+	AdfArray<TerrainPrimitive> terrainPrimitives;
 	TerrainTexture terrainDisplacementTexture,
 		terrainNormalTexture,
 		terrainTriangleMapTexture,
@@ -158,10 +159,21 @@ struct TerrainPatch : ADFInstance
 		terrainIndirectionTexture,
 		terrainSSDFAtlas;
 	esFlags<uint, TerrainPatch_flags> flags;
-	
-	int Load(BinReader *rd, ADF *linker);
-	void Link(ADF *linker) {};
-	std::string *RequestsFile() { return  nullptr; }
-	void Merge(ADFInstance *) {};
+
+	void Fixup(char *masterBuffer);
+};
+
+class TerrainPatch_wrap : public ADFInstance
+{
+	TerrainPatch *data;
+
+	void Fixup(char *masterBuffer);
+	const char *RequestsFile() const { return nullptr; }
+public:
 	static const ApexHash HASH = 0xFD31E1DB;
+
+	TerrainPatch_wrap(void *_data, ADF *_main);
+	ES_FORCEINLINE TerrainPatch *Data() { return data; }
+
+	ApexHash GetSuperClass() const { return -1; }
 };
