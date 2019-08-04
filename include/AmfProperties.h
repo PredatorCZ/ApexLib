@@ -26,6 +26,7 @@
 #include "property_classes/AmfJC4Material.h"
 #include "property_classes/AmfHUMaterial.h"
 #include "property_classes/AmfGZMaterial.h"
+#include "property_classes/AmfR2Material.h"
 
 #define DEFINE_PROPERTY(classname) static const ApexHash HASH = JenkinsHash(#classname, sizeof(#classname) - 1);
 #define RBMREFLECTOR_FROM_PARENT(parentClass) \

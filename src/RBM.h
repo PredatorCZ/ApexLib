@@ -99,6 +99,7 @@ public:
 	ApexHash GetSubMeshNameHash(int) const { return meshName.hash; }
 	bool IsValid() const { return true; }
 	int GetNumRemaps() const { return 0; }
+	ApexHash GetPropertyHash() const override { return 0; }
 
 	virtual int GetPropertiesSize() const = 0;
 

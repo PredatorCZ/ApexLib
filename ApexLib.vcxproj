@@ -29,6 +29,7 @@
     <ClInclude Include="include\property_classes\AmfHUMaterial.h" />
     <ClInclude Include="include\property_classes\AmfJC4Material.h" />
     <ClInclude Include="include\property_classes\AmfMeshProperties.h" />
+    <ClInclude Include="include\property_classes\AmfR2Material.h" />
     <ClInclude Include="include\property_classes\RbmJC2Material.h" />
     <ClInclude Include="include\property_classes\RbmJC3Material.h" />
     <ClInclude Include="include\property_classes\RbnMaterial.h" />

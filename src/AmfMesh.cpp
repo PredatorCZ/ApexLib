@@ -77,6 +77,7 @@ public:
 	int GetNumRemaps() const { return data->boneIndexLookup.count; }
 	AmfMeshRemapType GetRemapType() const { return REMAP_TYPE_SHORT; }
 	int GetRemap(int id) const { return data->boneIndexLookup[id]; }
+	ApexHash GetPropertyHash() const override { return data->meshProperties.objectHash; }
 
 	bool IsValid() const
 	{
@@ -229,6 +230,7 @@ public:
 	int GetNumRemaps() const { return data->boneIndexLookup.count; }
 	AmfMeshRemapType GetRemapType() const { return REMAP_TYPE_SHORT; }
 	int GetRemap(int id) const { return data->boneIndexLookup[id]; }
+	ApexHash GetPropertyHash() const override { return data->meshProperties.objectHash; }
 
 	bool IsValid() const { return indexBuffer != nullptr; }
 };

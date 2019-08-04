@@ -154,6 +154,7 @@ public:
 
 
 	ADFInstance *FindInstance(ApexHash hash, int numSkips = 0);
+	Instance *FindRawInstance(ApexHash hash, int numSkips = 0);
 	using IADF::FindInstance;
 	StringHash *AddStringHash(const char* input);
 	ES_FORCEINLINE StringHash *AddStringHash(const std::string input) { return AddStringHash(input.c_str()); }

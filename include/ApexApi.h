@@ -88,6 +88,7 @@ public:
 	virtual int GetNumRemaps() const = 0;
 	virtual int GetRemap(int id) const = 0;
 	virtual const void *GetRemaps() const = 0;
+	virtual ApexHash GetPropertyHash() const = 0;
 
 	template<class C> ES_FORCEINLINE C *GetRemapsAs() const { return reinterpret_cast<C *>(GetRemaps()); }
 

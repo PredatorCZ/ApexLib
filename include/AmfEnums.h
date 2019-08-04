@@ -161,3 +161,23 @@ REFLECTOR_ENUM(CharacterSkinConstantsFlags_GZ, doubleSided, useAlphaMask, useFea
 REFLECTOR_ENUM(WindowConstantsFlags_GZ, simple, oneSided, lensOcclusion);
 
 REFLECTOR_ENUM(BarkConstantsFlags_GZ, noFade, useWaterFog, lowResShadows, useLayered, useOverlay, ignoreColorTint);
+
+REFLECTOR_ENUM(CharacterSkinConstantsFlags_R2, blendUseUV2, useTint, doubleSided, useAlphaMask, useWrinkleMap, useFur, useGibAlbedo, 
+	useGibDetail, triangleAdjacency);
+
+REFLECTOR_ENUM(GeneralR2Constants_R2_flags0, objectSpaceNormal, useEmissive, emissiveOnlyTransparent, emissiveTextureHasColor, 
+	useEmissiveLightColor, doubleSided, decalBlend, alphaTest, detailUV2, useAlbedoDetail, albedoDetailAlphaGloss, useNormalDetail);
+
+REFLECTOR_ENUM(GeneralR2Constants_R2_flags1, useTextureBlend1, animateTexture, useVertexAnimations, useRigidVertexAnimations, 
+	useSoftVertexAnimations, useFluidVertexAnimations);
+
+REFLECTOR_ENUM(GeneralR2Constants_R2_flags2, vertexAnimLoops, directional, fur, HDRRef, useTextureBlend2);
+
+REFLECTOR_ENUM(WindowConstantsFlags_R2, simple, oneSided, skinned, dirtLayerEnable);
+
+REFLECTOR_ENUM(BarkConstantsFlags0_R2, useObjectNormal, useTextureBlend1);
+
+REFLECTOR_ENUM(BarkConstantsFlags1_R2, noFade, useWaterFog, lowResShadows);
+
+REFLECTOR_ENUM(FoliageConstantsFlags_R2, renderTransparent, objectSpaceNormalMap, useInteractionDisplacement, 
+	useInteractionFlattening, useCharacterInteractionFlattening, positiveBackfaceNormals);

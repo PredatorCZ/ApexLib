@@ -123,6 +123,40 @@ REFLECTOR_START_WNAMES(FoliageConstants_GZ, diffuseModulator, specularGloss, emi
 REFLECTOR_START_WNAMES(CarLightConstants_GZ, diffuseModulator, detailTiling, specularGloss, reflectivity, emissiveHead,
 	emissiveBlinker, emissiveBrake, emissiveReverse, specularFresnel, doubleSided);
 
+REFLECTOR_START_WNAMES(CharacterSkinConstants_R2, transmissionModulator, emissiveScale, cameraStrength, cameraSpecular, dirtFactor,
+	furLength, furThickness, furRoughness, furGravity, furSize, gibAlbedoUVScale, gibDetailUVScale, gibSpecGloss, gibSoftDetailEdge,
+	tintColor1, tintColor2, tintColor3, tintColor4, detailUVmult1, detailUVmult2, detailUVmult3, detailUVmult4, blendUVMultiplier1,
+	blendMaskBias1, blendMaskBreakup1, blendMaskContrast1, wrinkleStrength, wrinkleOffsetBrowLeft, wrinkleOffsetBrowMid,
+	wrinkleOffsetBrowRight, wrinkleOffsetUpcheekLeft, wrinkleOffsetNoseLeft, wrinkleOffsetNoseRight, wrinkleOffsetUpcheekRight,
+	wrinkleOffsetJawLeft, wrinkleOffsetMouthbottomLeft, wrinkleOffsetMouthbottomRight, wrinkleOffsetJawRight, wrinkleOffsetNeckStretchLeft,
+	wrinkleOffsetNeckStretchRight, wrinkleOffsetJawDownLeft, wrinkleOffsetJawDownRight, flags);
+
+REFLECTOR_START_WNAMES(GeneralR2Constants_R2, depthBias, detailRepeatU, detailRepeatV, terrainColorFactor, terrainTopProjection,
+	blendMaskContrast1, blendMaskContrast2, blendUVMultiplier1, blendUVMultiplier2, blendMaskBias1, blendMaskBias2,
+	blendMaskBreakup1, blendMaskBreakup2, emissiveScale, emissiveExposureAdapt, emissiveRollOff, tintColor1,
+	tintColor2, tintColor3, tintColor4, tintBreakup, tintContrast, decalAlphaWeights, dirtUVMultiplier, flags0,
+	useTint, tintUV2, tintOrder, flags1, vertexAnimBBoxMin, vertexAnimBBoxMax, vertexAnimSwizzle, vertexAnimPhase, vertexAnimFrames,
+	flags2, dirtEnabled, dirtColor, dirtAmount, dirtRoughness, dirtBias, dirtBreakup, dirtContrast, debugColor);
+
+REFLECTOR_START_WNAMES(WindowConstants_R2, baseTransmission, maxRoughness, baseBreakup, baseContrast, specularFresnel,
+	normalMapStrength, damagedRoughness, damagedSpecularFresnel, thickness, damageUVScale, dirtAlbedo, dirtSpecularFresnel,
+	dirtUVScale, dirtBreakup, dirtContrast, dirtMaxTransmission, flags, UVAnimSpeedX, UVAnimSpeedY, useAnim);
+
+
+REFLECTOR_START_WNAMES(BarkConstants_R2, flags0, blendUpInfluence1, blendUpNormal1, blendUpContrast1, blendUpShift1,
+	blendMaskBias1, blendMaskBreakup1, blendMaskContrast1, blendUvMultiplier1, overlayHeightInfluence,
+	overlayHeightMapInfluence, overlayMaskInfluence, overlayShift, overlayColor, overlayBrightness, overlayGloss,
+	overlayMetallic, overlayReflectivity, overlayRoughness, overlayDiffuseWrap, overlayEmissive, overlayTransmission,
+	overlayClearCoat, overlayUpInfluence, placedInstanceTerrainTintAmount, flags1);
+
+REFLECTOR_START_WNAMES(HologramConstants_R2, rasterHorizontalFreq, rasterHorizontalStrength, rasterVerticalFreq,
+	rasterVerticalStrength, distortionHorizontalSpeed, distortionVerticalSpeed, maxSeparation, horizontalDistortion,
+	verticalDistortion, noiseStrength, noiseBandThreshold, brightness, exposureAdaptation, patternHorizontalSpeed,
+	patternVerticalSpeed, type, baseColor, primaryColor, secondaryColor, edgeFade);
+
+REFLECTOR_START_WNAMES(FoliageConstants_R2, diffuseModulator, specularGloss, emissionIntensity, transmissionIntensity,
+	diffuseWrap, reflectivity, specularFresnel, sphereNormalStrength, oneOverSubpixelDetailFadeRange,
+	placedInstanceTerrainTintAmount, flags);
 
 class AmfMaterial_V1_wrap : public AmfMaterial
 {

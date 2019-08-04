@@ -78,8 +78,17 @@ static const std::map<ApexHash, Reflector *(*)(void *)> ADFPropsStorage =
 	RBMSkinnedGeneral0Constants,
 	RBMSkinnedGeneralDecalConstants,
 	RBMGeneral0Constants,
-	RBMFacade0Constants/*,
-	GeneralR2Constants_HU,
+	RBMFacade0Constants,
+
+	CharacterSkinConstants_R2,
+	GeneralR2Constants_R2,
+	HairConstants_R2,
+	WindowConstants_R2,
+	BarkConstants_R2,
+	HologramConstants_R2,
+	FoliageConstants_R2
+
+	/*GeneralR2Constants_HU,
 	CharacterConstants_HU,
 	GeneralConstants_HU,
 	PropConstants_HU,
@@ -87,6 +96,8 @@ static const std::map<ApexHash, Reflector *(*)(void *)> ADFPropsStorage =
 	GeneralJC3Constants_HU*/
 	)
 };
+
+
 
 Reflector *AdfDeferred::GetReflected() const
 {
@@ -251,5 +262,13 @@ ADF::ADF()
 	REGISTER_ENUM(CharacterSkinConstantsFlags_GZ);
 	REGISTER_ENUM(WindowConstantsFlags_GZ);
 	REGISTER_ENUM(BarkConstantsFlags_GZ);
+	REGISTER_ENUM(CharacterSkinConstantsFlags_R2);
+	REGISTER_ENUM(GeneralR2Constants_R2_flags0);
+	REGISTER_ENUM(GeneralR2Constants_R2_flags1);
+	REGISTER_ENUM(GeneralR2Constants_R2_flags2);
+	REGISTER_ENUM(WindowConstantsFlags_R2);
+	REGISTER_ENUM(BarkConstantsFlags0_R2);
+	REGISTER_ENUM(BarkConstantsFlags1_R2);
+	REGISTER_ENUM(FoliageConstantsFlags_R2);
 	EnumBuilded = 0xff;
 }

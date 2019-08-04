@@ -126,6 +126,9 @@
     <ClInclude Include="include\property_classes\RbnMaterial.h">
       <Filter>Header Files\property_classes</Filter>
     </ClInclude>
+    <ClInclude Include="include\property_classes\AmfR2Material.h">
+      <Filter>Header Files\property_classes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\lookup3.c">
