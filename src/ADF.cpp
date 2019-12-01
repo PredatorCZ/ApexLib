@@ -222,7 +222,7 @@ int ADF::Load(BinReader *rd, bool supressErrors)
 			{
 				printerror("[ADF] Could load descriptor: ",
 					<< i.name->string.c_str() << " type: "
-					<< (i.type < _EnumWrap<ADFDescriptorType>::_reflectedSize ? _EnumWrap<ADFDescriptorType>{}._reflected[i.type] : "Undefined"));
+					<< (static_cast<int>(i.type) < _EnumWrap<ADFDescriptorType>::_reflectedSize ? _EnumWrap<ADFDescriptorType>{}._reflected[static_cast<int>(i.type)] : "Undefined"));
 				break;
 			}
 		}
@@ -534,8 +534,10 @@ void ADF::Descriptor::XMLDump(pugi::xml_node *master) const
 
 	_EnumWrap<ADFDescriptorType> ewrap;
 
-	if (type < ewrap._reflectedSize)
-		_typeName = ewrap._reflected[type];
+  int iType = static_cast<int>(type);
+
+	if (iType < ewrap._reflectedSize)
+    _typeName = ewrap._reflected[iType];
 
 	pugi::xml_node node = master->append_child(_typeName);
 	node.append_attribute("type").set_value(nameHash);

@@ -22,12 +22,18 @@
 #include "datas/masterprinter.hpp"
 #include "ADF.h"
 
-REFLECTOR_START_WNAMES(RBMCarPaintSimpleConstants, twoToneColor1, twoToneColor2, specularPower, depthBias, reflectionMultiplier, flags);
-REFLECTOR_START_WNAMES(RBMVegetationFoliageConstants, specularIntensity, specularPower, translucencyColorMask);
-REFLECTOR_START_WNAMES(RBMGeneralConstants, channelMask, channelAoMask, depthBias, specularPower, flags);
-REFLECTOR_START_WNAMES(RBMFacadeConstants, channelMask, channelDirtMask, emissiveMultiplier, depthBias, specularPower, flags);
-REFLECTOR_START_WNAMES(RBMWindowConstants, specularPower);
-REFLECTOR_START_WNAMES(RBMSkinnedGeneralConstants, flags, technique, specularPower, rimIntensity, rimPower, rimWeights);
+REFLECTOR_CREATE(RBMCarPaintSimpleConstants, 1, VARNAMES, twoToneColor1,
+                 twoToneColor2, specularPower, depthBias, reflectionMultiplier,
+                 flags);
+REFLECTOR_CREATE(RBMVegetationFoliageConstants, 1, VARNAMES, specularIntensity,
+                 specularPower, translucencyColorMask);
+REFLECTOR_CREATE(RBMGeneralConstants, 1, VARNAMES, channelMask, channelAoMask,
+                 depthBias, specularPower, flags);
+REFLECTOR_CREATE(RBMFacadeConstants, 1, VARNAMES, channelMask, channelDirtMask,
+                 emissiveMultiplier, depthBias, specularPower, flags);
+REFLECTOR_CREATE(RBMWindowConstants, 1, VARNAMES, specularPower);
+REFLECTOR_CREATE(RBMSkinnedGeneralConstants, 1, VARNAMES, flags, technique,
+                 specularPower, rimIntensity, rimPower, rimWeights);
 
 void RBMCarPaintSimple::ReadRBM(BinReader *rd, char *&curBuffer, RBMMesh &mesh)
 {

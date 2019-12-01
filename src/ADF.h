@@ -25,7 +25,7 @@ namespace pugi
 	class xml_node;
 };
 
-REFLECTOR_ENUM(ADFDescriptorType,
+REFLECTOR_CREATE(ADFDescriptorType, ENUM, 1, CLASS,
 	Primitive,
 	Structure,
 	Pointer,

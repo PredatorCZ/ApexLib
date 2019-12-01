@@ -15,7 +15,7 @@
 	along with this program.If not, see <https://www.gnu.org/licenses/>.
 */
 
-REFLECTOR_ENUM(RBMCarPaintSimpleFlags,
+REFLECTOR_CREATE(RBMCarPaintSimpleFlags, ENUM, 1, CLASS, 
 	NoCulling,
 	Alpha,
 	TwoTone,
@@ -71,7 +71,7 @@ struct RBMLambertConstants
 	uint endunk;
 };
 
-REFLECTOR_ENUM(RBMGeneralFlags,
+REFLECTOR_CREATE(RBMGeneralFlags, ENUM, 1, CLASS, 
 	NoCulling,
 	Alpha,
 	AdditiveAlpha,
@@ -100,7 +100,7 @@ struct RBMGeneralConstants
 	uint endunk;
 };
 
-REFLECTOR_ENUM(RBMFacadeFlags,
+REFLECTOR_CREATE(RBMFacadeFlags, ENUM, 1, CLASS, 
 	NoCulling,
 	Alpha,
 	_null00,
@@ -139,7 +139,7 @@ struct RBMCarPaintConstants : RBMCarPaintSimpleConstants
 	RBMREFLECTOR_FROM_PARENT(RBMCarPaintSimpleConstants);
 };
 
-REFLECTOR_ENUM(RBMSkinnedGeneralTechnique,
+REFLECTOR_CREATE(RBMSkinnedGeneralTechnique, ENUM, 2, CLASS, 16,
 	Skin,
 	Hair,
 	Cloth,
@@ -147,7 +147,7 @@ REFLECTOR_ENUM(RBMSkinnedGeneralTechnique,
 	EyeGloss,
 	SkinAlphaToCoverage);
 
-REFLECTOR_ENUM(RBMSkinnedGeneralFlags,
+REFLECTOR_CREATE(RBMSkinnedGeneralFlags, ENUM, 1, CLASS, 
 	NoCulling,
 	AlphaTest,
 	NoShadowCasting,
@@ -158,7 +158,7 @@ struct RBMSkinnedGeneralConstants
 	DECLARE_REFLECTOR;
 	DEFINE_PROPERTY(RBMSkinnedGeneralConstants);
 
-	esEnum<ushort, RBMSkinnedGeneralTechnique> technique;
+	RBMSkinnedGeneralTechnique technique;
 	esFlags<ushort, RBMSkinnedGeneralFlags> flags;
 	float specularPower;
 	float rimIntensity;

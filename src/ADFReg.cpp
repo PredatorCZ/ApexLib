@@ -227,8 +227,6 @@ static const std::map<ApexHash, ADFInstance *(*)(void *, ADF *)> ADFClassStorage
 	)
 };
 
-static int EnumBuilded = 0;
-
 bool ADF::InstanceContructoreExits(ApexHash classHash)
 {
 	return ADFClassStorage.count(classHash) != 0;
@@ -239,36 +237,18 @@ ADFInstance *ADF::ConstructInstance(ApexHash classHash, void *data)
 	return ADFClassStorage.count(classHash) ? ADFClassStorage.at(classHash)(data, this) : nullptr;
 }
 
-ADF::ADF()
-{
-	if (EnumBuilded)
-		return;
+REGISTER_ENUMS(GeneralMeshConstantsFlags, CarPaintMeshConstantsFlags,
+               GeneralConstantsFlags, WindowConstantsFlags,
+               CarPaintConstantsFlags0, CarPaintConstantsFlags1,
+               CarPaintConstantsFlags2, CharacterSkinConstantsFlags,
+               CharacterConstantsFlags, EyeGlossConstantsFlags,
+               HairConstantsFlags, BarkConstantsFlags, FoliageConstantsFlags,
+               CharacterConstantsFlags_GZ, HairConstantsFlags_GZ,
+               CharacterSkinConstantsFlags_GZ, WindowConstantsFlags_GZ,
+               BarkConstantsFlags_GZ, CharacterSkinConstantsFlags_R2,
+               GeneralR2Constants_R2_flags0, GeneralR2Constants_R2_flags1,
+               GeneralR2Constants_R2_flags2, WindowConstantsFlags_R2,
+               BarkConstantsFlags0_R2, BarkConstantsFlags1_R2,
+               FoliageConstantsFlags_R2)
 
-	REGISTER_ENUM(GeneralMeshConstantsFlags);
-	REGISTER_ENUM(CarPaintMeshConstantsFlags);
-	REGISTER_ENUM(GeneralConstantsFlags);
-	REGISTER_ENUM(WindowConstantsFlags);
-	REGISTER_ENUM(CarPaintConstantsFlags0);
-	REGISTER_ENUM(CarPaintConstantsFlags1);
-	REGISTER_ENUM(CarPaintConstantsFlags2);
-	REGISTER_ENUM(CharacterSkinConstantsFlags);
-	REGISTER_ENUM(CharacterConstantsFlags);
-	REGISTER_ENUM(EyeGlossConstantsFlags);
-	REGISTER_ENUM(HairConstantsFlags);
-	REGISTER_ENUM(BarkConstantsFlags);
-	REGISTER_ENUM(FoliageConstantsFlags);
-	REGISTER_ENUM(CharacterConstantsFlags_GZ);
-	REGISTER_ENUM(HairConstantsFlags_GZ);
-	REGISTER_ENUM(CharacterSkinConstantsFlags_GZ);
-	REGISTER_ENUM(WindowConstantsFlags_GZ);
-	REGISTER_ENUM(BarkConstantsFlags_GZ);
-	REGISTER_ENUM(CharacterSkinConstantsFlags_R2);
-	REGISTER_ENUM(GeneralR2Constants_R2_flags0);
-	REGISTER_ENUM(GeneralR2Constants_R2_flags1);
-	REGISTER_ENUM(GeneralR2Constants_R2_flags2);
-	REGISTER_ENUM(WindowConstantsFlags_R2);
-	REGISTER_ENUM(BarkConstantsFlags0_R2);
-	REGISTER_ENUM(BarkConstantsFlags1_R2);
-	REGISTER_ENUM(FoliageConstantsFlags_R2);
-	EnumBuilded = 0xff;
-}
+ADF::ADF() { RegisterLocalEnums(); }

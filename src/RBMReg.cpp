@@ -125,8 +125,6 @@ static const std::map<uint64, RBMMesh *(*)()> RBMMeshClassStorage =
 	)
 };
 
-static int RegisteredEnums = 0;
-
 RBMMaterial *RBMMaterial::ConstructClass(uint64 classHash)
 {
 	return RBMClassStorage.count(classHash) ? RBMClassStorage.at(classHash)() : nullptr;
@@ -137,15 +135,7 @@ RBMMesh *RBMMesh::ConstructClass(uint64 classHash)
 	return RBMMeshClassStorage.count(classHash) ? RBMMeshClassStorage.at(classHash)() : nullptr;
 }
 
-RBMMaterial::RBMMaterial() : properties()
-{
-	if (RegisteredEnums)
-		return;
+REGISTER_ENUMS(RBMCarPaintSimpleFlags, RBMGeneralFlags, RBMFacadeFlags,
+               RBMSkinnedGeneralFlags, RBMSkinnedGeneralTechnique);
 
-	REGISTER_ENUM(RBMCarPaintSimpleFlags);
-	REGISTER_ENUM(RBMGeneralFlags);
-	REGISTER_ENUM(RBMFacadeFlags);
-	REGISTER_ENUM(RBMSkinnedGeneralFlags);
-	REGISTER_ENUM(RBMSkinnedGeneralTechnique);
-	RegisteredEnums = 0xff;
-}
+RBMMaterial::RBMMaterial() : properties() { RegisterLocalEnums(); }

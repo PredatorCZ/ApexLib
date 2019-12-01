@@ -21,9 +21,10 @@
 #include "datas/masterprinter.hpp"
 #include "datas/esstring.h"
 
-REFLECTOR_START_WNAMES(GeneralMeshConstants, pristineIndexCount, flags);
-REFLECTOR_START_WNAMES(FoliageMeshConstants, boundingBoxDimensions.Min, boundingBoxDimensions.Max);
-REFLECTOR_START_WNAMES(CarPaintMeshConstants, flags);
+REFLECTOR_CREATE(GeneralMeshConstants, 1, VARNAMES, pristineIndexCount, flags);
+REFLECTOR_CREATE(FoliageMeshConstants, 1, VARNAMES, boundingBoxDimensions.Min,
+                 boundingBoxDimensions.Max);
+REFLECTOR_CREATE(CarPaintMeshConstants, 1, VARNAMES, flags);
 
 class AmfMesh_V1_wrap : public AmfMesh
 {
