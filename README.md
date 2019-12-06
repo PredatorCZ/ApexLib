@@ -12,16 +12,16 @@ Library is compilable under VS 2015 and later, and GCC 6 and later
 NOTE: RBM, RBN, RBS files are roughly converted into ADF format.
 
 ## Supported titles/formats
-*  The Hunter: RBM
-*  The Hunter - Primal: RBM
-*  The Hunter - Call of Wild: ADF (modelc, meshc)
-*  Just Cause 2: RBM
-*  Just Cause 3: RBM, ADF (vmodc \[StuntAreas, DeformPoints\])
-*  Just Cause 4: ADF (vmodc \[StuntAreas, DeformPoints\], modelc, meshc)
-*  Mad Max: RBN, RBS
-*  Generation Zero: ADF (modelc, meshc)
-*  RAGE 2 ADF (modelc, meshc)
-*  All: AVTX (ddsc)
+  * The Hunter: RBM
+  * The Hunter - Primal: RBM
+  * The Hunter - Call of Wild: ADF (modelc, meshc)
+  * Just Cause 2: RBM
+  * Just Cause 3: RBM, ADF (vmodc \[StuntAreas, DeformPoints\])
+  * Just Cause 4: ADF (vmodc \[StuntAreas, DeformPoints\], modelc, meshc)
+  * Mad Max: RBN, RBS
+  * Generation Zero: ADF (modelc, meshc)
+  * RAGE 2 ADF (modelc, meshc)
+  * All: AVTX (ddsc)
 
 Currently library supports only PC platform specific files.
 
@@ -30,6 +30,6 @@ This library is available under GPL v3 license. (See LICENSE.md)
 
 This library uses following libraries:
 
-*  PugiXml, Copyright (c) 2006-2019 Arseny Kapoulkine
-*  PreCore, Copyright (c) 2016-2019 Lukas Cone
-*  ZStandard, Copyright (c) 2016-present, Facebook, Inc. All rights reserved.
+  * PugiXml, Copyright (c) 2006-2019 Arseny Kapoulkine
+  * PreCore, Copyright (c) 2016-2019 Lukas Cone
+  * ZStandard, Copyright (c) 2016-present, Facebook, Inc. All rights reserved.
