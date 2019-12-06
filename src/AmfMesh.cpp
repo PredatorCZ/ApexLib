@@ -94,7 +94,7 @@ public:
 };
 
 AmfMeshHeader_V1_wrap::AmfMeshHeader_V1_wrap(void *_data, ADF *_main)
-: data(static_cast<AmfMeshHeader_V1*>(_data)), main(_main) {}
+: data(static_cast<AmfMeshHeader_V1*>(_data)), main(_main), buffers() {}
 
 int AmfMeshHeader_V1_wrap::GetNumLODs() const { return data->lodGroups.count; }
 int AmfMeshHeader_V1_wrap::GetLodIndex(int id) const { return data->lodGroups.items[id].index; }
@@ -237,7 +237,7 @@ public:
 };
 
 AmfMeshHeader_V2_wrap::AmfMeshHeader_V2_wrap(void *_data, ADF *_main)
-	: data(static_cast<AmfMeshHeader_V2 *>(_data)), main(_main) {}
+	: data(static_cast<AmfMeshHeader_V2 *>(_data)), main(_main), buffers() {}
 
 int AmfMeshHeader_V2_wrap::GetNumLODs() const { return data->lodGroups.count; }
 int AmfMeshHeader_V2_wrap::GetLodIndex(int id) const { return data->lodGroups.items[id].index; }

@@ -214,9 +214,7 @@ void RBMWaterHull::ReadRBM(BinReader *rd, char *&curBuffer, RBMMesh &mesh)
 	int currentBufferOffset = 0;
 	int currentDesc = 0;
 
-	{
-		RBM_NEW_DESCRIPTOR(AmfUsage_Position, AmfFormat_R32G32B32_FLOAT);
-	}
+	RBM_NEW_DESCRIPTOR(AmfUsage_Position, AmfFormat_R32G32B32_FLOAT);
 }
 
 void RBMBavariumShiled::ReadRBM(BinReader *rd, char *&curBuffer, RBMMesh &mesh)
@@ -665,9 +663,6 @@ void RBMCarPaint14::ReadRBM(BinReader *rd, char *&curBuffer, RBMMesh &mesh)
 
 	int currentBufferOffset = 0;
 	int currentDesc = 0;
-
-	const uint currentStrideSecondary = deformable ? 32 : 24;
-	const uint uv3Stride = 8;
 
 	{
 		RBM_NEW_DESCRIPTOR(AmfUsage_Position, AmfFormat_R32G32B32_FLOAT);
