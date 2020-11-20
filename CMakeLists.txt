@@ -1,68 +1,33 @@
 cmake_minimum_required(VERSION 3.3)
 
+if(CMAKE_SIZEOF_VOID_P EQUAL 4)
+  message(FATAL_ERROR "X86 architecture is not supported!")
+endif()
+
 project(ApexLib)
 
-if(NOT TARGETEX_LOCATION)
-	set(TARGETEX_LOCATION 3rd_party/PreCore/cmake)
-	include(${TARGETEX_LOCATION}/targetex.cmake)
-	include(${TARGETEX_LOCATION}/chartype.cmake)
+# ~~~
+# Valid targets:
+#  - ApexLibStatic: if BUILD_STATIC then it's target for static library,
+#                    otherwise this target will contain objects for static libraries or non-PIE executables
+#  - ApexLib: objects for shared libraries or PIE executables
+#
+# NOTE: ApexLibStatic and ApexLib are same for WIN
+# ~~~
+
+option(USE_PIC "HavokLib target will use PIC." OFF)
+option(BUILD_STATIC "Builds HavokLibStatic as a static library." OFF)
+
+set(CMAKE_CXX_STANDARD 14)
+add_subdirectory(3rd_party/PreCore)
+
+include(${PRECORE_SOURCE_DIR}/cmake/targetex.cmake)
+include(${PRECORE_SOURCE_DIR}/cmake/chartype.cmake)
+
+set(STATIC_TYPE OBJECT)
+
+if(BUILD_STATIC)
+  set(STATIC_TYPE STATIC)
 endif()
 
-set(CMAKE_CXX_STANDARD 11)
-
-build_target(
-	TYPE STATIC
-	SOURCES
-		3rd_party/PreCore/datas/MasterPrinter.cpp
-		3rd_party/PreCore/datas/reflector.cpp
-		3rd_party/pugixml/src/pugixml.cpp
-		3rd_party/zstd/lib/common/debug.c
-		3rd_party/zstd/lib/common/entropy_common.c
-		3rd_party/zstd/lib/common/error_private.c
-		3rd_party/zstd/lib/common/fse_decompress.c
-		3rd_party/zstd/lib/common/pool.c
-		3rd_party/zstd/lib/common/threading.c
-		3rd_party/zstd/lib/common/xxhash.c
-		3rd_party/zstd/lib/common/zstd_common.c
-		3rd_party/zstd/lib/compress/fse_compress.c
-		3rd_party/zstd/lib/compress/hist.c
-		3rd_party/zstd/lib/compress/huf_compress.c
-		3rd_party/zstd/lib/compress/zstdmt_compress.c
-		3rd_party/zstd/lib/compress/zstd_compress.c
-		3rd_party/zstd/lib/compress/zstd_double_fast.c
-		3rd_party/zstd/lib/compress/zstd_fast.c
-		3rd_party/zstd/lib/compress/zstd_lazy.c
-		3rd_party/zstd/lib/compress/zstd_ldm.c
-		3rd_party/zstd/lib/compress/zstd_opt.c
-		3rd_party/zstd/lib/decompress/huf_decompress.c
-		3rd_party/zstd/lib/decompress/zstd_ddict.c
-		3rd_party/zstd/lib/decompress/zstd_decompress.c
-		3rd_party/zstd/lib/decompress/zstd_decompress_block.c
-		src/ADF.cpp
-		src/ADFReg.cpp
-		src/AmfMesh.cpp
-		src/AmfModel.cpp
-		src/AVTX.cpp
-		src/DeformPoints.cpp
-		src/lookup3.c
-		src/RBM.cpp
-		src/RBMClassesJC2.cpp
-		src/RBMClassesJC3.cpp
-		src/RBMReg.cpp
-		src/RBNClasses.cpp
-		src/StreamPatch.cpp
-		src/StuntAreas.cpp
-	INCLUDES
-		src
-		include
-		3rd_party/PreCore
-		3rd_party/pugixml/src
-		3rd_party/zstd/lib
-		3rd_party/zstd/lib/common
-	NO_PROJECT_H
-	NO_VERINFO
-)
-
-if (CMAKE_COMPILER_IS_GNUCXX)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-invalid-offsetof")
-endif()
+add_subdirectory(src)
