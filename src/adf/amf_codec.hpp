@@ -17,13 +17,12 @@
 
 #pragma once
 #include "uni/model.hpp"
-
-struct AmfStreamAttribute;
+#include "amf_stream_attribute.hpp"
 
 class AmfCodec : public uni::PrimitiveDescriptor {
 public:
   const char *vertexBuffer;
-  AmfStreamAttribute *attr;
+  AmfStreamAttribute attr;
 
   const char *RawBuffer() const override;
   size_t Offset() const override;
@@ -34,4 +33,12 @@ public:
   UnpackDataType_e UnpackDataType() const override;
   Usage_e Usage() const override;
   uni::FormatCodec &Codec() const override;
+};
+
+class AmfCodecs : public uni::List<uni::PrimitiveDescriptor> {
+public:
+  size_t Size() const override { return storage.size(); }
+  const_type At(size_t id) const override { return {&storage.at(id), false}; }
+
+  std::vector<AmfCodec> storage;
 };

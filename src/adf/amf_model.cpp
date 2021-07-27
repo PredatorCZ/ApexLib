@@ -16,7 +16,7 @@
 */
 
 #include "amf_model.hpp"
-#include "../adf.hpp"
+#include "adf.hpp"
 #include "amf_model_v1.hpp"
 
 class AmfMaterial_V1_wrap : public AmfMaterial {

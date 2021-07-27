@@ -21,6 +21,7 @@
 #include "uni/model.hpp"
 
 class Reflector;
+using refptr = std::unique_ptr<const Reflector>;
 
 enum AmfMeshRemapType {
   REMAP_TYPE_CHAR,
@@ -40,7 +41,7 @@ public:
   virtual size_t GetNumRemaps() const = 0;
   virtual size_t GetRemap(size_t id) const = 0;
   virtual const void *GetRemaps() const = 0;
-  // virtual JenHash3 GetPropertyHash() const = 0;
+  virtual refptr GetReflectedAttributes() const = 0;
 
   template <class C> C *GetRemapsAs() const {
     return reinterpret_cast<C *>(GetRemaps());
@@ -64,7 +65,6 @@ enum AmfMaterialType { MaterialType_Traditional, MaterialType_PBR };
 class AmfMaterial {
 public:
   using Ptr = uni::Element<AmfMaterial>;
-  using refptr = std::unique_ptr<const Reflector>;
 
   virtual AmfMaterialType MaterialType() const = 0;
   virtual void MaterialType(AmfMaterialType ntype) = 0;
@@ -77,12 +77,11 @@ public:
   virtual JenHash3 GetAttributesHash() const = 0;
   virtual size_t GetNumTextures() const = 0;
   virtual const std::string &GetTexture(size_t id) const = 0;
+  virtual ~AmfMaterial() = default;
 
   template <class C> C *GetAttributes() const {
     return static_cast<C *>(GetRawAttributes());
   }
-
-  virtual ~AmfMaterial() = default;
 };
 
 class AmfModel : public ADFInstance {

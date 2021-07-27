@@ -41,6 +41,7 @@ struct StringHash {
   JenHash3 hash;
   size_t index;
 
+  StringHash() = default;
   explicit StringHash(JenHash3 ihsh, size_t index_ = 0)
       : hash(ihsh), index(index_) {}
   StringHash(const std::string &istr, size_t index_ = 0)

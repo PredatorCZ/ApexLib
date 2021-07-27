@@ -15,7 +15,7 @@
     along with this program.If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "../adf.hpp"
+#include "adf.hpp"
 #include "datas/pugiex.hpp"
 
 const std::map<JenHash3, es::string_view> types = {

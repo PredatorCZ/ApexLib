@@ -15,7 +15,6 @@
     along with this program.If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "amf_stream_attribute.hpp"
 #include "amf_codec.hpp"
 #include "uni/internal/format_full.hpp"
 #include <cstring>
@@ -191,7 +190,7 @@ public:
   }
 };
 
-// This class holds vtable for each _FormatCodecImpl_t.
+// This class holds vtable for each custom codec.
 // Huge gamble, but there is no better way. (for C++14)
 // TODO: maybe use std::any for C++17
 class variant {
@@ -210,10 +209,6 @@ public:
     return reinterpret_cast<uni::FormatCodec &>(vtdata);
   }
 };
-
-template <class C> variant _makeCodec() { return variant(C{}); }
-
-template <class C> uni::FormatCodec *_makeCodec() { return new C; }
 
 static const std::map<AmfFormat, variant> additionalRegistry{
     {AmfFormat_R8G8B8A8_TANGENT_SPACE, variant(PolarTBN{})},
@@ -239,20 +234,18 @@ static const std::map<AmfUsage, pu> usageRemaps{
 };
 
 const char *AmfCodec::RawBuffer() const { return vertexBuffer; }
-size_t AmfCodec::Offset() const { return attr->streamOffset; }
-size_t AmfCodec::Stride() const { return attr->streamStride; }
-size_t AmfCodec::Index() const { return attr->streamIndex; }
-uni::FormatDescr AmfCodec::Type() const {
-  return formatRemaps.at(attr->format);
-}
+size_t AmfCodec::Offset() const { return attr.streamOffset; }
+size_t AmfCodec::Stride() const { return attr.streamStride; }
+size_t AmfCodec::Index() const { return attr.streamIndex; }
+uni::FormatDescr AmfCodec::Type() const { return formatRemaps.at(attr.format); }
 uni::BBOX AmfCodec::UnpackData() const {
   uni::BBOX retVal;
   Vector2 pData;
-  memcpy(&pData, attr->packingData, sizeof(pData));
+  memcpy(&pData, attr.packingData, sizeof(pData));
 
-  if (attr->usage == AmfUsage_Position) {
+  if (attr.usage == AmfUsage_Position) {
     retVal.min = Vector4A16{pData.X};
-  } else if (attr->usage == AmfUsage_TextureCoordinate) {
+  } else if (attr.usage == AmfUsage_TextureCoordinate) {
     retVal.min = Vector4A16{pData.X, pData.Y, 0, 0};
   } else if (!pData.X || !pData.Y) {
     // WARN
@@ -263,7 +256,7 @@ uni::BBOX AmfCodec::UnpackData() const {
 
 AmfCodec::UnpackDataType_e AmfCodec::UnpackDataType() const {
   int64 pData;
-  memcpy(&pData, attr->packingData, sizeof(pData));
+  memcpy(&pData, attr.packingData, sizeof(pData));
   auto cType = Type();
 
   if ((cType.outType == ut::NORM || cType.outType == ut::UNORM) && pData) {
@@ -274,7 +267,7 @@ AmfCodec::UnpackDataType_e AmfCodec::UnpackDataType() const {
 }
 
 AmfCodec::Usage_e AmfCodec::Usage() const {
-  auto found = usageRemaps.find(attr->usage);
+  auto found = usageRemaps.find(attr.usage);
 
   if (es::IsEnd(usageRemaps, found)) {
     return pu::Undefined;
@@ -284,7 +277,7 @@ AmfCodec::Usage_e AmfCodec::Usage() const {
 }
 
 uni::FormatCodec &AmfCodec::Codec() const {
-  auto foundExtra = additionalRegistry.find(attr->format);
+  auto foundExtra = additionalRegistry.find(attr.format);
 
   if (!es::IsEnd(additionalRegistry, foundExtra)) {
     return uni::FormatCodec::Get(Type());

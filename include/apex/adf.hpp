@@ -51,18 +51,6 @@ public:
   template <class C> C *FindInstance(size_t numSkips = 0) {
     return static_cast<C *>(FindInstance(C::GetHash(), numSkips));
   }
-  template <class C> C *AddUniqueInstance();
 
   static ptr Create(const std::string &fileName);
 };
-
-template <class C> C *ADF::AddUniqueInstance() {
-  C *foundInstance = FindInstance<C>();
-
-  if (!foundInstance) {
-    foundInstance = new C();
-    AddInstance(foundInstance, C::HASH);
-  }
-
-  return foundInstance;
-}

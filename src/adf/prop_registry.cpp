@@ -15,7 +15,7 @@
     along with this program.If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "../adf.hpp"
+#include "adf.hpp"
 #include "amf_stream_attribute.hpp"
 #include "apex/adf_deferred.hpp"
 #include "apex/props/amf_mesh.hpp"
